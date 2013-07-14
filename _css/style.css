@@ -53,12 +53,18 @@ input[readonly=readonly] {
 clear:both;
 }
 
-input[type="text"],textarea
+input[type="text"]
 {
-border:1px solid #666;
-width:350px;
-margin:0 0 15px;
-padding:3px;
+	border:1px solid #666;
+	margin:0 0 15px;
+	padding:3px;
+}
+textarea
+{
+	border:1px solid #666;
+	width:350px;
+	margin:0 0 15px;
+	padding:3px;
 }
 
 input.header
