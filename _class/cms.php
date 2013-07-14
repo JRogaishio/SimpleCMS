@@ -24,7 +24,7 @@ class cms {
 	/* This function is called whenever the class is first initialized.
 	 * This takes care of page routing
 	*/
-	public function load($mode) {
+	public function load ($mode) {
 		//Let the CMS know if we are running user or admin rules
 		$this->_MODE = $mode;
 		
@@ -39,7 +39,7 @@ class cms {
 		$_PASSWORD = (isset($_COOKIE['password']) ? $_COOKIE['password'] : null);
 		
 		if($mode == "admin")
-			$this->_AUTH = $this->auth_user($_USERNAME, $_PASSWORD);
+			$this->_AUTH = $this->cms_authUser($_USERNAME, $_PASSWORD);
 		
 		//user gets
 		$this->_USERPAGE = isset( $_GET['p'] ) ? $_GET['p'] : "home";
@@ -50,19 +50,19 @@ class cms {
 			//Build the manager
 			switch($this->_TYPE) {
 				case "page":
-					echo $this->display_pageManager();
+					echo $this->cms_displayPageManager();
 					break;
 				case "template":
-					echo $this->display_templateManager();
+					echo $this->cms_displayTemplateManager();
 					break;
 				case "post":
-					echo $this->display_postManager();
+					echo $this->cms_displayPostManager();
 					break;
 				case "user":
-					echo $this->display_userManager();
+					echo $this->cms_displayUserManager();
 					break;
 				default:
-					$this->display_main();
+					$this->cms_displayMain();
 					break;
 			}
 		} else if($mode == "user"){
@@ -74,7 +74,7 @@ class cms {
 	
 	/* User to determine if we should show the user create page
 	*/
-	private function get_numUsers() {
+	private function cms_getNumUsers() {
 		$userSQL = "SELECT * FROM users;";
 		$userResult = mysql_query($userSQL);
 
@@ -82,9 +82,9 @@ class cms {
 		return $numUser;
 	}
 	
-	private function auth_user($username, $pass) {
+	private function cms_authUser($username, $pass) {
 		
-		if((($username!=null && $pass != null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->get_numUsers() > 0) {
+		if((($username!=null && $pass != null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->cms_getNumUsers() > 0) {
 			if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
 				//Hash the password, apply salt, rehash
 				$secPass = hash('sha256',($_POST['login_password']));
@@ -121,38 +121,38 @@ class cms {
 				return true;
 				
 			} else {
-				$this->display_loginManager();
+				$this->cms_displayLoginManager();
 				if (isset($_POST) && !empty($_POST)) echo "Bad username or password!<br /><br />";
 				return false;
 			}
 			
 			 
-		} else if($this->get_numUsers() == 0) {
+		} else if($this->cms_getNumUsers() == 0) {
 			echo "<p><strong>Hello</strong> there! I see that you have no users setup.<br />
 					Use the below form to create a user account to get started!<br />
 					Once you have created your user, you will be sent to the login form. Use your new account to access all the awesomeness!</p><br />";
 			
 			//Display the user management form
-			echo $this->display_userManager();
+			echo $this->cms_displayUserManager();
 			return false;
 		} else {
 			
-			$this->display_loginManager();
+			$this->cms_displayLoginManager();
 			return false;
 		}
 	}
 	
-	public function display_loginManager() {
+	public function cms_displayLoginManager() {
 		echo "<div id='main_content'>";
 		echo '
 			<form action="admin.php" method="post">
 
 			<label for="login_username">Username:</label><br />
-			<input name="login_username" id="login_username" type="text" maxlength="150" />
+			<input name="login_username" id="login_username" type="text" maxlength="50" size="15"/>
 			<div class="clear"></div>
 
 			<label for="login_password">Password:</label><br />
-			<input name="login_password" id="login_password" type="password" maxlength="150" />
+			<input name="login_password" id="login_password" type="password" maxlength="50" size="15" />
 			<div class="clear"></div>
 			<br />
 
@@ -169,7 +169,7 @@ class cms {
 	
 		/* Display the User management
 	*/
-	public function display_userManager() {
+	public function cms_displayUserManager() {
 		
 		//The context is the user ID. We want to update rather than insert if we are editing
 		$userId = (isset($_GET['p']) && !empty($_GET['p'])) ? $_GET['p'] : "new";
@@ -177,7 +177,7 @@ class cms {
 		$user = new User;
 		
 		//Allow access to the user editor if you are authenticated or there are no users
-		if($this->_AUTH || $this->get_numUsers() == 0) {
+		if($this->_AUTH || $this->cms_getNumUsers() == 0) {
 			switch($this->_ACTION) {
 				case "update":
 					//Determine if the form has been submitted
@@ -194,9 +194,9 @@ class cms {
 							//genereate the below until they truely login
 							if($this->_AUTH) {
 								//Re-build the main User after creation
-								$this->display_main();
+								$this->cms_displayMain();
 							} else {
-								$this->display_loginManager();
+								$this->cms_displayLoginManager();
 							}
 						} else {
 							$user->update($userId);
@@ -210,10 +210,10 @@ class cms {
 					break;
 				case "delete":
 					$user->delete($userId);
-					$this->display_main();
+					$this->cms_displayMain();
 					break;
 				default:
-					if($this->get_numUsers() == 0) {
+					if($this->cms_getNumUsers() == 0) {
 						$user->buildEditForm("new");
 					} else {
 						echo "Error with user manager<br /><br />";
@@ -227,7 +227,7 @@ class cms {
 	
 	/* Display the list of all pages
 	*/
-	public function load_adminPages() {
+	public function cms_displayAdminPages() {
 		$pageSQL = "SELECT * FROM pages ORDER BY page_created DESC";
 		$pageResult = mysql_query($pageSQL);
 	
@@ -259,7 +259,7 @@ class cms {
 	
 	/* Display the list of all templates
 	*/
-	public function load_adminTemplates() {
+	public function cms_displayAdminTemplates() {
 		$templateSQL = "SELECT * FROM templates ORDER BY template_created DESC";
 		$templateResult = mysql_query($templateSQL);
 	
@@ -290,7 +290,7 @@ class cms {
 	
 	/* Display the list of all users
 	*/
-	public function load_adminUsers() {
+	public function cms_displayAdminUsers() {
 		$userSQL = "SELECT * FROM users ORDER BY user_created DESC";
 		$userResult = mysql_query($userSQL);
 	
@@ -323,7 +323,7 @@ class cms {
 	/* Display the admin homepage.
 	 * Currently this is a list of all pages.
 	*/
-	public function display_main() {
+	public function cms_displayMain() {
 		
 		echo ($this->_AUTH ? "Welcome <strong>" . $this->_USER->loginname . "</strong><br /><br />" : "");
 		
@@ -331,16 +331,16 @@ class cms {
 		echo "<div id='main_content'>";
 		
 		echo "<h2>Pages</h2><br /><br />";
-		$this->load_adminPages();
+		$this->cms_displayAdminPages();
 		
 		
 		echo "<br /><br /><hr /><br /><br />
 			<h2>Templates</h2><br />";
-		$this->load_adminTemplates();
+		$this->cms_displayAdminTemplates();
 		
 		echo "<br /><br /><hr /><br /><br />
 			<h2>Users</h2><br />";
-		$this->load_adminUsers();
+		$this->cms_displayAdminUsers();
 		
 		
 		echo "<br /><br /></div>";
@@ -363,7 +363,7 @@ class cms {
 
 	/* Display the page management page
 	*/
-	public function display_pageManager() {
+	public function cms_displayPageManager() {
 		
 		//The context is the page ID. We want to update rather than insert if we are editing
 		$pageId = (isset($_GET['p']) && !empty($_GET['p'])) ? $_GET['p'] : "new";
@@ -379,7 +379,7 @@ class cms {
 					if($pageId=="new") {
 						$page->insert();
 						//Re-build the main page after creation
-						$this->display_main();
+						$this->cms_displayMain();
 					} else {
 						$page->update($pageId);
 						//Re-build the page creation form once we are done
@@ -394,11 +394,11 @@ class cms {
 			case "delete":
 				$page = new Page;
 				$page->delete($pageId);
-				$this->display_main();
+				$this->cms_displayMain();
 				break;
 			default:
 				echo "Error with page manager<br /><br />";
-				$this->display_main();
+				$this->cms_displayMain();
 		}
 		
 		
@@ -408,7 +408,7 @@ class cms {
 	
 	/* Display the template management page
 	*/
-	public function display_templateManager() {
+	public function cms_displayTemplateManager() {
 		
 		//The context is the page ID. We want to update rather than insert if we are editing
 		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? $_GET['p'] : "new";
@@ -424,7 +424,7 @@ class cms {
 					if($templateId=="new") {
 						$template->insert();
 						//Re-build the main page after creation
-						$this->display_main();
+						$this->cms_displayMain();
 					} else {
 						$template->update($templateId);
 						//Re-build the page creation form once we are done
@@ -439,11 +439,11 @@ class cms {
 			case "delete":
 				$template = new Template;
 				$template->delete($templateId);
-				$this->display_main();
+				$this->cms_displayMain();
 				break;
 			default:
 				echo "Error with template manager<br /><br />";
-				$this->display_main();
+				$this->cms_displayMain();
 		}
 		
 		
@@ -470,7 +470,7 @@ class cms {
 					if($templateId=="new") {
 						$template->insert();
 						//Re-build the main page after creation
-						$this->display_main();
+						$this->cms_displayMain();
 					} else {
 						$template->update($templateId);
 						//Re-build the page creation form once we are done
@@ -485,18 +485,18 @@ class cms {
 			case "delete":
 				$template = new Template;
 				$template->delete($templateId);
-				$this->display_main();
+				$this->cms_displayMain();
 				break;
 			default:
 				echo "Error with template manager<br /><br />";
-				$this->display_main();
+				$this->cms_displayMain();
 		}
 	}
 	
 	
 	/* Display the post management page
 	*/
-	public function display_postManager() {
+	public function cms_displayPostManager() {
 		//The context is the page ID. We want to update rather than insert if we are editing
 		$pageId = isset($_GET['p']) ? $_GET['p'] : "new";
 		$postId = isset($_GET['c']) ? $_GET['c'] : "new";
@@ -534,7 +534,7 @@ class cms {
 				break;
 			default:
 				echo "Error with post manager<br /><br />";
-				$this->display_main();
+				$this->cms_displayMain();
 		}
 		
 	}

@@ -8,7 +8,7 @@ require("config.php");
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Simple CMS</title>
+	<title>Ferret CMS</title>
 	<link rel="stylesheet" type="text/css" href="_css/style.css" />
 	
 	<script type="text/javascript" src="_js/tinymce/tinymce.min.js"></script>
@@ -28,7 +28,7 @@ require("config.php");
 
 <body>
 	<div id="main">
-	<h1>Simple CMS!</h1>
+	<h1>Ferret CMS!</h1>
 	<?php
 
 	$cms = new cms();
