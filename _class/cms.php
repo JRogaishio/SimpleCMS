@@ -82,6 +82,8 @@ class cms {
 		return $numUser;
 	}
 	
+	/* Function to authenticate the user against the DB
+	*/
 	private function cms_authUser($username, $pass) {
 		
 		if((($username!=null && $pass != null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->cms_getNumUsers() > 0) {
@@ -142,6 +144,8 @@ class cms {
 		}
 	}
 	
+	/* Display the login page
+	*/
 	public function cms_displayLoginManager() {
 		echo "<div id='main_content'>";
 		echo '
@@ -167,7 +171,7 @@ class cms {
 	
 	}
 	
-		/* Display the User management
+	/* Display the User management
 	*/
 	public function cms_displayUserManager() {
 		
@@ -317,8 +321,6 @@ class cms {
 		}
 	
 	}
-	
-	
 	
 	/* Display the admin homepage.
 	 * Currently this is a list of all pages.
