@@ -7,10 +7,10 @@
 		<script type="text/javascript">
 		//Home
 		$(function () {
-			$(".cms_navItem").hide();
+			$(".cms_navItemList").hide();
 			
 			$(".cms_navItemTitle").click(function(){
-				$(this).parent().children(".cms_navItem").slideToggle("slow");
+				$(this).parent().children(".cms_navItemList").slideToggle("slow");
 			});
 		});
 
@@ -21,66 +21,68 @@
 	<body>
 		<div class="top">
 			<h1 class="title"><a href="#">{f}</a></h1>
-			<div class="account">
+			<div class="topItems">
+				<input type="text" value="search here" size="25" class="cms_searchBox" onclick="if($(this).val()=='search here'?$(this).val(''):$(this).val());"/>
 				<a href="#"><span id="login">Log out</span></a> <br />
 			</div>	
 		</div>
 		<div class="topSpacer">&nbsp;</div>
 		
 		<div class="left">
-			<strong>Dashboard</strong>
-			<div><strong class="cms_navItemTitle">Website Manager</strong>
-				<div class="cms_navItem">
+			<div class="cms_navItemTitle"><div id="cms_dash" class="cms_icon"></div><a href="#" class="cms_navItemTitleLink">Dashboard</a></div>
+			<div><div class="cms_navItemTitle"><div id="cms_webm" class="cms_icon"></div>Website Manager</div>
+				<div class="cms_navItemList">
 					<ul>
-					<li>Edit site</li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit site</a></li>
 					</ul>
 				</div>
 			</div>
 			
-			<div><strong class="cms_navItemTitle">Page Manager</strong>
-				<div class="cms_navItem">
+			<div><div class="cms_navItemTitle"><div id="cms_page" class="cms_icon"></div>Page Manager</div>
+				<div class="cms_navItemList">
 					<ul>
-					<li>Edit Pages</li>
-					<li>Add a Page</li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit Pages</a></li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Add a Page</a></li>
 					</ul>
 				</div>
 			</div>
 			
-			<div><strong class="cms_navItemTitle">Post Manager</strong>
-				<div class="cms_navItem">
+			<div><div class="cms_navItemTitle"><div id="cms_post" class="cms_icon"></div>Post Manager</div>
+				<div class="cms_navItemList">
 					<ul>
-					<li>Edit Posts</li>
-					<li>Add a Post</li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit Posts</a></li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Add a Post</a></li>
 					</ul>
 				</div>	
 			</div>	
 				
-			<div><strong class="cms_navItemTitle">Template Manager</strong>
-				<div class="cms_navItem">
+			<div><div class="cms_navItemTitle"><div id="cms_template" class="cms_icon"></div>Template Manager</div>
+				<div class="cms_navItemList">
 					<ul>
-					<li>Edit Templates</li>
-					<li>Add a Template</li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit Templates</a></li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Add a Template</a></li>
 					</ul>
 				</div>	
 			</div>	
 				
-			<div><strong class="cms_navItemTitle">User Manager</strong>
-				<div class="cms_navItem">
+			<div><div class="cms_navItemTitle"><div id="cms_user" class="cms_icon"></div>User Manager</div>
+				<div class="cms_navItemList">
 					<ul>
-					<li>Edit Users</li>
-					<li>Add a User</li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit Users</a></li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Add a User</a></li>
 					</ul>
 				</div>	
 			</div>	
 				
-			<div><strong class="cms_navItemTitle">Plugin Manager</strong>
-				<div class="cms_navItem">
+			<div><div class="cms_navItemTitle"><div id="cms_plug" class="cms_icon"></div>Plugin Manager</div>
+				<div class="cms_navItemList">
 					<ul>
-					<li>Edit Plugins</li>
-					<li>Add a Plugin</li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit Plugins</a></li>
+					<li class="cms_navItem"><a href="#" class="cms_navItemLink">Add a Plugin</a></li>
 					</ul>
 				</div>	
 			</div>
+			<div><div class="cms_navItemTitle"></div></div>
 			
 		</div>
 		<div class="content">

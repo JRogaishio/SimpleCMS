@@ -48,39 +48,108 @@ body {
 		color:#ffffff;
 		text-decoration:none;
 	}	
-	.account {
+	.topItems {
 		float:right;
-		width:160px;
-		height:50px;
+		width:300px;
 		margin-left:10px;
 		text-align:right;
 		color:#fff;
 		padding-right:10px;
 	}
-		.account a:link,
-		.account a:visited {
+		.topItems a:link,
+		.topItems a:visited {
 			color:#fff;
 		}
 		#login {
 			font-size:12pt;
 			font-weight:bold;
 		}
+		.cms_searchBox {
+			margin-right:20px;
+			color:#999;
+		}
+		.cms_searchBox:focus {
+			color:#000;
+		}
 
 .left {
 	border-right:2px solid #777777;
 	border-top:2px solid #000;
-	background:#007AA3;
-	width:150px;
+	background:#5E86AD;
+	width:175px;
 	position:fixed;
 	top:30px;
 	bottom:0;
 	text-align:left;
 	color:#fff;
+	background-image: linear-gradient(to left,#A3BDD9,#6591BF 10%);
 }
+	.cms_navItemTitle {
+		border-top:1px solid #999;
+		border-bottom:1px solid #333;
+		width:175px;
+		background:#4D94DB;
+		height:32px;
+		background-image: linear-gradient(to left,#A3BDD9,#6591BF 10%);
+		line-height:2;
+	}
+	.cms_navItemTitle:hover  {
+		color:#ccc;
+	}
+		.cms_navItemTitleLink {
+			color:#fff;
+			text-decoration:none;
+			display:block;
+			width:100%;
+		}
+		.cms_navItemTitleLink:hover {
+			color:#ccc;
+		}
+	.cms_navItemTitle:hover {
+		width:175;
+		background-image: linear-gradient(to left,#3E76AF,#2B537A 10%);
+	}
+	.cms_navItemList {
+		
+
+		color:#000;
+		font-size:10pt;
+	}
 	.cms_navItem {
 		padding-left:10px;
+		background-image: linear-gradient(to left,#aaa,#eee 5%);
 	}
-
+	.cms_navItem:hover {
+		background-image: linear-gradient(to left,#aaa,#ccc 5%);
+	}
+	.cms_navItemLink {
+		display:block;
+		width:100%;
+		color:#000;
+	}
+	.cms_navItemLink:hover {
+		color:#333;
+	}
 .content {
+	background:#fff;
 	clear: both;
 }
+
+
+
+
+
+
+.cms_icon {
+	float:left;
+	height:32px;
+	width:32px;
+		margin-right:5px;
+}
+#cms_dash {background:url("icon_sheet.png") -224px -32px;}
+#cms_webm {background:url("icon_sheet.png") -32px -256px;}
+#cms_page {background:url("icon_sheet.png") -128px -64px;}
+#cms_post {background:url("icon_sheet.png") -32px -160px;}
+#cms_template {background:url("icon_sheet.png") -160px -64px;}
+#cms_user {background:url("icon_sheet.png") -32px -288px;}
+#cms_plug {background:url("icon_sheet.png") -128px -352px;}
