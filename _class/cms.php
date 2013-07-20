@@ -52,8 +52,45 @@ class cms {
 		if($this->_AUTH) {
 			$this->cms_displayTop();
 			$this->cms_displayNav();
-			//Display the admin homepage
-			$this->cms_displayMain();
+		}
+		//Build the pages section ##################################################################################
+		echo "<div class='cms_content'>";
+			
+		//Build the manager
+		switch($this->_TYPE) {
+			case "page":
+				echo $this->cms_displayPageManager();
+				break;
+			case "pageDisplay":
+				echo $this->cms_displayAdminPages();
+				break;
+			case "template":
+				echo $this->cms_displayTemplateManager();
+				break;
+			case "templateDisplay":
+				echo $this->cms_displayAdminTemplates();
+				break;
+			case "post":
+				echo $this->cms_displayPostManager();
+				break;
+			case "postDisplay":
+				echo $this->cms_displayAdminPosts();
+				break;
+			case "user":
+				echo $this->cms_displayUserManager();
+				break;
+			case "userDisplay":
+				echo $this->cms_displayAdminUsers();
+				break;
+			default:
+				$this->cms_displayMain();
+				break;
+		}
+		echo "<br /><br /></div>";
+		
+		
+		if($this->_AUTH) {
+
 		} else if($mode == "user"){
 			//User view mode
 			$this->load_page($this->_USERPAGE);
@@ -466,90 +503,53 @@ class cms {
 	 * Currently this is a list of all pages.
 	*/
 	public function cms_displayMain() {	
-		//Build the pages section ##################################################################################
-		echo "<div class='cms_content'>";
-			
+		echo ($this->_AUTH ? "Welcome <strong>" . $this->_USER->loginname . "</strong><br /><br />" : "");
+		echo "
+		<h1>Welcome to the FerretCMS!</h1><br />
+		<strong>What is FerretCMS?</strong><br />
+		<p class='cms_intro'>
+		Glad you asked! FerretCMS is a simple lightweight content management system using PHP and MySQL.<br />
+		For updates check out the GitHub repository here:<br />
+		<a href='https://github.com/twitch2641/ferretCMS'>https://github.com/twitch2641/ferretCMS</a><br />
+		Or the creators account here:<br />
+		<a href='https://github.com/twitch2641'>https://github.com/twitch2641</a><br />
+		</p>
+		<br />
+		<strong>What can this new fangled CMS do?</strong><br />
+		<p class='cms_intro'>
+			FerretCMS Includes the below features in no particular order:
+		</p>
+		<ul class='cms_intro'>
+				<li>Page management</li>
+				<li>Post management</li>
+				<li>Template management</li>
+				<li>User management</li>
+			</ul>
 		
-		//Build the manager
-		switch($this->_TYPE) {
-			case "page":
-				echo $this->cms_displayPageManager();
-				break;
-			case "pageDisplay":
-				echo $this->cms_displayAdminPages();
-				break;
-			case "template":
-				echo $this->cms_displayTemplateManager();
-				break;
-			case "templateDisplay":
-				echo $this->cms_displayAdminTemplates();
-				break;
-			case "post":
-				echo $this->cms_displayPostManager();
-				break;
-			case "postDisplay":
-				echo $this->cms_displayAdminPosts();
-				break;
-			case "user":
-				echo $this->cms_displayUserManager();
-				break;
-			case "userDisplay":
-				echo $this->cms_displayAdminUsers();
-				break;
-			default:
-				echo ($this->_AUTH ? "Welcome <strong>" . $this->_USER->loginname . "</strong><br /><br />" : "");
-				echo "
-				<h1>Welcome to the FerretCMS!</h1><br />
-				<strong>What is FerretCMS?</strong><br />
-				<p class='cms_intro'>
-				Glad you asked! FerretCMS is a simple lightweight content management system using PHP and MySQL.<br />
-				For updates check out the GitHub repository here:<br />
-				<a href='https://github.com/twitch2641/ferretCMS'>https://github.com/twitch2641/ferretCMS</a><br />
-				Or the creators account here:<br />
-				<a href='https://github.com/twitch2641'>https://github.com/twitch2641</a><br />
-				</p>
-				<br />
-				<strong>What can this new fangled CMS do?</strong><br />
-				<p class='cms_intro'>
-					FerretCMS Includes the below features in no particular order:
-				</p>
-				<ul class='cms_intro'>
-						<li>Page management</li>
-						<li>Post management</li>
-						<li>Template management</li>
-						<li>User management</li>
-					</ul>
-				
-				<br />
-				<strong>Cool, anything planned for the future?</strong><br />
-				<p class='cms_intro'>
-				You bet! Some planned features for FerretCMS are:
-				</p>
-				<ul class='cms_intro'>
-					<li>Plugin management and implementation</li>
-					<li>General website settings management</li>
-					<li>Template management</li>
-					<li>User management</li>
-					<li>Content searching</li>
-					<li>Change logging</li>
-				</ul>
-				<br />
-				";
-				
-				echo "<strong>By the way, hows my CMS doing?</strong><br />";
-				echo "<p class='cms_intro'>Heres some stats!<br />";
-				echo "You have <strong>" . countRecords("pages","") . "</strong> page(s)<br />";
-				echo "You have <strong>" . countRecords("posts","") . "</strong> posts(s)<br />";
-				echo "You have <strong>" . countRecords("templates","") . "</strong> templates(s)<br />";
-				echo "You have <strong>" . countRecords("users","") . "</strong> users(s)<br />";
-				echo "You have <strong>" . countRecords("plugins","") . "</strong> plugins(s)<br />";
-				echo "</p>";
-				
-				
-				break;
-		}
+		<br />
+		<strong>Cool, anything planned for the future?</strong><br />
+		<p class='cms_intro'>
+		You bet! Some planned features for FerretCMS are:
+		</p>
+		<ul class='cms_intro'>
+			<li>Plugin management and implementation</li>
+			<li>General website settings management</li>
+			<li>Template management</li>
+			<li>User management</li>
+			<li>Content searching</li>
+			<li>Change logging</li>
+		</ul>
+		<br />
+		";
 		
-		echo "<br /><br /></div>";
+		echo "<strong>By the way, hows my CMS doing?</strong><br />";
+		echo "<p class='cms_intro'>Heres some stats!<br />";
+		echo "You have <strong>" . countRecords("pages","") . "</strong> page(s)<br />";
+		echo "You have <strong>" . countRecords("posts","") . "</strong> posts(s)<br />";
+		echo "You have <strong>" . countRecords("templates","") . "</strong> templates(s)<br />";
+		echo "You have <strong>" . countRecords("users","") . "</strong> users(s)<br />";
+		echo "You have <strong>" . countRecords("plugins","") . "</strong> plugins(s)<br />";
+		echo "</p>";
 	}
 
 	/* Display the page management page
