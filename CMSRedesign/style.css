@@ -22,7 +22,7 @@ body {
 }
 
 
-.top {
+.cms_top {
 	height:28px;
 	background:#333333;
 	border-bottom:2px solid #777777;
@@ -33,22 +33,22 @@ body {
 	right:0;
 	clear: both;
 }
-	.topSpacer {
+	.cms_topSpacer {
 		width: 100%;
 		height:30px;
 	}
-	.title {
+	.cms_title {
 		color:#ffffff;
 		float:left;
 		margin-left:10px;
 		text-shadow: 2px 2px 2px #999;
 		font-size:14pt;
 	}
-	.title a {
+	.cms_title a {
 		color:#ffffff;
 		text-decoration:none;
 	}	
-	.topItems {
+	.cms_topItems {
 		float:right;
 		width:300px;
 		margin-left:10px;
@@ -56,11 +56,11 @@ body {
 		color:#fff;
 		padding-right:10px;
 	}
-		.topItems a:link,
-		.topItems a:visited {
+		.cms_topItems a:link,
+		.cms_topItems a:visited {
 			color:#fff;
 		}
-		#login {
+		#cms_login {
 			font-size:12pt;
 			font-weight:bold;
 		}
@@ -72,7 +72,7 @@ body {
 			color:#000;
 		}
 
-.left {
+.cms_nav {
 	border-right:2px solid #777777;
 	border-top:2px solid #000;
 	background:#5E86AD;
@@ -130,7 +130,7 @@ body {
 	.cms_navItemLink:hover {
 		color:#333;
 	}
-.content {
+.cms_content {
 	background:#fff;
 	clear: both;
 }
@@ -141,15 +141,14 @@ body {
 
 
 .cms_icon {
-	float:left;
 	height:32px;
 	width:32px;
-		margin-right:5px;
+	background-image:url("icon_sheet.png")
 }
-#cms_dash {background:url("icon_sheet.png") -224px -32px;}
-#cms_webm {background:url("icon_sheet.png") -32px -256px;}
-#cms_page {background:url("icon_sheet.png") -128px -64px;}
-#cms_post {background:url("icon_sheet.png") -32px -160px;}
-#cms_template {background:url("icon_sheet.png") -160px -64px;}
-#cms_user {background:url("icon_sheet.png") -32px -288px;}
-#cms_plug {background:url("icon_sheet.png") -128px -352px;}
+#cms_dash {float:left;margin-right:5px;background-position: -224px -32px;}
+#cms_webm {float:left;margin-right:5px;background-position: -32px -256px;}
+#cms_page {float:left;margin-right:5px;background-position: -128px -64px;}
+#cms_post {float:left;margin-right:5px;background-position: -32px -160px;}
+#cms_template {float:left;margin-right:5px;background-position: -160px -64px;}
+#cms_user {float:left;margin-right:5px;background-position: -32px -288px;}
+#cms_plug {float:left;margin-right:5px;background-position: -128px -352px;}
