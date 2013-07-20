@@ -530,6 +530,8 @@ class cms {
 					<li>General website settings management</li>
 					<li>Template management</li>
 					<li>User management</li>
+					<li>Content searching</li>
+					<li>Change logging</li>
 				</ul>
 				<br />
 				";
