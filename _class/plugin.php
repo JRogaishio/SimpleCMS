@@ -53,8 +53,6 @@ class template
 			if($result) {
 				echo "<span class='update_notice'>Created template successfully!</span><br /><br />";
 			}
-			
-
 		} else {
 			echo "Failed to load fornm data!";
 		}

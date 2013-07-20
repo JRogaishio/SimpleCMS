@@ -84,7 +84,6 @@ class template
 		} else {
 			echo "Failed to load fornm data!";
 		}
-
 	}
 
 	/**

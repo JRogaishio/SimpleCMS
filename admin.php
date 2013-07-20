@@ -1,11 +1,9 @@
 <?php
 require("config.php");
 ?>
-
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>Ferret CMS</title>
@@ -37,15 +35,13 @@ require("config.php");
 	</script>
 	
 </head>
-
 <body>
 	<?php
-
+	//Create a new CMS object and load it!
 	$cms = new cms();
 	$cms->connect();
 	$cms->load("admin");
 
 	?>
 </body>
-
 </html>

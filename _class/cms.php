@@ -34,6 +34,9 @@ class cms {
 		$this->_PARENT = isset( $_GET['p'] ) ? $_GET['p'] : "";
 		$this->_CHILD = isset( $_GET['c'] ) ? $_GET['c'] : "";
 
+		//Handle global states such as logging out, etc
+		$this->cms_handleState();
+
 		//Set the username and password off the cookies
 		$_USERNAME = (isset($_COOKIE['username']) ? $_COOKIE['username'] : null);
 		$_PASSWORD = (isset($_COOKIE['password']) ? $_COOKIE['password'] : null);
@@ -44,13 +47,11 @@ class cms {
 		//user gets
 		$this->_USERPAGE = isset( $_GET['p'] ) ? $_GET['p'] : "home";
 		
-		$this->cms_displayWarnings();
-
-		$this->cms_displayTop();
-		$this->cms_displayNav();
-		
+		$this->cms_displayWarnings();		
 		
 		if($this->_AUTH) {
+			$this->cms_displayTop();
+			$this->cms_displayNav();
 			//Display the admin homepage
 			$this->cms_displayMain();
 		} else if($mode == "user"){
@@ -58,20 +59,45 @@ class cms {
 			$this->load_page($this->_USERPAGE);
 		}
 	}
-
+	
+	/* Handle user triggered state changes such as logging out
+	*/
+	private function cms_handleState() {
+		if($this->_TYPE == "web_state") {
+			//Build the manager
+			switch($this->_ACTION) {
+				case "logout":
+					//Set the login cookes to expire NOW and unset them
+					setcookie("username", "", time()-3600); 
+					setcookie("password", "", time()-3600); 
+					unset($_COOKIE['username']);
+					unset($_COOKIE['password']);
+					echo "<h2>You have been successfully logged out!</h2><br />";
+				break;
+			default:
+				echo "There was an error when trying to change the state...<br />Perhaps someone should stop editing the URL...";
+				break;
+			}
+		}
+	}
+	
+	/* Build the CMS's top menu
+	*/
 	private function cms_displayTop() {
 		echo "
 		<div class=\"cms_top\">
 			<h1 class=\"cms_title\"><a href=\"#\">{f}</a></h1>
 			<div class=\"cms_topItems\">
 				<input type=\"text\" value=\"search here\" size=\"25\" class=\"cms_searchBox\" onclick=\"if($(this).val()=='search here'?$(this).val(''):$(this).val());\"/>
-				<a href=\"#\"><span id=\"cms_login\">Log out</span></a> <br />
+				<a href=\"admin.php?type=web_state&action=logout\"><span id=\"cms_login\">Log out</span></a> <br />
 			</div>	
 		</div>
 		<div class=\"cms_topSpacer\">&nbsp;</div>
 		";
 	}
 	
+	/* Build the CMS's navigation menu
+	*/
 	private function cms_displayNav() {
 	
 		echo '
@@ -137,9 +163,6 @@ class cms {
 		
 		
 	}
-	
-	
-	
 	
 	/* User to determine if we should show the user create page
 	*/
@@ -216,28 +239,30 @@ class cms {
 	/* Display the login page
 	*/
 	public function cms_displayLoginManager() {
-		echo "<div id='main_content'>";
+		//Display da ferret!
+		$this->cms_displayFerret();
+	
+		//Also the login stuff is important too...
+		echo "<div class='cms_loginManager'>";
 		echo '
+			<h1 class="cms_pageTitle">Ferret CMS Login</h1><br />
 			<form action="admin.php" method="post">
 
-			<label for="login_username">Username:</label><br />
-			<input name="login_username" id="login_username" type="text" maxlength="50" size="15"/>
-			<div class="clear"></div>
-
-			<label for="login_password">Password:</label><br />
-			<input name="login_password" id="login_password" type="password" maxlength="50" size="15" />
-			<div class="clear"></div>
-			<br />
-
+			<table class="cms_loginTable">
+			<tr>
+				<td><label for="login_username">Username:</label></td>
+				<td><input name="login_username" id="login_username" type="text" maxlength="50" size="15"/></td>
+			</tr><tr>
+				<td><label for="login_password">Password:</label></td>
+				<td><input name="login_password" id="login_password" type="password" maxlength="50" size="15" /></td>
+			</tr>
+			</table>
 			<div class="clear"></div>
 			<br />
 			<input type="submit" class="updateBtn" value="Login" /><br /><br />
 			</form>
 		';
 		echo "</div>";
-
-		echo "<div class='clear'></div>";
-	
 	}
 	
 	/* Display the User management
@@ -314,14 +339,11 @@ class cms {
 
 				echo "
 				<div class=\"page\">
-					
-					
 					<h2>
-					<a href=\"admin.php?type=page&action=update&p=".$row['id']."\" " . ($row['page_isHome']==1 ? "id='homepageMarker'":"") . " title='" . ($row['page_isHome']==1 ? "Edit / Manage the homepage":"Edit / Manage this page") . "' class=\"pageEditLink\" >$title</a>
+					<a href=\"admin.php?type=page&action=update&p=".$row['id']."\" " . ($row['page_isHome']==1 ? "id='cms_homepageMarker'":"") . " title='" . ($row['page_isHome']==1 ? "Edit / Manage the homepage":"Edit / Manage this page") . "' class=\"cms_pageEditLink\" >$title</a>
 					</h2>
 					<p>" . SITE_ROOT . $safeLink . "</p>
 				</div>";
-
 			}
 		} else {
 			echo "
@@ -329,7 +351,6 @@ class cms {
 				No pages found!
 			</p>";
 		}
-	
 	}
 	
 	/* Display the list of all templates
@@ -350,7 +371,7 @@ class cms {
 				echo "
 				<div class=\"template\">
 					<h2>
-					<a href=\"admin.php?type=template&action=update&p=".$row['id']."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"pageEditLink\" >$name</a>
+					<a href=\"admin.php?type=template&action=update&p=".$row['id']."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"cms_pageEditLink\" >$name</a>
 					</h2>
 					<p>" . TEMPLATE_PATH . "/" . $path . "/" . $file . "</p>
 				</div>";
@@ -365,6 +386,8 @@ class cms {
 	
 	}
 	
+	/* Display the list of all posts and their respective pages
+	*/
 	public function cms_displayAdminPosts() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=postDisplay">Post List</a><br /><br />';
 	
@@ -381,7 +404,7 @@ class cms {
 						echo "<br /><br />";
 					
 					$lastPageName = lookupPageNameById($row['page_id']);
-					echo "<h1>" . $lastPageName . "</h1>";
+					echo "<h1 class='cms_pageTitle'>" . $lastPageName . "</h1>";
 				}
 				
 				$title = stripslashes($row['post_title']);
@@ -390,7 +413,7 @@ class cms {
 				echo "
 				<div class=\"page\">
 				<h3>
-				<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"pageEditLink\" >$title</a>
+				<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >$title</a>
 				</h3>
 				<p>
 				" . $postDate . "
@@ -406,8 +429,6 @@ class cms {
 		}
 		
 	}	
-	
-	
 	
 	/* Display the list of all users
 	*/
@@ -426,7 +447,7 @@ class cms {
 				echo "
 				<div class=\"user\">
 					<h2>
-					<a href=\"admin.php?type=user&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"pageEditLink\" >$username</a>
+					<a href=\"admin.php?type=user&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >$username</a>
 					</h2>
 					<p>" . $email . "</p>
 				</div>";
@@ -444,10 +465,7 @@ class cms {
 	/* Display the admin homepage.
 	 * Currently this is a list of all pages.
 	*/
-	public function cms_displayMain() {
-		
-		
-		
+	public function cms_displayMain() {	
 		//Build the pages section ##################################################################################
 		echo "<div class='cms_content'>";
 			
@@ -480,7 +498,52 @@ class cms {
 				break;
 			default:
 				echo ($this->_AUTH ? "Welcome <strong>" . $this->_USER->loginname . "</strong><br /><br />" : "");
-				echo "Welcome to the homepage!";
+				echo "
+				<h1>Welcome to the FerretCMS!</h1><br />
+				<strong>What is FerretCMS?</strong><br />
+				<p class='cms_intro'>
+				Glad you asked! FerretCMS is a simple lightweight content management system using PHP and MySQL.<br />
+				For updates check out the GitHub repository here:<br />
+				<a href='https://github.com/twitch2641/ferretCMS'>https://github.com/twitch2641/ferretCMS</a><br />
+				Or the creators account here:<br />
+				<a href='https://github.com/twitch2641'>https://github.com/twitch2641</a><br />
+				</p>
+				<br />
+				<strong>What can this new fangled CMS do?</strong><br />
+				<p class='cms_intro'>
+					FerretCMS Includes the below features in no particular order:
+				</p>
+				<ul class='cms_intro'>
+						<li>Page management</li>
+						<li>Post management</li>
+						<li>Template management</li>
+						<li>User management</li>
+					</ul>
+				
+				<br />
+				<strong>Cool, anything planned for the future?</strong><br />
+				<p class='cms_intro'>
+				You bet! Some planned features for FerretCMS are:
+				</p>
+				<ul class='cms_intro'>
+					<li>Plugin management and implementation</li>
+					<li>General website settings management</li>
+					<li>Template management</li>
+					<li>User management</li>
+				</ul>
+				<br />
+				";
+				
+				echo "<strong>By the way, hows my CMS doing?</strong><br />";
+				echo "<p class='cms_intro'>Heres some stats!<br />";
+				echo "You have <strong>" . countRecords("pages","") . "</strong> page(s)<br />";
+				echo "You have <strong>" . countRecords("posts","") . "</strong> posts(s)<br />";
+				echo "You have <strong>" . countRecords("templates","") . "</strong> templates(s)<br />";
+				echo "You have <strong>" . countRecords("users","") . "</strong> users(s)<br />";
+				echo "You have <strong>" . countRecords("plugins","") . "</strong> plugins(s)<br />";
+				echo "</p>";
+				
+				
 				break;
 		}
 		
@@ -577,7 +640,6 @@ class cms {
 	
 	}
 	
-	
 	/* Display the plugin management page
 	*/
 	public function display_pluginManager() {
@@ -618,7 +680,6 @@ class cms {
 				$this->cms_displayMain();
 		}
 	}
-	
 	
 	/* Display the post management page
 	*/
@@ -772,6 +833,8 @@ class cms {
 		
 	}
 	
+	/* Display any global warnings such as missing homepage, etc
+	*/
 	public function cms_displayWarnings() {
 		//Make sure a homepage is set
 		$pageSQL = "SELECT * FROM pages WHERE page_isHome=1;";
@@ -783,6 +846,117 @@ class cms {
 	
 	}
 
+	/* By far the MOST important function in the whole CMS
+	*/
+	public function cms_displayFerret() {
+		echo "<pre class='cms_ferret'>                
+                                                                        .`                                           
+                                                               ` `..,,,,,,,,``                                       
+                                                           ``.,,,:,:;::::,;:,.``````                                 
+                                                          ``:::,:,,;;::,::,,.,......```                              
+                                                         ..::,,,,,::,:.,,,,;;:,,.......`                             
+                                                      ```..,.....,,,,,.,,..,,:::,,..,,,.`                            
+                                                 `````.````..```...:.,,....,,;:;;::,:,,..                            
+                                               ```.,.````.```.`.,,,,..,..`..`::'';::::,.,                            
+                                               `....`````..`.``..,,:.,......:,:';;;:::,,.                            
+                                              ```.`.```...``....,::,,,..,...,,:''':;;:,.,`                           
+                                              `..`````......,,,.:;:;;:;,,,,,,,;';;:;::,.,`                           
+                                              `.```.`..,...:,:::::.:'+''::,,,,:;;;;,;:,..`                           
+                                              ````..,,:,,,::;;';'.,:'''+;':,,::;:'';:;:,,`                           
+                                              `.``,.,:,:,:::;;'';;:+###'+';::,::':,;:::,,.                           
+                                              ```.:.,,,::::::;;';;'#`#+#';;::::,;'+'::::,.                           
+                                               ``.;`.,,:,:,,:;;:;''+#@@#'+';::,:;'':,:;:,.                           
+                                              ```.#,`.`. `.,.,;::;';;'';++'';;:::;;;;;:;:.                           
+                                              ```.+: ``.```,.,,.,;;'''+++;;';:::::::,:;;;,.                          
+                                              ``,,;``..,,,,,,...,:;;;;;''''';;;::;;;:,::;;,                          
+                                              `.;;.`,::,,,:;:...,,;''+'''''';::;;;::,:;;;';`                         
+                                              `.:,`.......,:;.,,::;;'+++'++';;;::;::;;:;;;:`                         
+                                               .,. ...:,,::';,,...,,;+++++'';;::;;;::;;;;';,                         
+                                               .,.``,.:,,'';:,,,,:;;;++#++'';;::;;;::;;;;';.                         
+                                              `.,```,.:::;;:,,,:,,,:;;'++'';;;;;;;;;;;;;;'':`                        
+                                               .,```.:''';:,,,,,:::::;'++';;;;;;::;:;;;;''+',`                       
+                                              `..````.,::,:::,::;::;::'';;;;;:::;:;;;'''''';,                        
+                                               `,````.,:;;:,,,,,:::,;;':;;;:::;;;;::;;'+'''':`                       
+                                                ,````.,;:::::,,::::::;;:;:::::::;:;;;''++''':.                       
+                                               ``````.:,.,,::;;::,,:::;::;;:;;;;;'';+++++++';;`                      
+                                                 .``.,,...,,,:;;;;;:;:;;;:;'';;;;;''++#+++'';;.                      
+                                                 ```......,,,:::;;::;;::;;'''';;;''+++##+++''',`                     
+                                                   ``.``..,::::::::::::::'''''''''++####++++'':`                     
+                                                   `````.,,,:::::::::::::''''+'+'+++#####+++'';,`                    
+                                                     ```...,,,,,,,,,,,,:;;'++++++#######+#++''',                     
+                                                     `````..,,,,,,,,,::;;''++++##########++++'';,                    
+                                                      ...`..,.,,,,,::;;;'+++++#+++######++++++'';`                   
+                                                       ,:,.,..,:;';';;+++++#+#++###########+++''':`                  
+                                                       .:;;;';'';'''+++++++++++##########+++++++':,                  
+                                                       .:;'''''''++++#+++++#+#+############+#++++':`                 
+                                                      `.,;''+++''++'++###+################++++++++:`                 
+                                                    ```.,;''+'+++++++######+#++###########+++++++';`                 
+                                                   `....,:'''+++++++##########+###########+#+#+#+';.                 
+                                                  `.,,,.,:;;'++++++++#+#######+###########+++##+++':                 
+                                             ``,..,:::,.,,:;'++#+#+++++#######+###############+++++;.                
+                                              .,:,;:,:,,,::''++++#++++##+#####++#####@##########+++;`                
+                                            .,,,;;;,::,,,::;'+++##+'+++#+######+#+####@#########+++'.                
+                                          ..,:,:;;,:::,,,,::''++++++++#+####+##+#################++':`               
+                                        ``,:;;::;':::;:,,,,:'''+##++++++++########################++'.               
+                                        `,:;;;;';;';:,:,,:;:;'''+++#++++########++###@##@#@########++.`              
+                                       `,;;;;;;;;;;::,,,,:::;''''++#++++###+#####+####@###@########++',              
+                                     `,::;;;;;;';;:,,,,,,:;;;;'''+++##+#+###+#####+#@#@@#@#@#########+:              
+                                    `.,:;''';'';;::::,,,,;;';;;++++#+#+########+#####@##@####@#@#####+:              
+                                   .:;'';';;;';;:,,,,,,,;;;';';'+++++###########+######@@@###########+'`             
+                                 `.,:;'';''';;;;:,,,,::;;;;:''+++++#####+#+#############@@@@###@######+,             
+                                `.:;;'';'';;;;;:,::,:,:;;;'''''++++#######+##@###+######@@@###########+;`            
+                               `.,:;''';'';;;;;::,,,,,:;''';'''++++##########@####+##@#@@@@@#@##@######'             
+                               `.:;;'''';;;;;;:,,,,,,,:;''+;;'+++#++++########@#####@@@##@@@@@#@#######+:            
+                              .,:;;;''''';;::::,,,,,,,:;'''''+'++#+#####@#####@#######@@#@@@@@@########+:            
+                            `.,:::;''''';;:::,,,,,,,,::;''''''++######@#@#####@########@@@@@@#@##@#####+,`           
+                            `.,:;;;;''';;:;::,,,,,,,,:;;'''+'++++++#####@#######@####@@@@#@@@@#@#@@####+'`           
+                             .,:;;;';;;;;;::,,,,,,,.,:;'''''+++#+##############@@#######@@@@#@@@@@#####+'`           
+                            `.,::;;;;;;;;;;,,,,,,,,,::;'''+'+++++##########@####@######@@@@@@@@@@#######'`           
+                           `..:::;;;;;;:;:::,,,.,,,:::;'+''++#+################@#####@@@@@@@@@@@@@@#####+,           
+                           `.,:;;;'';;:::::,:,,,,,,,:;';'+++#+#################@+##@###@@@@@###@#@#@####:.           
+                    ``......,,,:::;;;;:;:;::::,,,,::;;''+++++++####+###@########@######@@@#@@@#@@@@@####+`           
+               ```.,:':;:,..,,,:::;;;;;::::,,,,.,,,,;''++++#++++#######@##@##+#####@##@@@@@#@##@#@#@@####;.          
+              `.::;;;;;:,,.,,,,:;;;;;;::::,,,,,.,,:::''+'+++++####+##@#@##@########@##@@@@@#####@#@######`           
+            .:::''';;:::,,,,,,,::;;;;::::,,,,,,,,,::;'+++++++########@#@+##@#@####@@##@@@#@#####@########+:          
+           `.::;''';;;;:,,,,:::::::::::::,:,,,,,,,;,:;'++#++####+#+##@@##@@@#######@#@@@@@@######@##@####',          
+          .:;;'+'';';;::,,,,,,,::;::::::::,,,,,,,,,::''++#+#######+#@@@##@@#@#@###@@@@@@@@@##@###########+:          
+        `,;'+++++''';;;:,:,,,,::;;;;;;::::,,,,,,.,::;''+++##########@@@#@#@#@@@@####@#@@@@@##############+.          
+       `,;'++++'++++;;::::::::::;;;;;;::,:,,,,,,,,:;;:;++######@@@##@@@@@@##@#@@@#@#@@@@@@###############+,,         
+       .:'+++++#+++'+'';;;::::::;;;;;:::,,,,,,,,,,,::;;'+##########@#@#@#@@###@@@@@@@@@#@#######+########',`         
+      `.'++######+'+';;:;;::::::;;;;;;::,,,,,,,,,,,:'';'+#+####@###@@#@#@@@@@@@@@@@@@@@@@@#######+########;`         
+      .;+++####++++';;:;;;:::::;::;;:::,,,,,,,..,,,:::;''+#########@@##@@@#@@#@@@@@@@@@@@@+##########@###+;,`        
+     `,'++#+###++';,::;;;;;;:;;::;;;;:::,,,,,,,,,,,:::;;'+##########@#@@@@@@@@@@@@@@@@#@@#+@######+#######;`         
+     ,;'++#####+:....:;;';':;;:;;;;;::,:,,,,,,,,,,,,:::;++#########@##@@@@@@@@@@@@@#@@@@@+#######++######+'`         
+    `,:++####++,`   `.;';';';::;;;;;:::,,,,,,,,,,,::::;''+#############@@@@@@@@@@@@@@@@###################'`         
+    `.'+####++,`     ,';'';;:;;;;;;;;:,,,,,,,,,,,,,,::;;'++#####@######@@@@@@@@@@@@@@@@############+#+###;:          
+    `,++####++.      ;';';;;';;;;;;;::::,,,,:,,,,,,::::;''+########@###@@#@@@@@@@@@@@@##########+#++++###+:`         
+     :'++####:      .''''+;';''';;;;::::,,,,,,,,,:::::;:;''++##########@@@@@@@@@@@@@#@######@###+#+######+:`         
+    `;;++####:      :'+''''''+';';:;;::,,:,,,,,,,:,:::::;;'++#####@#####@@@@@@@@@@@############+++++######.          
+    .:;++####:     .;++'''''+';'';;::::::,,,,,,,,:,::::::;'++###++@####@@#@@@@#@@@##@####++####+++++##@###',         
+    `.:+#####+    `:''+;+++''++';';:::::,:,:,,:,::::::;:;;'+++###+@#@###@@@@####@@#####++'#';##+''++######,          
+    `.:'+####+,   ,'++++++'+''';;';;;;:::,::::::::::::;;;;'''+++###@####@@@@#@########++,:':+##+'+'+######;`         
+     `,'+###++',``;++++#++''++''+';;:;;:::::::,::::;:;;:;;;;++##+######@@#@@@@##@@###+';...,'#+++++####@@#'          
+      .:'++##'';;;+###+##+++##'+';;;';;;:;:::::::::;;;:;;;;'+++#######@@@@@@##@@@@###+;.`` `:#++++++####@@+.`        
+      `,;'+#+++'++##@##+####+'+'';';';;;;;:::::::;::;:;;;;;''+++######@@@@@@@@@@@###+:,    .:+++++++####@#+`         
+       .:;'++++''+#@@@@#@##+##'''+;;;;;;;;::;;;;;;;::;:;;;;'+++#+####@@@@@@@#@@@####'```   `,+#+++++###@##:`         
+        ..'++++'+#++###@@####++++';;,:,;::;;;;;;;;;:;::;:;;''+++#+##@@@@@@@@@@@@###++.      ,#+++++##+##@#:`         
+         `,;'+';++;;#;'##'+####+':,.``.:,,;';;;';;:;;::;;;'''+++####@@@@@@@@##@@###+#:     `;;'++####@###@'`         
+           `,;;;'+''++###+#@@@#+;:`   ```.:;;'';';;;;;'';''''+++##@@@@@@@@@@@#@######+.    `` ;+####@@@####,         
+             .''++++#######@###',.    `  `.,:;''''''';''''''+'+#@#@@@@@@@@@#@#@######;,      .'####@@#####+;.`       
+            `;''+###++@@@+#@@+@',`      ` ``.:,:'''+'''+++++++###@@@@##@#+@@########+,`      ,####@@#'+@##''+;`      
+          ``.:'''###'#@@#'+##+@#+:`         ```..:;'+++######+##'+###@#@'#########';:.`      ;#@#++@+####+;+#'',`    
+         ``..,;:;+#';+###';+'';:,.`       ````...::;;;'''''++'+#++#+:##+'+#;:+#+:'';:.`     `'+#'##+#+;##++#;++;.`   
+         ````....,,,,,,,,,,,,,,,..``````````.....,,,,,,,,,,,,:':+##',##+;++'###+#;';:,.``` `;'+#;+###',@+#+#':+',    
+          `````````...............````````........,,,,,,,,,,,,;.'++;'###+#++'##++++';,.````.;;'#:####':####+''+;``   
+             ```````````..........````````................,,,,;;:;':;####++:;##++'';:,.`````,;'+:'+++;:'+++';;':`    
+                 ```````````````````````````.....................,,,,:::,,,,,.,,,.....``````...,,,,,,,,,,,,....`     
+                      `````````````````````````````````````....`.```..................``````.....`...`````````       
+                                ```````````````````````````````````````````````````````````````````````````          
+                                              ``````````````````````````````````````````    ````````                 
+
+		</pre>";
+	}
+	
 	//USER VIEW FUNCTIONS ###############################################################################
 	
 	public function load_page($pSafeLink) {

@@ -1,47 +1,7 @@
-*
-{
+* {
 margin:0;
 padding:0;
 }
-
-/*
-body
-{
-font:12px "Lucida Grande", Sans-Serif;
-background:#ccc;
-}
-
-
-#main
-{
-width:800px;
-background:#FFF;
-margin:50px auto;
-padding:20px;
-}
-	#main_content {
-		width:500px;
-		float:left;
-		border: 1px dotted #ccc;
-		padding:5px;
-	}
-	#main_tools {
-		width:250px;
-		float:right;
-		border:1px dotted #ccc;
-		padding:5px;
-	}
-	.update_notice {
-		margin-bottom:120px;
-		font-weight:bold;
-	}
-	
-	
-	*/
-	
-	
-	
-	
 	
 body {
 	padding-top:0px;
@@ -49,15 +9,12 @@ body {
 	font-size: 12pt;
 	color:#000000;
 	font-family:"Trebuchet MS",Trebuchet,Calibri,Tahoma,Arial,sans-serif;
-	/*font-family: Verdana, Arial, Helvetica, Sans-Serif; */
 	text-decoration: none;
-	/* background:#000000 url(../images/bg.png) repeat-x top center;
-	background-attachment: fixed; */
 	text-align:center;
 	background:#fff;
 }
 
-
+/*CMS Layout Styles*/
 .cms_top {
 	height:28px;
 	background:#333333;
@@ -94,9 +51,7 @@ body {
 		padding-right:10px;
 	}
 		.cms_topItems a:link,
-		.cms_topItems a:visited {
-			color:#fff;
-		}
+		.cms_topItems a:visited {color:#fff;}
 		#cms_login {
 			font-size:12pt;
 			font-weight:bold;
@@ -105,9 +60,7 @@ body {
 			margin-right:20px;
 			color:#999;
 		}
-		.cms_searchBox:focus {
-			color:#000;
-		}
+		.cms_searchBox:focus {color:#000;}
 
 .cms_nav {
 	border-right:2px solid #777777;
@@ -130,25 +83,19 @@ body {
 		background-image: linear-gradient(to left,#A3BDD9,#6591BF 10%);
 		line-height:2;
 	}
-	.cms_navItemTitle:hover  {
-		color:#ccc;
-	}
+	.cms_navItemTitle:hover  {color:#ccc;}
 		.cms_navItemTitleLink {
 			color:#fff;
 			text-decoration:none;
 			display:block;
 			width:100%;
 		}
-		.cms_navItemTitleLink:hover {
-			color:#ccc;
-		}
+		.cms_navItemTitleLink:hover {color:#ccc;}
 	.cms_navItemTitle:hover {
 		width:175;
 		background-image: linear-gradient(to left,#3E76AF,#2B537A 10%);
 	}
 	.cms_navItemList {
-		
-
 		color:#000;
 		font-size:10pt;
 	}
@@ -156,17 +103,13 @@ body {
 		padding-left:10px;
 		background-image: linear-gradient(to left,#aaa,#eee 5%);
 	}
-	.cms_navItem:hover {
-		background-image: linear-gradient(to left,#aaa,#ccc 5%);
-	}
+	.cms_navItem:hover {background-image: linear-gradient(to left,#aaa,#ccc 5%);}
 	.cms_navItemLink {
 		display:block;
 		width:100%;
 		color:#000;
 	}
-	.cms_navItemLink:hover {
-		color:#333;
-	}
+	.cms_navItemLink:hover {color:#333;}
 .cms_content {
 	background:#fff;
 	padding:5px;
@@ -176,16 +119,28 @@ body {
 	clear: both;
 }
 
-
-
-
-
-
 .cms_icon {
 	height:32px;
 	width:32px;
 	background-image:url("../_img/icon_sheet.png")
 }
+
+.cms_loginManager {
+	border:1px solid #ccc;
+	background:#eee;
+}
+
+.cms_ferret {
+	width:500px;
+	margin-left:auto;
+	margin-right:auto;	
+	height:325px;
+	text-align:left;
+	font-family:"Courier New", Courier, monospace;
+	line-height:3px;
+	font-size:5pt;
+}
+
 #cms_dash {float:left;margin-right:5px;background-position: -224px -32px;}
 #cms_webm {float:left;margin-right:5px;background-position: -32px -256px;}
 #cms_page {float:left;margin-right:5px;background-position: -128px -64px;}
@@ -194,96 +149,49 @@ body {
 #cms_user {float:left;margin-right:5px;background-position: -32px -288px;}
 #cms_plug {float:left;margin-right:5px;background-position: -128px -352px;}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-h1
-{
-font:28px Georgia, Serif;
-border-bottom:1px dotted #ccc;
-margin:0 0 10px;
+/*END CMS Layout Styles*/
+
+/*Styles for the login page*/
+.cms_loginTable {
+	width:220px;
+	margin-left:auto;
+	margin-right:auto;
+	
+}
+table label {
+	width:500px;
+	color:#000;
+	background-color:inherit;
 }
 
-input[readonly=readonly] {
-	background:#dedede;
+/*END Styles for the login page*/
+
+
+/*CMS Styles for various pages*/		
+ul.cms_intro {
+	margin-left:60px;
 }
 
-#homepageMarker {
-	color:#0099CC;
+p.cms_intro {
+	margin-left:30px;
 }
 
-.clear
-{
-clear:both;
+h1.cms_pageTitle {
+	font:28px Georgia, Serif;
+	border-bottom:1px dotted #ccc;
+	margin:0 0 10px;
 }
 
-input[type="text"]
+input[readonly=readonly].cms_username {background:#dedede;}
+
+#cms_homepageMarker {color:#0099CC;}
+
+.clear {clear:both;}
+
+input[type="text"], input[type="password"]
 {
 	border:1px solid #666;
-	margin:0 0 15px;
+	/*margin:0 0 15px;*/
 	padding:3px;
 }
 textarea
@@ -292,38 +200,22 @@ textarea
 	width:350px;
 	margin:0 0 15px;
 	padding:3px;
+	height:100px;
+	font:12px "Lucida Grande", Sans-Serif;
 }
 
-input.header
-{
-font:28px Georgia, Serif;
-}
+input.cms_pageTextHeader{font:28px Georgia, Serif;}
 
-textarea
-{
-height:100px;
-font:12px "Lucida Grande", Sans-Serif;
-}
 
-label
-{
-background:#666;
-color:#FFF;
-padding:2px 6px;
-}
-
-.post
-{
-margin:0 0 20px;
+label {
+	background:#666;
+	color:#FFF;
+	padding:2px 6px;
 }
 
 
-.pageEditLink {
-	color:#000;
-}
-.pageEditLink:hover {
-	color:#999;
-}
+.cms_pageEditLink {color:#000;}
+.cms_pageEditLink:hover {color:#999;}
 
 /*Board Styles*/
 div.comment_Main {
@@ -347,6 +239,8 @@ div.comment_Sub {
 	border-bottom:1px solid #999;
 }
 
+
+/*Button styles*/
 .actionLink {
 	display:inline-block;
 	text-align:center;
@@ -361,12 +255,8 @@ div.comment_Sub {
 	border-radius:5px;
 	margin-bottom:5px;
 }
-.actionLink:hover {
-	background-image: linear-gradient(to bottom,#82B4E6,#4D94DB);
-}
-.actionLink:active {
-	background-image: linear-gradient(to bottom,#366899,#26496B);
-}
+.actionLink:hover {background-image: linear-gradient(to bottom,#82B4E6,#4D94DB);}
+.actionLink:active {background-image: linear-gradient(to bottom,#366899,#26496B);}
 
 .updateBtn {
 	display:inline-block;
@@ -382,14 +272,8 @@ div.comment_Sub {
 	border-radius:5px;
 	margin-bottom:5px;
 }
-.updateBtn:hover {
-	background-image: linear-gradient(to bottom,#009900,#006B00);
-}
-.updateBtn:active {
-	background-image: linear-gradient(to bottom,#80FF80,#00FF00);
-}
-
-
+.updateBtn:hover {background-image: linear-gradient(to bottom,#009900,#006B00);}
+.updateBtn:active {background-image: linear-gradient(to bottom,#80FF80,#00FF00);}
 
 .deleteBtn {
 	color:#c00;
@@ -401,9 +285,10 @@ div.comment_Sub {
 	color:#fff;
 	text-shadow: 1px 1px 2px #000;
 }
-.deleteBtn:active {
-	background:#900;
-}
+.deleteBtn:active {background:#900;}
+
+/*END Button styles*/
+
 
 .cms_warning {
 	color:#ff0000;

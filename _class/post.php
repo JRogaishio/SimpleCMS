@@ -141,11 +141,7 @@ class post
 			
 			$this->constr = true;
 		}
-	
 	}
-	
-	
-	
 	
 	public function buildEditForm($pageId, $postId) {
 		//Load the page from an ID

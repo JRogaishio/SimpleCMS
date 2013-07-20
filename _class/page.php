@@ -158,7 +158,7 @@ class page
 			<form action="admin.php?type=page&action=update&p=' . $this->id . '" method="post">
 
 			<label for="title">Title:</label><br />
-			<input name="title" id="title" type="text" class="header" maxlength="150" value="' . $this->title . '" />
+			<input name="title" id="title" type="text" class="cms_pageTextHeader" maxlength="150" value="' . $this->title . '" />
 			<div class="clear"></div>
 
 			<label for="template">Template:</label><br />
@@ -195,7 +195,6 @@ class page
 		if(isset($pageId) && $pageId != "new")
 			echo "<p><a href=\"{$_SERVER['PHP_SELF']}?type=post&action=update&p=$this->id\" class=\"actionLink\">Add a New Post</a><br /></p>";
 
-		
 	}
 
 	private function display_pagePosts($pageId) {
@@ -213,7 +212,7 @@ class page
 					$entry_display .= "
 					<div class=\"page\">
 					<h3>
-					<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"pageEditLink\" >$title</a>
+					<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >$title</a>
 					</h3>
 					<p>
 					" . $postDate . "

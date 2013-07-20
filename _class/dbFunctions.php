@@ -47,7 +47,6 @@ function getFormattedPages($format, $eleName, $defaultVal) {
 	} else {
 		return false;
 	}
-	
 }
 
 function lookupTemplateNameById($templateId) {
@@ -61,6 +60,13 @@ function lookupTemplateNameById($templateId) {
 	}
 	
 	return $name;
+}
+
+function countRecords($table_name, $filters) {
+	$countSQL = "SELECT * FROM $table_name " . $filters;
+	$countResult = mysql_query($countSQL);
+	
+	return mysql_num_rows($countResult);
 }
 
 function getFormattedTemplates($format, $eleName, $defaultVal) {

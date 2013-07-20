@@ -93,7 +93,6 @@ class user
 		} else {
 			echo "Failed to load fornm data!";
 		}
-
 	}
 
 	/**
@@ -145,7 +144,7 @@ class user
 			<form action="admin.php?type=user&action=update&p=' . $this->id . '" method="post">
 
 			<label for="username">Username:</label><br />
-			<input name="username" id="username" type="text" maxlength="150" value="' . $this->loginname . '" ' . ($this->loginname != null ? "readonly=readonly" : "") . ' />
+			<input name="username" id="username" class="cms_username"type="text" maxlength="150" value="' . $this->loginname . '" ' . ($this->loginname != null ? "readonly=readonly" : "") . ' />
 			<div class="clear"></div>
 
 			<label for="password">Password:</label><br />
