@@ -151,8 +151,9 @@ class page
 
 		//Load the page from an ID
 		$this->loadRecord($pageId);
+		
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $this->id . '">Page</a><br /><br />';
 
-		echo "<div id='main_content'>";
 		echo '
 			<form action="admin.php?type=page&action=update&p=' . $this->id . '" method="post">
 
@@ -185,29 +186,23 @@ class page
 			' . ((isset($pageId) && $pageId != "new") ? '<a href="admin.php?type=page&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Page!</a><br /><br />' : '') . '
 			</form>
 		';
-		echo "</div>";
 		
-		echo "<div id='main_tools'>";
-		echo "<h2>Admin Actions</h2><br /><br />";
+		if(isset($pageId) && $pageId != "new")
+			echo "<h2>Current Posts</h2><br />";
+		
+		echo $this->display_pagePosts($pageId);
 		
 		if(isset($pageId) && $pageId != "new")
 			echo "<p><a href=\"{$_SERVER['PHP_SELF']}?type=post&action=update&p=$this->id\" class=\"actionLink\">Add a New Post</a><br /></p>";
-		
-		echo '<a href="admin.php" class="actionLink">Back to Home</a><br /><br />';
-		echo $this->display_AdminPosts($pageId);
-		echo "</div><div class='clear'></div>";
-		
+
 		
 	}
 
-	private function display_AdminPosts($pageId) {
+	private function display_pagePosts($pageId) {
 		if($pageId != "new" && $pageId != null) {
-		
-		
-		
 			$postSQL = "SELECT * FROM posts WHERE page_id=$pageId ORDER BY post_created ASC";
 			$postResult = mysql_query($postSQL);
-			$entry_display = "<h2>Current Posts</h2><br />";
+			$entry_display = "";
 			
 			if ($postResult !== false && mysql_num_rows($postResult) > 0 ) {
 				while($row = mysql_fetch_assoc($postResult) ) {
@@ -223,13 +218,13 @@ class page
 					<p>
 					" . $postDate . "
 					</p>
-					</div>";
+					<br /></div>";
 
 				}
 			} else {
 				$entry_display .= "
 				<p>
-				No posts found!
+				No posts found!<br /><br />
 				</p>";
 			}
 		

@@ -128,7 +128,9 @@ class template
 		//Load the page from an ID
 		$this->loadRecord($templateId);
 
-		echo "<div id='main_content'>";
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a> > <a href="admin.php?type=template&action=update&p=' . $templateId . '">Tenplate</a><br /><br />';
+
+		
 		echo '
 			<form action="admin.php?type=template&action=update&p=' . $this->id . '" method="post">
 
@@ -150,13 +152,7 @@ class template
 			' . ((isset($templateId) && $templateId != "new") ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
 			</form>
 		';
-		echo "</div>";
-		
-		echo "<div id='main_tools'>";
-		echo "<h2>Admin Actions</h2><br /><br />";
-		
-		echo '<a href="admin.php" class="actionLink">Back to Home</a><br /><br />';
-		echo "</div><div class='clear'></div>";
+
 		
 		
 	}

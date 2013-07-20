@@ -18,7 +18,7 @@ body {
 	/* background:#000000 url(../images/bg.png) repeat-x top center;
 	background-attachment: fixed; */
 	text-align:center;
-	background:#eeeeee;
+	background:#fff;
 }
 
 
@@ -32,6 +32,7 @@ body {
 	left:0;
 	right:0;
 	clear: both;
+	z-index:1;
 }
 	.cms_topSpacer {
 		width: 100%;
@@ -132,7 +133,12 @@ body {
 	}
 .cms_content {
 	background:#fff;
+	padding:5px;
+	text-align:left;
+	position:relative;
+	left:177px;
 	clear: both;
+	
 }
 
 

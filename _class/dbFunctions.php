@@ -7,13 +7,13 @@ function getPages() {
 	return $pageResult;
 }
 
-function lookupPageNameById($templateId) {
-	$templateSQL = "SELECT * FROM pages WHERE id=$templateId";
-	$templateResult = mysql_query($templateSQL);
+function lookupPageNameById($pageId) {
+	$pageSQL = "SELECT * FROM pages WHERE id=$pageId";
+	$pageResult = mysql_query($pageSQL);
 	$name = null;
 	
-	if(mysql_num_rows($templateResult) > 0) {
-		$row = mysql_fetch_assoc($templateResult);
+	if(mysql_num_rows($pageResult) > 0) {
+		$row = mysql_fetch_assoc($pageResult);
 		$name = $row['page_title'];
 	}
 	
@@ -31,7 +31,7 @@ function getFormattedPages($format, $eleName, $defaultVal) {
 			case "dropdown":
 				$formattedData = "<select name='" . $eleName . "'>";
 				
-				if($defaultVal != null)
+				if($defaultVal != null && $defaultVal != "new")
 					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupPageNameById($defaultVal) . "--</option>";
 				
 				while($row = mysql_fetch_assoc($pageResult) ) {

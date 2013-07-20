@@ -148,44 +148,30 @@ class post
 	
 	
 	public function buildEditForm($pageId, $postId) {
-
 		//Load the page from an ID
 		$this->loadRecord($postId);
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $pageId . '">Page</a> > <a href="admin.php?type=post&action=update&p=' . $pageId . '&c=' . $postId . '">Post</a><br /><br />';
 		
-		echo "<div id='main_content'>";
+		echo '<form action="admin.php?type=post&action=update&p=' . $pageId . '&c=' . $postId . '" method="post">
+		<label for="pageId">Page:</label><br />';
+		echo getFormattedPages("dropdown", "pageId",$pageId);
+		echo '
+		<br /><br /><div class="clear"></div>
 		
-			echo '<form action="admin.php?type=post&action=update&p=' . $pageId . '&c=' . $postId . '" method="post">
-			<label for="pageId">Page:</label><br />';
-			echo getFormattedPages("dropdown", "pageId",$pageId);
-			echo '
-			<br /><br /><div class="clear"></div>
-			
-			<label for="title">Title:</label><br />
-			<input name="title" id="title" type="text" maxlength="150" value="' . $this->title . '"/>
-			<div class="clear"></div>
+		<label for="title">Title:</label><br />
+		<input name="title" id="title" type="text" maxlength="150" value="' . $this->title . '"/>
+		<div class="clear"></div>
 
-			<label for="content">Content Text:</label><br />
-			<textarea name="content" id="content" cols="150">' . $this->content . '</textarea>
-			<div class="clear"></div>
+		<label for="content">Content Text:</label><br />
+		<textarea name="content" id="content" cols="60">' . $this->content . '</textarea>
+		<div class="clear"></div>
 
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($postId) || $postId == "new") ? "Create" : "Update") . ' This Post!" /><br /><br />
-			' . ((isset($postId) && $postId != "new") ? '<a href="admin.php?type=post&action=delete&p=' . $pageId . '&c=' . $postId . '" class="deleteBtn">Delete This Post!</a><br /><br />' : '') . '
-			</form>
-			<br />
-			
-			';
-		echo "</div>";
+		<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($postId) || $postId == "new") ? "Create" : "Update") . ' This Post!" /><br /><br />
+		' . ((isset($postId) && $postId != "new") ? '<a href="admin.php?type=post&action=delete&p=' . $pageId . '&c=' . $postId . '" class="deleteBtn">Delete This Post!</a><br /><br />' : '') . '
+		</form>
+		<br />
 		
-		echo "<div id='main_tools'>";
-		echo '<h2>Admin Actions</h2><br /><br />
-		
-			<a href="admin.php?type=page&action=update&p=' . $pageId . '" class="actionLink">Back to Page</a><br />
-			<a href="admin.php" class="actionLink">Back to Home</a>
-			
-			';
-		
-		
-		echo "</div><div class='clear'></div>";
+		';
 
 	}
 

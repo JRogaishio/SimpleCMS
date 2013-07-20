@@ -10,11 +10,12 @@ require("config.php");
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>Ferret CMS</title>
 	<link rel="stylesheet" type="text/css" href="_css/style.css" />
-	
+	<script type="text/javascript" src="_js/jquery-2.0.3.min.js"></script>
 	<script type="text/javascript" src="_js/tinymce/tinymce.min.js"></script>
 	<script type="text/javascript">
 	tinymce.init({
 		selector: "textarea",
+		width : 700,
 		plugins: [
 			"advlist autolink lists link image charmap print preview anchor",
 			"searchreplace visualblocks code fullscreen",
@@ -22,13 +23,22 @@ require("config.php");
 		],
 		toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
 	});
+	
+	//Navigation accordion
+	$(function () {
+		$(".cms_navItemList").hide();
+		
+		$(".cms_navItemTitle").click(function(){
+			$(this).parent().children(".cms_navItemList").slideToggle("slow");
+		});
+	});
+	
+	
 	</script>
 	
 </head>
 
 <body>
-	<div id="main">
-	<h1>Ferret CMS!</h1>
 	<?php
 
 	$cms = new cms();
@@ -36,7 +46,6 @@ require("config.php");
 	$cms->load("admin");
 
 	?>
-	</div>
 </body>
 
 </html>

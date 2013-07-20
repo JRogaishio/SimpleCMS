@@ -139,7 +139,8 @@ class user
 		//Load the page from an ID
 		$this->loadRecord($userId);
 		
-		echo "<div id='main_content'>";
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a> > <a href="admin.php?type=user&action=update&p=' . $userId . '">User</a><br /><br />';
+
 		echo '
 			<form action="admin.php?type=user&action=update&p=' . $this->id . '" method="post">
 
@@ -161,15 +162,6 @@ class user
 			' . ((isset($userId) && $userId != "new") ? '<a href="admin.php?type=user&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
 			</form>
 		';
-		echo "</div>";
-		
-		echo "<div id='main_tools'>";
-		echo "<h2>Admin Actions</h2><br /><br />";
-		
-		echo '<a href="admin.php" class="actionLink">Back to Home</a><br /><br />';
-		echo "</div><div class='clear'></div>";
-		
-		
 	}
 	
 }

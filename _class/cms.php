@@ -44,33 +44,102 @@ class cms {
 		//user gets
 		$this->_USERPAGE = isset( $_GET['p'] ) ? $_GET['p'] : "home";
 		
-		$this->display_cmsWarnings();
+		$this->cms_displayWarnings();
 
+		$this->cms_displayTop();
+		$this->cms_displayNav();
+		
+		
 		if($this->_AUTH) {
-			//Build the manager
-			switch($this->_TYPE) {
-				case "page":
-					echo $this->cms_displayPageManager();
-					break;
-				case "template":
-					echo $this->cms_displayTemplateManager();
-					break;
-				case "post":
-					echo $this->cms_displayPostManager();
-					break;
-				case "user":
-					echo $this->cms_displayUserManager();
-					break;
-				default:
-					$this->cms_displayMain();
-					break;
-			}
+			//Display the admin homepage
+			$this->cms_displayMain();
 		} else if($mode == "user"){
 			//User view mode
 			$this->load_page($this->_USERPAGE);
 		}
 	}
 
+	private function cms_displayTop() {
+		echo "
+		<div class=\"cms_top\">
+			<h1 class=\"cms_title\"><a href=\"#\">{f}</a></h1>
+			<div class=\"cms_topItems\">
+				<input type=\"text\" value=\"search here\" size=\"25\" class=\"cms_searchBox\" onclick=\"if($(this).val()=='search here'?$(this).val(''):$(this).val());\"/>
+				<a href=\"#\"><span id=\"cms_login\">Log out</span></a> <br />
+			</div>	
+		</div>
+		<div class=\"cms_topSpacer\">&nbsp;</div>
+		";
+	}
+	
+	private function cms_displayNav() {
+	
+		echo '
+			<div class="cms_nav">
+				<div class="cms_navItemTitle"><div id="cms_dash" class="cms_icon"></div><a href="admin.php" class="cms_navItemTitleLink">Dashboard</a></div>
+				<div><div class="cms_navItemTitle"><div id="cms_webm" class="cms_icon"></div>Website Manager</div>
+					<div class="cms_navItemList">
+						<ul>
+						<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit site</a></li>
+						</ul>
+					</div>
+				</div>
+				
+				<div><div class="cms_navItemTitle"><div id="cms_page" class="cms_icon"></div>Page Manager</div>
+					<div class="cms_navItemList">
+						<ul>
+						<li class="cms_navItem"><a href="admin.php?type=pageDisplay" class="cms_navItemLink">Edit Pages</a></li>
+						<li class="cms_navItem"><a href="admin.php?type=page&action=update&p=new" class="cms_navItemLink">Add a Page</a></li>
+						</ul>
+					</div>
+				</div>
+				<div><div class="cms_navItemTitle"><div id="cms_post" class="cms_icon"></div>Post Manager</div>
+					<div class="cms_navItemList">
+						<ul>
+						<li class="cms_navItem"><a href="admin.php?type=postDisplay" class="cms_navItemLink">Edit Posts</a></li>
+						<li class="cms_navItem"><a href="admin.php?type=post&action=update&p=' . $this->_PARENT . '&c=new" class="cms_navItemLink">Add a Post</a></li>
+						</ul>
+					</div>	
+				</div>	
+				<div><div class="cms_navItemTitle"><div id="cms_template" class="cms_icon"></div>Template Manager</div>
+					<div class="cms_navItemList">
+						<ul>
+						<li class="cms_navItem"><a href="admin.php?type=templateDisplay" class="cms_navItemLink">Edit Templates</a></li>
+						<li class="cms_navItem"><a href="admin.php?type=template&action=update&p=mew" class="cms_navItemLink">Add a Template</a></li>
+						</ul>
+					</div>	
+				</div>	
+					
+				<div><div class="cms_navItemTitle"><div id="cms_user" class="cms_icon"></div>User Manager</div>
+					<div class="cms_navItemList">
+						<ul>
+						<li class="cms_navItem"><a href="admin.php?type=userDisplay" class="cms_navItemLink">Edit Users</a></li>
+						<li class="cms_navItem"><a href="admin.php?type=user&action=update&p=' . $this->_PARENT . '" class="cms_navItemLink">Add a User</a></li>
+						</ul>
+					</div>	
+				</div>	
+					
+				<div><div class="cms_navItemTitle"><div id="cms_plug" class="cms_icon"></div>Plugin Manager</div>
+					<div class="cms_navItemList">
+						<ul>
+						<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit Plugins</a></li>
+						<li class="cms_navItem"><a href="#" class="cms_navItemLink">Add a Plugin</a></li>
+						</ul>
+					</div>	
+				</div>
+				<div><div class="cms_navItemTitle"></div></div>
+				
+			</div>
+	
+		';
+	
+	
+		
+		
+	}
+	
+	
+	
 	
 	/* User to determine if we should show the user create page
 	*/
@@ -232,6 +301,8 @@ class cms {
 	/* Display the list of all pages
 	*/
 	public function cms_displayAdminPages() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a><br /><br />';
+		
 		$pageSQL = "SELECT * FROM pages ORDER BY page_created DESC";
 		$pageResult = mysql_query($pageSQL);
 	
@@ -264,6 +335,8 @@ class cms {
 	/* Display the list of all templates
 	*/
 	public function cms_displayAdminTemplates() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a><br /><br />';
+		
 		$templateSQL = "SELECT * FROM templates ORDER BY template_created DESC";
 		$templateResult = mysql_query($templateSQL);
 	
@@ -292,9 +365,55 @@ class cms {
 	
 	}
 	
+	public function cms_displayAdminPosts() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=postDisplay">Post List</a><br /><br />';
+	
+		$postSQL = "SELECT * FROM posts ORDER BY page_id ASC";
+		$postResult = mysql_query($postSQL);
+		$lastPageName = "";
+		
+		if ($postResult !== false && mysql_num_rows($postResult) > 0 ) {
+			while($row = mysql_fetch_assoc($postResult) ) {
+				
+				if($lastPageName != lookupPageNameById($row['page_id'])) {
+					//If we aren't on the first page in the list, add some line breaks inbetween page lists.
+					if($lastPageName != "")
+						echo "<br /><br />";
+					
+					$lastPageName = lookupPageNameById($row['page_id']);
+					echo "<h1>" . $lastPageName . "</h1>";
+				}
+				
+				$title = stripslashes($row['post_title']);
+				$postDate = stripslashes($row['post_date']);
+
+				echo "
+				<div class=\"page\">
+				<h3>
+				<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"pageEditLink\" >$title</a>
+				</h3>
+				<p>
+				" . $postDate . "
+				</p>
+				</div>";
+
+			}
+		} else {
+			echo "
+			<p>
+			No posts found!<br /><br />
+			</p>";
+		}
+		
+	}	
+	
+	
+	
 	/* Display the list of all users
 	*/
 	public function cms_displayAdminUsers() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a><br /><br />';
+		
 		$userSQL = "SELECT * FROM users ORDER BY user_created DESC";
 		$userResult = mysql_query($userSQL);
 	
@@ -327,40 +446,45 @@ class cms {
 	*/
 	public function cms_displayMain() {
 		
-		echo ($this->_AUTH ? "Welcome <strong>" . $this->_USER->loginname . "</strong><br /><br />" : "");
+		
 		
 		//Build the pages section ##################################################################################
-		echo "<div id='main_content'>";
+		echo "<div class='cms_content'>";
+			
 		
-		echo "<h2>Pages</h2><br /><br />";
-		$this->cms_displayAdminPages();
-		
-		
-		echo "<br /><br /><hr /><br /><br />
-			<h2>Templates</h2><br />";
-		$this->cms_displayAdminTemplates();
-		
-		echo "<br /><br /><hr /><br /><br />
-			<h2>Users</h2><br />";
-		$this->cms_displayAdminUsers();
-		
+		//Build the manager
+		switch($this->_TYPE) {
+			case "page":
+				echo $this->cms_displayPageManager();
+				break;
+			case "pageDisplay":
+				echo $this->cms_displayAdminPages();
+				break;
+			case "template":
+				echo $this->cms_displayTemplateManager();
+				break;
+			case "templateDisplay":
+				echo $this->cms_displayAdminTemplates();
+				break;
+			case "post":
+				echo $this->cms_displayPostManager();
+				break;
+			case "postDisplay":
+				echo $this->cms_displayAdminPosts();
+				break;
+			case "user":
+				echo $this->cms_displayUserManager();
+				break;
+			case "userDisplay":
+				echo $this->cms_displayAdminUsers();
+				break;
+			default:
+				echo ($this->_AUTH ? "Welcome <strong>" . $this->_USER->loginname . "</strong><br /><br />" : "");
+				echo "Welcome to the homepage!";
+				break;
+		}
 		
 		echo "<br /><br /></div>";
-		
-		//Build the admin tools section ################################################################################
-		
-		echo "
-		<div id='main_tools'><p class=\"admin_link\">
-			<h2>Admin Actions</h2>
-			<br /><br />
-			<a href=\"{$_SERVER['PHP_SELF']}?type=page&action=update\" class=\"actionLink\">Add a New Page</a><br />
-			<a href=\"{$_SERVER['PHP_SELF']}?type=template&action=update\" class=\"actionLink\">Add a New Template</a><br />
-			<a href=\"{$_SERVER['PHP_SELF']}?type=user&action=update\" class=\"actionLink\">Add a New User</a><br />
-			<br /><br />
-			</p>
-		</div><div class='clear'></div>
-		";
-
 	}
 
 	/* Display the page management page
@@ -648,7 +772,7 @@ class cms {
 		
 	}
 	
-	public function display_cmsWarnings() {
+	public function cms_displayWarnings() {
 		//Make sure a homepage is set
 		$pageSQL = "SELECT * FROM pages WHERE page_isHome=1;";
 		$pageResult = mysql_query($pageSQL);
