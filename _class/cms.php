@@ -49,47 +49,44 @@ class cms {
 		
 		$this->cms_displayWarnings();		
 		
-		if($this->_AUTH) {
+		if($this->_AUTH && $mode == "admin") {
 			$this->cms_displayTop();
 			$this->cms_displayNav();
-		}
-		//Build the pages section ##################################################################################
-		echo "<div class='cms_content'>";
-			
-		//Build the manager
-		switch($this->_TYPE) {
-			case "page":
-				echo $this->cms_displayPageManager();
-				break;
-			case "pageDisplay":
-				echo $this->cms_displayAdminPages();
-				break;
-			case "template":
-				echo $this->cms_displayTemplateManager();
-				break;
-			case "templateDisplay":
-				echo $this->cms_displayAdminTemplates();
-				break;
-			case "post":
-				echo $this->cms_displayPostManager();
-				break;
-			case "postDisplay":
-				echo $this->cms_displayAdminPosts();
-				break;
-			case "user":
-				echo $this->cms_displayUserManager();
-				break;
-			case "userDisplay":
-				echo $this->cms_displayAdminUsers();
-				break;
-			default:
-				$this->cms_displayMain();
-				break;
-		}
-		echo "<br /><br /></div>";
 		
-		
-		if($this->_AUTH) {
+			//Build the pages section ##################################################################################
+			echo "<div class='cms_content'>";
+				
+			//Build the manager
+			switch($this->_TYPE) {
+				case "page":
+					echo $this->cms_displayPageManager();
+					break;
+				case "pageDisplay":
+					echo $this->cms_displayAdminPages();
+					break;
+				case "template":
+					echo $this->cms_displayTemplateManager();
+					break;
+				case "templateDisplay":
+					echo $this->cms_displayAdminTemplates();
+					break;
+				case "post":
+					echo $this->cms_displayPostManager();
+					break;
+				case "postDisplay":
+					echo $this->cms_displayAdminPosts();
+					break;
+				case "user":
+					echo $this->cms_displayUserManager();
+					break;
+				case "userDisplay":
+					echo $this->cms_displayAdminUsers();
+					break;
+				default:
+					$this->cms_displayMain();
+					break;
+			}
+			echo "<br /><br /></div>";
 
 		} else if($mode == "user"){
 			//User view mode
