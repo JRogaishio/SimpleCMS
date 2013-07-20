@@ -114,8 +114,7 @@ body {
 	background:#fff;
 	padding:5px;
 	text-align:left;
-	position:relative;
-	left:177px;
+	margin-left:177px; /*I'm so sorry*/
 	clear: both;
 }
 
