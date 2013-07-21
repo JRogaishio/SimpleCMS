@@ -11,13 +11,13 @@
 
 <body>
 	<div id="main">
-	<?php $cms->load_navigation(array("home","home","home")); ?>
+	<?php $cms->load_navigation(array("home","page2","page3")); ?>
 	
 	<h1><?php echo $page->title; ?></h1>
 	<?php
 
 	
-	$page->display_posts(5);
+	$page->display_posts(5,false);
 	
 	
 	
