@@ -1007,7 +1007,7 @@ class cms {
 				$pageData = mysql_fetch_assoc($pageResult);
 
 			if(isset($pageData)) {
-				echo "<li class='cms_li_nav'><a href='?p=" . $pageData['page_safeLink'] . "'>" . $pageData['page_title'] . "</a></li>";
+				echo "<li class='cms_li_nav' id='nav-$data[$i]'><a href='?p=" . $pageData['page_safeLink'] . "'>" . $pageData['page_title'] . "</a></li>";
 			}
 		
 		}

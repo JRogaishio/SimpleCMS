@@ -237,7 +237,7 @@ class page
 		}
 	}
 	
-	public function display_posts($postLimit) {
+	public function display_posts($postLimit, $showDate) {
 	
 		if(isset($this->id)) {
 			if($postLimit == -1)
@@ -258,7 +258,12 @@ class page
 					$entry_display .= "
 					<div class=\"page\">
 					<h3>$title</h3>
-					<p>$postDate</p>
+					";
+					
+					if($showDate)
+						$entry_display .= "<p>$postDate</p>";
+					
+					$entry_display .= "					
 					<p>
 					$postContent
 					</p>
