@@ -29,23 +29,23 @@ class cms {
 		$this->_MODE = $mode;
 		
 		//Admin Gets
-		$this->_TYPE = isset( $_GET['type'] ) ? $_GET['type'] : "";
-		$this->_ACTION = isset( $_GET['action'] ) ? $_GET['action'] : "";
-		$this->_PARENT = isset( $_GET['p'] ) ? $_GET['p'] : "";
-		$this->_CHILD = isset( $_GET['c'] ) ? $_GET['c'] : "";
+		$this->_TYPE = isset( $_GET['type'] ) ? clean($_GET['type']) : "";
+		$this->_ACTION = isset( $_GET['action'] ) ? clean($_GET['action']) : "";
+		$this->_PARENT = isset( $_GET['p'] ) ? clean($_GET['p']) : "";
+		$this->_CHILD = isset( $_GET['c'] ) ? clean($_GET['c']) : "";
 
 		//Handle global states such as logging out, etc
 		$this->cms_handleState();
 
 		//Set the username and password off the cookies
-		$_USERNAME = (isset($_COOKIE['username']) ? $_COOKIE['username'] : null);
-		$_PASSWORD = (isset($_COOKIE['password']) ? $_COOKIE['password'] : null);
+		$_USERNAME = (isset($_COOKIE['username']) ? clean($_COOKIE['username']) : null);
+		$_PASSWORD = (isset($_COOKIE['password']) ? clean($_COOKIE['password']) : null);
 		
 		if($mode == "admin")
 			$this->_AUTH = $this->cms_authUser($_USERNAME, $_PASSWORD);
 		
 		//user gets
-		$this->_USERPAGE = isset( $_GET['p'] ) ? $_GET['p'] : "home";
+		$this->_USERPAGE = isset( $_GET['p'] ) ? clean($_GET['p']) : "home";
 		
 		$this->cms_displayWarnings();		
 		
@@ -215,10 +215,10 @@ class cms {
 		if((($username!=null && $pass != null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->cms_getNumUsers() > 0) {
 			if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
 				//Hash the password, apply salt, rehash
-				$secPass = hash('sha256',($_POST['login_password']));
-				$secPass = hash('sha256',($secPass . get_userSalt($_POST['login_username'])));
+				$secPass = hash('sha256',(clean($_POST['login_password'])));
+				$secPass = hash('sha256',($secPass . get_userSalt(clean($_POST['login_username']))));
 				
-				$userSQL = "SELECT * FROM users WHERE user_login='" . $_POST['login_username'] . "' AND user_pass='$secPass';";
+				$userSQL = "SELECT * FROM users WHERE user_login='" . clean($_POST['login_username']) . "' AND user_pass='$secPass';";
 			} else {
 				$userSQL = "SELECT * FROM users WHERE user_login='$username' AND user_pass='$pass';";
 			}
@@ -304,7 +304,7 @@ class cms {
 	public function cms_displayUserManager() {
 		
 		//The context is the user ID. We want to update rather than insert if we are editing
-		$userId = (isset($_GET['p']) && !empty($_GET['p'])) ? $_GET['p'] : "new";
+		$userId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
 		
 		$user = new User;
 		
@@ -554,7 +554,7 @@ class cms {
 	public function cms_displayPageManager() {
 		
 		//The context is the page ID. We want to update rather than insert if we are editing
-		$pageId = (isset($_GET['p']) && !empty($_GET['p'])) ? $_GET['p'] : "new";
+		$pageId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
 		
 		switch($this->_ACTION) {
 			case "update":
@@ -599,7 +599,7 @@ class cms {
 	public function cms_displayTemplateManager() {
 		
 		//The context is the page ID. We want to update rather than insert if we are editing
-		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? $_GET['p'] : "new";
+		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
 		
 		switch($this->_ACTION) {
 			case "update":
@@ -644,7 +644,7 @@ class cms {
 	public function display_pluginManager() {
 		
 		//The context is the page ID. We want to update rather than insert if we are editing
-		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? $_GET['p'] : "new";
+		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
 		
 		switch($this->_ACTION) {
 			case "update":
@@ -684,8 +684,8 @@ class cms {
 	*/
 	public function cms_displayPostManager() {
 		//The context is the page ID. We want to update rather than insert if we are editing
-		$pageId = isset($_GET['p']) ? $_GET['p'] : "new";
-		$postId = isset($_GET['c']) ? $_GET['c'] : "new";
+		$pageId = isset($_GET['p']) ? clean($_GET['p']) : "new";
+		$postId = isset($_GET['c']) ? clean($_GET['c']) : "new";
 		
 		switch($this->_ACTION) {
 			case "update":
