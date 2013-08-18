@@ -17,9 +17,9 @@ class cms {
 	//Login stuff
 	var $_AUTH = false;	
 	var $_USER = null;
-	var $_USERNAME = null;
-	var $_PASSWORD = null;
-	
+	//var $_USERNAME = null;
+	//var $_PASSWORD = null;
+	var $_LOGINTOKEN = null;
 	
 	/* This function is called whenever the class is first initialized.
 	 * This takes care of page routing
@@ -38,11 +38,10 @@ class cms {
 		$this->cms_handleState();
 
 		//Set the username and password off the cookies
-		$_USERNAME = (isset($_COOKIE['username']) ? clean($_COOKIE['username']) : null);
-		$_PASSWORD = (isset($_COOKIE['password']) ? clean($_COOKIE['password']) : null);
+		$_LOGINTOKEN = (isset($_COOKIE['token']) ? clean($_COOKIE['token']) : null);
 		
 		if($mode == "admin")
-			$this->_AUTH = $this->cms_authUser($_USERNAME, $_PASSWORD);
+			$this->_AUTH = $this->cms_authUser($_LOGINTOKEN);
 		
 		//user gets
 		$this->_USERPAGE = isset( $_GET['p'] ) ? clean($_GET['p']) : "home";
@@ -210,9 +209,9 @@ class cms {
 	
 	/* Function to authenticate the user against the DB
 	*/
-	private function cms_authUser($username, $pass) {
-		
-		if((($username!=null && $pass != null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->cms_getNumUsers() > 0) {
+	private function cms_authUser($token) {
+		//Check to see if any login info was posted or if a token exists
+		if((($token!=null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->cms_getNumUsers() > 0) {
 			if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
 				//Hash the password, apply salt, rehash
 				$secPass = hash('sha256',(clean($_POST['login_password'])));
@@ -220,11 +219,12 @@ class cms {
 				
 				$userSQL = "SELECT * FROM users WHERE user_login='" . clean($_POST['login_username']) . "' AND user_pass='$secPass';";
 			} else {
-				$userSQL = "SELECT * FROM users WHERE user_login='$username' AND user_pass='$pass';";
+				$userSQL = "SELECT * FROM users WHERE user_token='$token';";
 			}
 			
 			$userResult = mysql_query($userSQL);
 
+			//Test to see if the auth was successful
 			if ($userResult !== false && mysql_num_rows($userResult) > 0 ) {
 				$userData = mysql_fetch_assoc($userResult);
 
@@ -243,12 +243,22 @@ class cms {
 				
 				//30 minute auth timeout
 				$timeout = time() + 900; 
-				setcookie("username", $user->loginname, $timeout); 
-				setcookie("password", $user->password, $timeout); 
+				
+				$newToken = hash('sha256', (unique_salt() . $user->loginname));
+	
+				$tokenSQL = "UPDATE users SET user_token = '$newToken' WHERE id=" . $user->id . ";";
+				$tokenResult = mysql_query($tokenSQL) OR DIE ("Could not update user!");
+				if(!$tokenResult) {
+					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";
+				}
+				
+				//Create a random cookie based off of the username and a unique salt
+				setcookie("token", $newToken, $timeout); 
 				
 				return true;
 				
 			} else {
+				//Display the login manager if the auth failed
 				$this->cms_displayLoginManager();
 				if (isset($_POST) && !empty($_POST)) echo "Bad username or password!<br /><br />";
 				return false;
@@ -264,7 +274,7 @@ class cms {
 			echo $this->cms_displayUserManager();
 			return false;
 		} else {
-			
+			//Display the login manager if there is no login data posted or no token
 			$this->cms_displayLoginManager();
 			return false;
 		}
@@ -823,6 +833,7 @@ class cms {
 		  `user_login` varchar(64) DEFAULT NULL,
 		  `user_pass` varchar(64) DEFAULT NULL,
 		  `user_salt` varchar(64) DEFAULT NULL,
+		  `user_token` varchar(64) DEFAULT NULL,
 		  `user_email` varchar(128) DEFAULT NULL,
 		  `user_created` varchar(100) DEFAULT NULL,
 		  `user_isRegistered` tinyint(1) DEFAULT NULL,
