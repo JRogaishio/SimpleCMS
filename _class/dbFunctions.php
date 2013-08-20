@@ -123,4 +123,17 @@ function get_userSalt($username) {
 	}
 }
 
+function logChange($type, $action, $userId, $user, $change) {
+
+	$sql = "INSERT INTO log (log_type, log_action, log_userId, log_user, log_info, log_date, log_created, log_remoteIp) VALUES";
+	$sql .= "('$type', '$action', '$userId', '$user', '$change', '" . date('Y-m-d H:i:s') . "','" . time() . "','" . $_SERVER['REMOTE_ADDR'] . "')";
+
+	$result = mysql_query($sql) OR DIE ("Could not write to log!");
+
+	return $result;	
+}
+
+
+
+
 ?>

@@ -17,8 +17,6 @@ class cms {
 	//Login stuff
 	var $_AUTH = false;	
 	var $_USER = null;
-	//var $_USERNAME = null;
-	//var $_PASSWORD = null;
 	var $_LOGINTOKEN = null;
 	
 	/* This function is called whenever the class is first initialized.
@@ -36,9 +34,12 @@ class cms {
 
 		//Handle global states such as logging out, etc
 		$this->cms_handleState();
-
-		//Set the username and password off the cookies
+		
+		//Set the user-name and password off the cookies
 		$_LOGINTOKEN = (isset($_COOKIE['token']) ? clean($_COOKIE['token']) : null);
+
+
+
 		
 		if($mode == "admin")
 			$this->_AUTH = $this->cms_authUser($_LOGINTOKEN);
@@ -46,12 +47,13 @@ class cms {
 		//user gets
 		$this->_USERPAGE = isset( $_GET['p'] ) ? clean($_GET['p']) : "home";
 		
-		$this->cms_displayWarnings();		
+				
 		
 		if($this->_AUTH && $mode == "admin") {
 			$this->cms_displayTop();
 			$this->cms_displayNav();
-		
+			$this->cms_displayWarnings();
+			
 			//Build the pages section ##################################################################################
 			echo "<div class='cms_content'>";
 				
@@ -96,16 +98,26 @@ class cms {
 	/* Handle user triggered state changes such as logging out
 	*/
 	private function cms_handleState() {
+
 		if($this->_TYPE == "web_state") {
 			//Build the manager
 			switch($this->_ACTION) {
 				case "logout":
-					//Set the login cookes to expire NOW and unset them
-					setcookie("username", "", time()-3600); 
-					setcookie("password", "", time()-3600); 
-					unset($_COOKIE['username']);
-					unset($_COOKIE['password']);
 					echo "<h2>You have been successfully logged out!</h2><br />";
+					
+					//Grab the username from the token for logging. We don't have the login set yet before we havent authenticated
+					if(isset($_COOKIE['token'])) {
+						$userSQL = "SELECT * FROM users WHERE user_token='" . clean($_COOKIE['token']) . "';";
+						$userResult = mysql_query($userSQL);
+						if ($userResult !== false && mysql_num_rows($userResult) > 0 ) {
+							$userData = mysql_fetch_assoc($userResult);
+							logChange("user", 'log_out',$userData['id'], $userData['user_login'], "logged out");
+						}					
+					}
+
+					//Set the login cookes to expire NOW and unset them
+					setcookie("token", "", time()-3600); 
+					unset($_COOKIE['token']);
 				break;
 			default:
 				echo "There was an error when trying to change the state...<br />Perhaps someone should stop editing the URL...";
@@ -241,7 +253,7 @@ class cms {
 				//Set the global variable
 				$this->_USER = $user;
 				
-				//30 minute auth timeout
+				//30 minute auth time-out
 				$timeout = time() + 900; 
 				
 				$newToken = hash('sha256', (unique_salt() . $user->loginname));
@@ -252,26 +264,37 @@ class cms {
 					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";
 				}
 				
-				//Create a random cookie based off of the username and a unique salt
+				//Create a random cookie based off of the user name and a unique salt
 				setcookie("token", $newToken, $timeout); 
 				
+				//Log that a user logged in. POST data is only set on the initial login
+				if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
+					logChange("user", 'log_in',$user->id,$user->loginname, "logged in");
+				}
 				return true;
 				
 			} else {
 				//Display the login manager if the auth failed
 				$this->cms_displayLoginManager();
 				if (isset($_POST) && !empty($_POST)) echo "Bad username or password!<br /><br />";
+				
+				logChange("user", 'log_in',null, clean($_POST['login_username']), "FAILED LOGIN");
+				
 				return false;
 			}
 			
 			 
 		} else if($this->cms_getNumUsers() == 0) {
-			echo "<p><strong>Hello</strong> there! I see that you have no users setup.<br />
-					Use the below form to create a user account to get started!<br />
-					Once you have created your user, you will be sent to the login form. Use your new account to access all the awesomeness!</p><br />";
-			
 			//Display the user management form
 			echo $this->cms_displayUserManager();
+		
+			//Check again if a user exists after running the user manager
+			if($this->cms_getNumUsers() == 0) {
+				echo "<p><strong>Hello</strong> there! I see that you have no users setup.<br />
+					Use the above form to create a user account to get started!<br />
+					Once you have created your user, you will be sent to the login form. Use your new account to access all the awesomeness!</p><br />";
+			}
+			
 			return false;
 		} else {
 			//Display the login manager if there is no login data posted or no token
@@ -308,65 +331,7 @@ class cms {
 		';
 		echo "</div>";
 	}
-	
-	/* Display the User management
-	*/
-	public function cms_displayUserManager() {
 		
-		//The context is the user ID. We want to update rather than insert if we are editing
-		$userId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
-		
-		$user = new User;
-		
-		//Allow access to the user editor if you are authenticated or there are no users
-		if($this->_AUTH || $this->cms_getNumUsers() == 0) {
-			switch($this->_ACTION) {
-				case "update":
-					//Determine if the form has been submitted
-					if(isset($_POST['saveChanges'])) {
-						// User has posted the article edit form: save the new article
-						
-						$user->storeFormValues($_POST);
-						
-						if($userId=="new") {
-							$user->insert();
-							
-							//Only display the main form if the user authenticated
-							//Since the setup uses the above insert, we want to make sure we don't 
-							//genereate the below until they truely login
-							if($this->_AUTH) {
-								//Re-build the main User after creation
-								$this->cms_displayMain();
-							} else {
-								$this->cms_displayLoginManager();
-							}
-						} else {
-							$user->update($userId);
-							//Re-build the User creation form once we are done
-							$user->buildEditForm($userId);
-						}
-					} else {
-						// User has not posted the article edit form yet: display the form
-						$user->buildEditForm($userId);
-					}
-					break;
-				case "delete":
-					$user->delete($userId);
-					$this->cms_displayMain();
-					break;
-				default:
-					if($this->cms_getNumUsers() == 0) {
-						$user->buildEditForm("new");
-					} else {
-						echo "Error with user manager<br /><br />";
-					}
-			}
-		} else {
-			//Show the login if your not authenticated and users exist in the DB
-			$user->buildLogin();
-		}
-	}
-	
 	/* Display the list of all pages
 	*/
 	public function cms_displayAdminPages() {
@@ -559,6 +524,68 @@ class cms {
 		echo "</p>";
 	}
 
+	/* Display the User management
+	*/
+	public function cms_displayUserManager() {
+		
+		//The context is the user ID. We want to update rather than insert if we are editing
+		$userId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
+		
+		$user = new User;
+		
+		//Allow access to the user editor if you are authenticated or there are no users
+		if($this->_AUTH || $this->cms_getNumUsers() == 0) {
+			switch($this->_ACTION) {
+				case "update":
+					//Determine if the form has been submitted
+					if(isset($_POST['saveChanges'])) {
+						// User has posted the article edit form: save the new article
+						
+						$user->storeFormValues($_POST);
+						
+						if($userId=="new") {
+							$user->insert();
+							
+							//Only display the main form if the user authenticated
+							//Since the setup uses the above insert, we want to make sure we don't 
+							//genereate the below until they truely login
+							if($this->_AUTH) {
+								//Re-build the main User after creation
+								$this->cms_displayMain();
+								logChange("user", 'add',$this->_USER->id,$this->_USER->loginname, $user->loginname . " added");
+							} else {
+								$this->cms_displayLoginManager();
+							}
+							
+						} else {
+							$user->update($userId);
+							//Re-build the User creation form once we are done
+							$user->buildEditForm($userId);
+							logChange("user", 'update',$this->_USER->id,$this->_USER->loginname, $user->loginname . " updated");
+						}
+					} else {
+						// User has not posted the article edit form yet: display the form
+						$user->buildEditForm($userId);
+					}
+					break;
+				case "delete":
+					$user->delete($userId);
+					$this->cms_displayMain();
+					logChange("user", 'delete',$this->_USER->id,$this->_USER->loginname, $user->loginname . " deleted");
+					break;
+				default:
+					if($this->cms_getNumUsers() == 0) {
+						$user->buildEditForm("new");
+					} else {
+						echo "Error with user manager<br /><br />";
+					}
+			}
+		} else {
+			//Show the login if your not authenticated and users exist in the DB
+			$user->buildLogin();
+		}
+	}
+	
 	/* Display the page management page
 	*/
 	public function cms_displayPageManager() {
@@ -578,10 +605,12 @@ class cms {
 						$page->insert();
 						//Re-build the main page after creation
 						$this->cms_displayMain();
+						logChange("page", 'add',$this->_USER->id,$this->_USER->loginname, $page->title . " added");
 					} else {
 						$page->update($pageId);
 						//Re-build the page creation form once we are done
 						$page->buildEditForm($pageId);
+						logChange("page", 'update',$this->_USER->id,$this->_USER->loginname, $page->title . " updated");
 					}
 				} else {
 					// User has not posted the article edit form yet: display the form
@@ -593,6 +622,7 @@ class cms {
 				$page = new Page;
 				$page->delete($pageId);
 				$this->cms_displayMain();
+				logChange("page", 'delete',$this->_USER->id,$this->_USER->loginname, $page->title . " deleted");
 				break;
 			default:
 				echo "Error with page manager<br /><br />";
@@ -623,10 +653,12 @@ class cms {
 						$template->insert();
 						//Re-build the main page after creation
 						$this->cms_displayMain();
+						logChange("template", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 					} else {
 						$template->update($templateId);
 						//Re-build the page creation form once we are done
 						$template->buildEditForm($templateId);
+						logChange("template", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " updated");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
@@ -638,6 +670,7 @@ class cms {
 				$template = new Template;
 				$template->delete($templateId);
 				$this->cms_displayMain();
+				logChange("template", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " deleted");
 				break;
 			default:
 				echo "Error with template manager<br /><br />";
@@ -650,6 +683,7 @@ class cms {
 	}
 	
 	/* Display the plugin management page
+	Work In Progress
 	*/
 	public function display_pluginManager() {
 		
@@ -661,17 +695,19 @@ class cms {
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
 					// User has posted the article edit form: save the new article
-					$plugin = new Plugin;
+					$template = new Template;
 					$template->storeFormValues($_POST);
 					
 					if($templateId=="new") {
 						$template->insert();
 						//Re-build the main page after creation
 						$this->cms_displayMain();
+						logChange("plugin", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 					} else {
 						$template->update($templateId);
 						//Re-build the page creation form once we are done
 						$template->buildEditForm($templateId);
+						logChange("plugin", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
@@ -683,6 +719,7 @@ class cms {
 				$template = new Template;
 				$template->delete($templateId);
 				$this->cms_displayMain();
+				logChange("plugin", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 				break;
 			default:
 				echo "Error with template manager<br /><br />";
@@ -705,10 +742,14 @@ class cms {
 					$post = new Post;
 					$post->storeFormValues($_POST);
 					
-					if($postId=="new")
+					if($postId=="new") {
 						$post->insert($pageId);
-					else
+						logChange("post", 'add',$this->_USER->id,$this->_USER->loginname, $post->title . " added");
+					}
+					else {
 						$post->update($postId);
+						logChange("post", 'update',$this->_USER->id,$this->_USER->loginname, $post->title . " updated");
+					}
 						
 					//Re-build the post creation form once we are done
 					$post->buildEditForm($pageId,$postId);
@@ -722,7 +763,8 @@ class cms {
 				//Delete the post
 				$post = new Post;
 				$post->delete($pageId, $postId);
-
+				logChange("post", 'delete',$this->_USER->id,$this->_USER->loginname, $post->title . " deleted");
+				
 				//Display the page form
 				$page = new Page;
 				$page->buildEditForm($pageId);
@@ -841,6 +883,22 @@ class cms {
 		)";
 		mysql_query($sql) OR DIE ("Could not build table \"users\"");
 		
+		/*Table structure for table `log` */
+
+		$sql = "CREATE TABLE IF NOT EXISTS `log` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `log_type` varchar(64) DEFAULT NULL,
+		  `log_action` varchar(64) DEFAULT NULL,
+		  `log_userId` varchar(64) DEFAULT NULL,
+		  `log_user` varchar(64) DEFAULT NULL,
+		  `log_info` text,
+		  `log_date` datetime DEFAULT NULL,
+		  `log_created` varchar(128) DEFAULT NULL,
+		  `log_remoteIp` varchar(64) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		)";
+		mysql_query($sql) OR DIE ("Could not build table \"users\"");
+		
 	}
 	
 	/* Display any global warnings such as missing homepage, etc
@@ -849,8 +907,8 @@ class cms {
 		//Make sure a homepage is set
 		$pageSQL = "SELECT * FROM pages WHERE page_isHome=1;";
 		$pageResult = mysql_query($pageSQL);
-
-		if ($pageResult == false || mysql_num_rows($pageResult) == 0 )
+		
+		if (($pageResult == false || mysql_num_rows($pageResult) == 0) && $this->cms_getNumUsers() != 0 && $this->_AUTH == true)
 			echo "<span class='cms_warning'>A homepage is missing! Please set a homepage!</span><br />";
 	
 	
