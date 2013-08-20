@@ -137,8 +137,8 @@ class user
 
 		//Load the page from an ID
 		$this->loadRecord($userId);
-		
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a> > <a href="admin.php?type=user&action=update&p=' . $userId . '">User</a><br /><br />';
+		if($userId != "new")
+			echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a> > <a href="admin.php?type=user&action=update&p=' . $userId . '">User</a><br /><br />';
 
 		echo '
 			<form action="admin.php?type=user&action=update&p=' . $this->id . '" method="post">
