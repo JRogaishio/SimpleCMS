@@ -1,5 +1,4 @@
 <?php
-
 function getPages() {
 	$pageSQL = "SELECT * FROM pages ORDER BY page_created DESC";
 	$pageResult = mysql_query($pageSQL);
@@ -62,13 +61,6 @@ function lookupTemplateNameById($templateId) {
 	return $name;
 }
 
-function countRecords($table_name, $filters) {
-	$countSQL = "SELECT * FROM $table_name " . $filters;
-	$countResult = mysql_query($countSQL);
-	
-	return mysql_num_rows($countResult);
-}
-
 function getFormattedTemplates($format, $eleName, $defaultVal) {
 	$templateSQL = "SELECT * FROM templates ORDER BY template_created DESC";
 	$templateResult = mysql_query($templateSQL);
@@ -98,19 +90,6 @@ function getFormattedTemplates($format, $eleName, $defaultVal) {
 	
 }
 
-function clean($str) {
-	$cleanStr = mysql_real_escape_string($str);
-	return $cleanStr;
-}
-
-
-
-function unique_salt() {
-    mt_srand(microtime(true)*100000 + memory_get_usage(true));
-    return hash('sha256', (uniqid(mt_rand(), true)));
-}
-
-	
 function get_userSalt($username) {
 	$userSQL = "SELECT * FROM users WHERE user_login='$username';";
 	$userResult = mysql_query($userSQL);
@@ -132,6 +111,8 @@ function logChange($type, $action, $userId, $user, $change) {
 
 	return $result;	
 }
+
+
 
 
 

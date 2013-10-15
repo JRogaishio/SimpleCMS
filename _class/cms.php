@@ -1,5 +1,8 @@
 <?php
-include_once('_class/dbFunctions.php');
+include_once('_lib/database.php');
+include_once('_lib/encrypt.php');
+include_once('_lib/management.php');
+
 include_once('_class/user.php');
 include_once('_class/page.php');
 include_once('_class/post.php');
@@ -176,7 +179,7 @@ class cms {
 					<div class="cms_navItemList">
 						<ul>
 						<li class="cms_navItem"><a href="admin.php?type=templateDisplay" class="cms_navItemLink">Edit Templates</a></li>
-						<li class="cms_navItem"><a href="admin.php?type=template&action=update&p=mew" class="cms_navItemLink">Add a Template</a></li>
+						<li class="cms_navItem"><a href="admin.php?type=template&action=update&p=new" class="cms_navItemLink">Add a Template</a></li>
 						</ul>
 					</div>	
 				</div>	
@@ -224,11 +227,10 @@ class cms {
 	private function cms_authUser($token) {
 		//Check to see if any login info was posted or if a token exists
 		if((($token!=null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->cms_getNumUsers() > 0) {
-			if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
-				//Hash the password, apply salt, rehash
-				$secPass = hash('sha256',(clean($_POST['login_password'])));
-				$secPass = hash('sha256',($secPass . get_userSalt(clean($_POST['login_username']))));
+			if(isset($_POSsT['login_username']) && isset($_POST['login_password'])) {
 				
+				$secPass = encrypt(clean($_POST['login_password']), get_userSalt(clean($_POST['login_username'])));
+			
 				$userSQL = "SELECT * FROM users WHERE user_login='" . clean($_POST['login_username']) . "' AND user_pass='$secPass';";
 			} else {
 				$userSQL = "SELECT * FROM users WHERE user_token='$token';";
