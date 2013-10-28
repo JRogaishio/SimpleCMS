@@ -10,17 +10,18 @@ include_once('_class/template.php');
 
 class cms {
 
-	var $_MODE = "user";
-	var $_TYPE = "user";
-	var $_ACTION = "user";
-	var $_PARENT = "user";
-	var $_CHILD = "user";
-	var $_USERPAGE = "user";
+	private $_MODE = "user";
+	private $_TYPE = "user";
+	private $_ACTION = "user";
+	private $_PARENT = "user";
+	private $_CHILD = "user";
+	private $_USERPAGE = "user";
+	private $_CONN = null;
 	
 	//Login stuff
-	var $_AUTH = false;	
-	var $_USER = null;
-	var $_LOGINTOKEN = null;
+	private $_AUTH = false;	
+	private $_USER = null;
+	private $_LOGINTOKEN = null;
 	
 	/* This function is called whenever the class is first initialized.
 	 * This takes care of page routing
@@ -101,7 +102,6 @@ class cms {
 	/* Handle user triggered state changes such as logging out
 	*/
 	private function cms_handleState() {
-
 		if($this->_TYPE == "web_state") {
 			//Build the manager
 			switch($this->_ACTION) {
@@ -111,10 +111,10 @@ class cms {
 					//Grab the username from the token for logging. We don't have the login set yet before we havent authenticated
 					if(isset($_COOKIE['token'])) {
 						$userSQL = "SELECT * FROM users WHERE user_token='" . clean($_COOKIE['token']) . "';";
-						$userResult = mysql_query($userSQL);
-						if ($userResult !== false && mysql_num_rows($userResult) > 0 ) {
-							$userData = mysql_fetch_assoc($userResult);
-							logChange("user", 'log_out',$userData['id'], $userData['user_login'], "logged out");
+						$userResult = $this->_CONN->query($userSQL);
+						if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
+							$userData = mysqli_fetch_assoc($userResult);
+							logChange($this->_CONN, "user", 'log_out',$userData['id'], $userData['user_login'], "logged out");
 						}					
 					}
 
@@ -216,9 +216,9 @@ class cms {
 	*/
 	private function cms_getNumUsers() {
 		$userSQL = "SELECT * FROM users;";
-		$userResult = mysql_query($userSQL);
+		$userResult = $this->_CONN->query($userSQL);
 
-		$numUser = mysql_num_rows($userResult);
+		$numUser = mysqli_num_rows($userResult);
 		return $numUser;
 	}
 	
@@ -226,23 +226,24 @@ class cms {
 	*/
 	private function cms_authUser($token) {
 		//Check to see if any login info was posted or if a token exists
+		echo "TEST!";
 		if((($token!=null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->cms_getNumUsers() > 0) {
-			if(isset($_POSsT['login_username']) && isset($_POST['login_password'])) {
+			if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
 				
-				$secPass = encrypt(clean($_POST['login_password']), get_userSalt(clean($_POST['login_username'])));
+				$secPass = encrypt(clean($_POST['login_password']), get_userSalt($this->_CONN, clean($_POST['login_username'])));
 			
 				$userSQL = "SELECT * FROM users WHERE user_login='" . clean($_POST['login_username']) . "' AND user_pass='$secPass';";
 			} else {
 				$userSQL = "SELECT * FROM users WHERE user_token='$token';";
 			}
 			
-			$userResult = mysql_query($userSQL);
+			$userResult = $this->_CONN->query($userSQL);
 
 			//Test to see if the auth was successful
-			if ($userResult !== false && mysql_num_rows($userResult) > 0 ) {
-				$userData = mysql_fetch_assoc($userResult);
+			if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
+				$userData = mysqli_fetch_assoc($userResult);
 
-				$user = new User;
+				$user = new User($this->_CONN);
 				
 				//Set the user data
 				$user->id = ($userData['id']);
@@ -261,7 +262,7 @@ class cms {
 				$newToken = hash('sha256', (unique_salt() . $user->loginname));
 	
 				$tokenSQL = "UPDATE users SET user_token = '$newToken' WHERE id=" . $user->id . ";";
-				$tokenResult = mysql_query($tokenSQL) OR DIE ("Could not update user!");
+				$tokenResult = $this->_CONN->query($tokenSQL) OR DIE ("Could not update user!");
 				if(!$tokenResult) {
 					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";
 				}
@@ -271,7 +272,7 @@ class cms {
 				
 				//Log that a user logged in. POST data is only set on the initial login
 				if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
-					logChange("user", 'log_in',$user->id,$user->loginname, "logged in");
+					logChange($this->_CONN, "user", 'log_in',$user->id,$user->loginname, "logged in");
 				}
 				return true;
 				
@@ -280,7 +281,7 @@ class cms {
 				$this->cms_displayLoginManager();
 				if (isset($_POST) && !empty($_POST)) echo "Bad username or password!<br /><br />";
 				
-				logChange("user", 'log_in',null, clean($_POST['login_username']), "FAILED LOGIN");
+				logChange($this->_CONN, "user", 'log_in',null, clean($_POST['login_username']), "FAILED LOGIN");
 				
 				return false;
 			}
@@ -340,10 +341,10 @@ class cms {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a><br /><br />';
 		
 		$pageSQL = "SELECT * FROM pages ORDER BY page_created DESC";
-		$pageResult = mysql_query($pageSQL);
+		$pageResult = $this->_CONN->query($pageSQL);
 	
-		if ($pageResult !== false && mysql_num_rows($pageResult) > 0 ) {
-			while($row = mysql_fetch_assoc($pageResult) ) {
+		if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($pageResult) ) {
 				
 				$title = stripslashes($row['page_title']);
 				$safeLink = stripslashes($row['page_safeLink']);
@@ -370,10 +371,10 @@ class cms {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a><br /><br />';
 		
 		$templateSQL = "SELECT * FROM templates ORDER BY template_created DESC";
-		$templateResult = mysql_query($templateSQL);
+		$templateResult = $this->_CONN->query($templateSQL);
 	
-		if ($templateResult !== false && mysql_num_rows($templateResult) > 0 ) {
-			while($row = mysql_fetch_assoc($templateResult) ) {
+		if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($templateResult) ) {
 				
 				$name = stripslashes($row['template_name']);
 				$file = stripslashes($row['template_file']);
@@ -403,18 +404,18 @@ class cms {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=postDisplay">Post List</a><br /><br />';
 	
 		$postSQL = "SELECT * FROM posts ORDER BY page_id ASC";
-		$postResult = mysql_query($postSQL);
+		$postResult = $this->_CONN->query($postSQL);
 		$lastPageName = "";
 		
-		if ($postResult !== false && mysql_num_rows($postResult) > 0 ) {
-			while($row = mysql_fetch_assoc($postResult) ) {
+		if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($postResult) ) {
 				
-				if($lastPageName != lookupPageNameById($row['page_id'])) {
+				if($lastPageName != lookupPageNameById($this->_CONN, $row['page_id'])) {
 					//If we aren't on the first page in the list, add some line breaks inbetween page lists.
 					if($lastPageName != "")
 						echo "<br /><br />";
 					
-					$lastPageName = lookupPageNameById($row['page_id']);
+					$lastPageName = lookupPageNameById($this->_CONN, $row['page_id']);
 					echo "<h1 class='cms_pageTitle'>" . $lastPageName . "</h1>";
 				}
 				
@@ -447,10 +448,10 @@ class cms {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a><br /><br />';
 		
 		$userSQL = "SELECT * FROM users ORDER BY user_created DESC";
-		$userResult = mysql_query($userSQL);
+		$userResult = $this->_CONN->query($userSQL);
 	
-		if ($userResult !== false && mysql_num_rows($userResult) > 0 ) {
-			while($row = mysql_fetch_assoc($userResult) ) {
+		if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($userResult) ) {
 				
 				$username = stripslashes($row['user_login']);
 				$email = stripslashes($row['user_email']);
@@ -518,22 +519,22 @@ class cms {
 		
 		echo "<strong>By the way, hows my CMS doing?</strong><br />";
 		echo "<p class='cms_intro'>Heres some stats!<br />";
-		echo "You have <strong>" . countRecords("pages","") . "</strong> page(s)<br />";
-		echo "You have <strong>" . countRecords("posts","") . "</strong> posts(s)<br />";
-		echo "You have <strong>" . countRecords("templates","") . "</strong> templates(s)<br />";
-		echo "You have <strong>" . countRecords("users","") . "</strong> users(s)<br />";
-		echo "You have <strong>" . countRecords("plugins","") . "</strong> plugins(s)<br />";
+		echo "You have <strong>" . countRecords($this->_CONN, "pages","") . "</strong> page(s)<br />";
+		echo "You have <strong>" . countRecords($this->_CONN,"posts","") . "</strong> posts(s)<br />";
+		echo "You have <strong>" . countRecords($this->_CONN,"templates","") . "</strong> templates(s)<br />";
+		echo "You have <strong>" . countRecords($this->_CONN,"users","") . "</strong> users(s)<br />";
+		echo "You have <strong>" . countRecords($this->_CONN,"plugins","") . "</strong> plugins(s)<br />";
 		echo "</p>";
 	}
 
 	/* Display the User management
 	*/
 	public function cms_displayUserManager() {
-		
+	
 		//The context is the user ID. We want to update rather than insert if we are editing
 		$userId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
 		
-		$user = new User;
+		$user = new User($this->_CONN);
 		
 		//Allow access to the user editor if you are authenticated or there are no users
 		if($this->_AUTH || $this->cms_getNumUsers() == 0) {
@@ -554,7 +555,7 @@ class cms {
 							if($this->_AUTH) {
 								//Re-build the main User after creation
 								$this->cms_displayMain();
-								logChange("user", 'add',$this->_USER->id,$this->_USER->loginname, $user->loginname . " added");
+								logChange($this->_CONN, "user", 'add',$this->_USER->id,$this->_USER->loginname, $user->loginname . " added");
 							} else {
 								$this->cms_displayLoginManager();
 							}
@@ -563,7 +564,7 @@ class cms {
 							$user->update($userId);
 							//Re-build the User creation form once we are done
 							$user->buildEditForm($userId);
-							logChange("user", 'update',$this->_USER->id,$this->_USER->loginname, $user->loginname . " updated");
+							logChange($this->_CONN,"user", 'update',$this->_USER->id,$this->_USER->loginname, $user->loginname . " updated");
 						}
 					} else {
 						// User has not posted the article edit form yet: display the form
@@ -573,7 +574,7 @@ class cms {
 				case "delete":
 					$user->delete($userId);
 					$this->cms_displayMain();
-					logChange("user", 'delete',$this->_USER->id,$this->_USER->loginname, $user->loginname . " deleted");
+					logChange($this->_CONN,"user", 'delete',$this->_USER->id,$this->_USER->loginname, $user->loginname . " deleted");
 					break;
 				default:
 					if($this->cms_getNumUsers() == 0) {
@@ -600,31 +601,31 @@ class cms {
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
 					// User has posted the article edit form: save the new article
-					$page = new Page;
+					$page = new Page($this->_CONN);
 					$page->storeFormValues($_POST);
 					
 					if($pageId=="new") {
 						$page->insert();
 						//Re-build the main page after creation
 						$this->cms_displayMain();
-						logChange("page", 'add',$this->_USER->id,$this->_USER->loginname, $page->title . " added");
+						logChange($this->_CONN, "page", 'add',$this->_USER->id,$this->_USER->loginname, $page->title . " added");
 					} else {
 						$page->update($pageId);
 						//Re-build the page creation form once we are done
 						$page->buildEditForm($pageId);
-						logChange("page", 'update',$this->_USER->id,$this->_USER->loginname, $page->title . " updated");
+						logChange($this->_CONN, "page", 'update',$this->_USER->id,$this->_USER->loginname, $page->title . " updated");
 					}
 				} else {
 					// User has not posted the article edit form yet: display the form
-					$page = new Page;
+					$page = new Page($this->_CONN);
 					$page->buildEditForm($pageId);
 				}
 				break;
 			case "delete":
-				$page = new Page;
+				$page = new Page($this->_CONN);
 				$page->delete($pageId);
 				$this->cms_displayMain();
-				logChange("page", 'delete',$this->_USER->id,$this->_USER->loginname, $page->title . " deleted");
+				logChange($this->_CONN, "page", 'delete',$this->_USER->id,$this->_USER->loginname, $page->title . " deleted");
 				break;
 			default:
 				echo "Error with page manager<br /><br />";
@@ -648,31 +649,31 @@ class cms {
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
 					// User has posted the article edit form: save the new article
-					$template = new Template;
+					$template = new Template($this->_CONN);
 					$template->storeFormValues($_POST);
 					
 					if($templateId=="new") {
 						$template->insert();
 						//Re-build the main page after creation
 						$this->cms_displayMain();
-						logChange("template", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
+						logChange($this->_CONN, "template", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 					} else {
 						$template->update($templateId);
 						//Re-build the page creation form once we are done
 						$template->buildEditForm($templateId);
-						logChange("template", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " updated");
+						logChange($this->_CONN, "template", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " updated");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
-					$template = new Template;
+					$template = new Template($this->_CONN);
 					$template->buildEditForm($templateId);
 				}
 				break;
 			case "delete":
-				$template = new Template;
+				$template = new Template($this->_CONN);
 				$template->delete($templateId);
 				$this->cms_displayMain();
-				logChange("template", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " deleted");
+				logChange($this->_CONN, "template", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " deleted");
 				break;
 			default:
 				echo "Error with template manager<br /><br />";
@@ -697,31 +698,31 @@ class cms {
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
 					// User has posted the article edit form: save the new article
-					$template = new Template;
+					$template = new Template($this->_CONN);
 					$template->storeFormValues($_POST);
 					
 					if($templateId=="new") {
 						$template->insert();
 						//Re-build the main page after creation
 						$this->cms_displayMain();
-						logChange("plugin", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
+						logChange($this->_CONN, "plugin", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 					} else {
 						$template->update($templateId);
 						//Re-build the page creation form once we are done
 						$template->buildEditForm($templateId);
-						logChange("plugin", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
+						logChange($this->_CONN, "plugin", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
-					$template = new Template;
+					$template = new Template($this->_CONN);
 					$template->buildEditForm($templateId);
 				}
 				break;
 			case "delete":
-				$template = new Template;
+				$template = new Template($this->_CONN);
 				$template->delete($templateId);
 				$this->cms_displayMain();
-				logChange("plugin", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
+				logChange($this->_CONN, "plugin", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 				break;
 			default:
 				echo "Error with template manager<br /><br />";
@@ -741,34 +742,34 @@ class cms {
 				if(isset($_POST['saveChanges'])) {
 
 					// User has posted the article edit form: save the new article
-					$post = new Post;
+					$post = new Post($this->_CONN);
 					$post->storeFormValues($_POST);
 					
 					if($postId=="new") {
 						$post->insert($pageId);
-						logChange("post", 'add',$this->_USER->id,$this->_USER->loginname, $post->title . " added");
+						logChange($this->_CONN, "post", 'add',$this->_USER->id,$this->_USER->loginname, $post->title . " added");
 					}
 					else {
 						$post->update($postId);
-						logChange("post", 'update',$this->_USER->id,$this->_USER->loginname, $post->title . " updated");
+						logChange($this->_CONN, "post", 'update',$this->_USER->id,$this->_USER->loginname, $post->title . " updated");
 					}
 						
 					//Re-build the post creation form once we are done
 					$post->buildEditForm($pageId,$postId);
 				} else {
 					// User has not posted the article edit form yet: display the form
-					$post = new Post;
+					$post = new Post($this->_CONN);
 					$post->buildEditForm($pageId,$postId);
 				}
 				break;
 			case "delete":
 				//Delete the post
-				$post = new Post;
+				$post = new Post($this->_CONN);
 				$post->delete($pageId, $postId);
-				logChange("post", 'delete',$this->_USER->id,$this->_USER->loginname, $post->title . " deleted");
+				logChange($this->_CONN, "post", 'delete',$this->_USER->id,$this->_USER->loginname, $post->title . " deleted");
 				
 				//Display the page form
-				$page = new Page;
+				$page = new Page($this->_CONN);
 				$page->buildEditForm($pageId);
 				
 				break;
@@ -782,16 +783,20 @@ class cms {
 	/* Connect to the database defined in config.php
 	*/
 	public function connect() {
-		mysql_connect(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysql_error());
+
+		$this->_CONN = new mysqli(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysqli_error());
 		
 		//Create the database if it doesn't exist
 		$dbCreate = "CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "`;";
-		mysql_query($dbCreate) OR DIE ("Could not build table \"board\"");
+		$this->_CONN->query($dbCreate) OR DIE ("Could not build database!");
 		
 		//Connect to our shiney new database
-		$dbConn = mysql_select_db(DB_NAME) or die("Could not select database. " . mysql_error());
-
-		return $this->buildDB();
+		$this->_CONN->select_db(DB_NAME) or die("Could not select database. " . mysqli_error());
+		
+		//Attempt to build the DB if you aren't authenticated
+		if(!$this->_AUTH) {
+			$this->buildDB();
+		 }
 	}
 
 	/* Build the tables required by the CMS.
@@ -811,7 +816,7 @@ class cms {
 		  `board_lastUpdated` datetime DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
-		mysql_query($sql) OR DIE ("Could not build table \"board\"");
+		$this->_CONN->query($sql) OR DIE ("Could not build table \"board\"");
 		
 		/*Table structure for table `pages` */
 
@@ -826,7 +831,7 @@ class cms {
 		  `page_created` varchar(128) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
-		mysql_query($sql) OR DIE ("Could not build table \"pages\"");
+		$this->_CONN->query($sql) OR DIE ("Could not build table \"pages\"");
 		
 		/*Table structure for table `posts` */
 
@@ -841,7 +846,7 @@ class cms {
 		  `post_created` VARCHAR(128) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
-		mysql_query($sql) OR DIE ("Could not build table \"posts\"");
+		$this->_CONN->query($sql) OR DIE ("Could not build table \"posts\"");
 		
 		/*Table structure for table `templates` */
 
@@ -854,7 +859,7 @@ class cms {
 		  
 		  PRIMARY KEY (`id`)
 		)";
-		mysql_query($sql) OR DIE ("Could not build table \"templates\"");
+		$this->_CONN->query($sql) OR DIE ("Could not build table \"templates\"");
 		
 		
 		/*Table structure for table `plugins` */
@@ -867,7 +872,7 @@ class cms {
 		  PRIMARY KEY (`id`)
 		)";
 		
-		mysql_query($sql) OR DIE ("Could not build table \"plugins\"");
+		$this->_CONN->query($sql) OR DIE ("Could not build table \"plugins\"");
 		
 		
 		/*Table structure for table `users` */
@@ -883,7 +888,7 @@ class cms {
 		  `user_isRegistered` tinyint(1) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
-		mysql_query($sql) OR DIE ("Could not build table \"users\"");
+		$this->_CONN->query($sql) OR DIE ("Could not build table \"users\"");
 		
 		/*Table structure for table `log` */
 
@@ -899,7 +904,7 @@ class cms {
 		  `log_remoteIp` varchar(64) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
-		mysql_query($sql) OR DIE ("Could not build table \"users\"");
+		$this->_CONN->query($sql) OR DIE ("Could not build table \"users\"");
 		
 	}
 	
@@ -908,9 +913,9 @@ class cms {
 	public function cms_displayWarnings() {
 		//Make sure a homepage is set
 		$pageSQL = "SELECT * FROM pages WHERE page_isHome=1;";
-		$pageResult = mysql_query($pageSQL);
+		$pageResult = $this->_CONN->query($pageSQL);
 		
-		if (($pageResult == false || mysql_num_rows($pageResult) == 0) && $this->cms_getNumUsers() != 0 && $this->_AUTH == true)
+		if (($pageResult == false || mysqli_num_rows($pageResult) == 0) && $this->cms_getNumUsers() != 0 && $this->_AUTH == true)
 			echo "<span class='cms_warning'>A homepage is missing! Please set a homepage!</span><br />";
 	
 	
@@ -1030,17 +1035,17 @@ class cms {
 	//USER VIEW FUNCTIONS ###############################################################################
 	
 	public function load_page($pSafeLink) {
-		//make the CMS functions available on the page
-		global $cms;
-		$page = new Page;
-		
+		global $cms; //Make the CMS variable a global so the pages can reference it
+	
+		$page = new Page($this->_CONN);
+
 		//Load the page
 		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home") {
 			$pageSQL = "SELECT * FROM pages WHERE page_safeLink='$pSafeLink'";
-			$pageResult = mysql_query($pageSQL);
+			$pageResult = $this->_CONN->query($pageSQL);
 
-			if ($pageResult !== false && mysql_num_rows($pageResult) > 0 )
-				$pageData = mysql_fetch_assoc($pageResult);
+			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
+				$pageData = mysqli_fetch_assoc($pageResult);
 
 			if(isset($pageData)) {
 				$page->loadRecord($pageData['id']);
@@ -1052,10 +1057,10 @@ class cms {
 		//Load the page
 		if(isset($page->template) && $page->template != null && $page->constr == true) {
 			$templateSQL = "SELECT * FROM templates WHERE id=$page->template";
-			$templateResult = mysql_query($templateSQL);
+			$templateResult = $this->_CONN->query($templateSQL);
 
-			if ($templateResult !== false && mysql_num_rows($templateResult) > 0 )
-				$template = mysql_fetch_assoc($templateResult);
+			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
+				$template = mysqli_fetch_assoc($templateResult);
 
 			if(isset($template)) {
 				//Load the template file
@@ -1067,15 +1072,15 @@ class cms {
 	}
 	
 	public function load_navigation($data=array()) {
-		
+
 		echo "<ul class='cms_ul_nav'>";
 		
 		for($i=0;$i<count($data);$i++) {
 			$pageSQL = "SELECT * FROM pages WHERE page_safelink='$data[$i]'";
-			$pageResult = mysql_query($pageSQL);
+			$pageResult = $this->_CONN->query($pageSQL);
 
-			if ($pageResult !== false && mysql_num_rows($pageResult) > 0 )
-				$pageData = mysql_fetch_assoc($pageResult);
+			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
+				$pageData = mysqli_fetch_assoc($pageResult);
 
 			if(isset($pageData)) {
 				echo "<li class='cms_li_nav' id='nav-$data[$i]'><a href='?p=" . $pageData['page_safeLink'] . "'>" . $pageData['page_title'] . "</a></li>";

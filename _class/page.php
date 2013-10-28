@@ -16,24 +16,15 @@ class page
 	public $hasBoard = null;
 	public $isHome = null;
 	public $constr = false;
-
+	private $conn = null; //Database connection object
+	
 	/**
 	* Sets the object's properties using the values in the supplied array
 	*
 	* @param assoc The property values
 	*/
-	public function __construct($data=array()) {
-		//Set the data to variables if the post data is set
-
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($data['id'])) $this->id = (int) $data['id'];
-		if(isset($data['title'])) $this->title = $data['title'];
-		if(isset($data['template'])) $this->template = $data['template'];
-		if(isset($data['safelink'])) $this->safeLink = $data['safelink'];
-		if(isset($data['metadata'])) $this->metaData = $data['metadata'];
-		if(isset($data['board'])) $this->hasBoard = $data['board'];
-		if(isset($data['homepage'])) $this->isHome = (int) $data['homepage'];
-		$this->constr = true;
+	public function __construct($dbConn) {
+		$this->conn = $dbConn;
 	}
 
 	/**
@@ -42,8 +33,17 @@ class page
 	* @param assoc The form post values
 	*/
 	public function storeFormValues ($params) {
-		// Store all the parameters
-		$this->__construct($params);
+		//Set the data to variables if the post data is set
+
+		//I also want to do a sanitization string here. Go find my clean() function somewhere
+		if(isset($params['id'])) $this->id = (int) $params['id'];
+		if(isset($params['title'])) $this->title = $params['title'];
+		if(isset($params['template'])) $this->template = $params['template'];
+		if(isset($params['safelink'])) $this->safeLink = $params['safelink'];
+		if(isset($params['metadata'])) $this->metaData = $params['metadata'];
+		if(isset($params['board'])) $this->hasBoard = $params['board'];
+		if(isset($params['homepage'])) $this->isHome = (int) $params['homepage'];
+		$this->constr = true;
 	}
 
 	/**
@@ -51,18 +51,16 @@ class page
 	*/
 	public function insert() {
 		if($this->constr) {
-			mysql_connect(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysql_error());
-			mysql_select_db(DB_NAME) or die("Could not select database. " . mysql_error());
 
 			if($this->isHome == 1){
 				$sql = "UPDATE pages SET page_isHome=0";
-				$homeResult = mysql_query($sql) OR DIE ("Could not update page!");
+				$homeResult = $this->conn->query($sql) OR DIE ("Could not update page!");
 			}
 			
 			$sql = "INSERT INTO pages (page_template, page_safeLink, page_meta, page_title, page_hasBoard, page_isHome, page_created) VALUES";
 			$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', '$this->hasBoard', '$this->isHome'," . time() . ")";
 
-			$result = mysql_query($sql) OR DIE ("Could not create page!");
+			$result = $this->conn->query($sql) OR DIE ("Could not create page!");
 			if($result) {
 				echo "<span class='update_notice'>Created page successfully!</span><br /><br />";
 			}
@@ -79,8 +77,6 @@ class page
 	public function update($pageId) {
 	
 		if($this->constr) {
-			mysql_connect(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysql_error());
-			mysql_select_db(DB_NAME) or die("Could not select database. " . mysql_error());
 
 			$sql = "UPDATE pages SET
 			page_template = '$this->template', 
@@ -92,7 +88,7 @@ class page
 			WHERE id=$pageId;
 			";
 
-			$result = mysql_query($sql) OR DIE ("Could not update page!");
+			$result = $this->conn->query($sql) OR DIE ("Could not update page!");
 			if($result) {
 				echo "<span class='update_notice'>Updated page successfully!</span><br /><br />";
 			}
@@ -112,11 +108,11 @@ class page
 		echo "<span class='update_notice'>Post deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
 		
 		$pageSQL = "DELETE FROM pages WHERE id=$pageId";
-		$pageResult = mysql_query($pageSQL);
+		$pageResult = $this->conn->query($pageSQL);
 		
 		$postSQL = "DELETE FROM posts WHERE page_id=$pageId;";
 
-		$postResult = mysql_query($postSQL);
+		$postResult = $this->conn->query($postSQL);
 	}
 	
 	public function loadRecord($pageId) {
@@ -127,10 +123,10 @@ class page
 			else
 				$pageSQL = "SELECT * FROM pages WHERE id=$pageId";
 				
-			$pageResult = mysql_query($pageSQL);
+			$pageResult = $this->conn->query($pageSQL);
 
-			if ($pageResult !== false && mysql_num_rows($pageResult) > 0 )
-				$row = mysql_fetch_assoc($pageResult);
+			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
+				$row = mysqli_fetch_assoc($pageResult);
 
 			if(isset($row)) {
 				$this->id = $row['id'];
@@ -162,7 +158,7 @@ class page
 			<div class="clear"></div>
 
 			<label for="template">Template:</label><br />
-			' . getFormattedTemplates("dropdown", "template",$this->template) . '
+			' . getFormattedTemplates($this->conn, "dropdown", "template",$this->template) . '
 			<br /><br /><div class="clear"></div>
 
 			<label for="safelink">Safe Link:</label><br />
@@ -200,11 +196,11 @@ class page
 	private function display_pagePosts($pageId) {
 		if($pageId != "new" && $pageId != null) {
 			$postSQL = "SELECT * FROM posts WHERE page_id=$pageId ORDER BY post_created ASC";
-			$postResult = mysql_query($postSQL);
+			$postResult = $this->conn->query($postSQL);
 			$entry_display = "";
 			
-			if ($postResult !== false && mysql_num_rows($postResult) > 0 ) {
-				while($row = mysql_fetch_assoc($postResult) ) {
+			if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
+				while($row = mysqli_fetch_assoc($postResult) ) {
 					
 					$title = stripslashes($row['post_title']);
 					$postDate = stripslashes($row['post_date']);
@@ -245,11 +241,11 @@ class page
 			else
 				$postSQL = "SELECT * FROM posts WHERE page_id=$this->id ORDER BY post_created ASC LIMIT $postLimit";
 				
-			$postResult = mysql_query($postSQL);
+			$postResult = $this->conn->query($postSQL);
 			$entry_display = "";
 			
-			if ($postResult !== false && mysql_num_rows($postResult) > 0 ) {
-				while($row = mysql_fetch_assoc($postResult) ) {
+			if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
+				while($row = mysqli_fetch_assoc($postResult) ) {
 					
 					$title = stripslashes($row['post_title']);
 					$postDate = stripslashes($row['post_date']);

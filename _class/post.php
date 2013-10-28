@@ -16,28 +16,16 @@ class post
 	public $content = null;
 	public $lastMod = null;
 	public $constr = false;
-
+	private $conn = null; //Database connection object
+	
 	/**
 	* Sets the object's properties using the values in the supplied array
 	*
 	* @param assoc The property values
 	*/
 
-	public function __construct($data=array()) {
-		//Set the data to variables if the post data is set
-
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($data['id'])) $this->id = (int) $data['id'];
-		if(isset($data['pageId'])) $this->pageId = (int) $data['pageId'];
-		
-		//if(isset($data['authorId'])) $this->authorId = $data['authorId'];
-		
-		if(isset($data['postDate'])) $this->postDate = $data['postDate'];
-		if(isset($data['title'])) $this->title = $data['title'];
-		if(isset($data['content'])) $this->content = $data['content'];
-		if(isset($data['lastMod'])) $this->lastMod = $data['lastMod'];
-
-		$this->constr = true;
+	public function __construct($dbConn) {
+		$this->conn = $dbConn;
 	}
 
 
@@ -49,7 +37,20 @@ class post
 
 	public function storeFormValues ($params) {
 		// Store all the parameters
-		$this->__construct($params);
+		//Set the data to variables if the post data is set
+
+		//I also want to do a sanitization string here. Go find my clean() function somewhere
+		if(isset($params['id'])) $this->id = (int) $params['id'];
+		if(isset($params['pageId'])) $this->pageId = (int) $params['pageId'];
+		
+		//if(isset($params['authorId'])) $this->authorId = $params['authorId'];
+		
+		if(isset($params['postDate'])) $this->postDate = $params['postDate'];
+		if(isset($params['title'])) $this->title = $params['title'];
+		if(isset($params['content'])) $this->content = $params['content'];
+		if(isset($params['lastMod'])) $this->lastMod = $params['lastMod'];
+
+		$this->constr = true;
 	}
 
 
@@ -59,13 +60,11 @@ class post
 
 	public function insert($pageId) {
 		if($this->constr) {
-			mysql_connect(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysql_error());
-			mysql_select_db(DB_NAME) or die("Could not select database. " . mysql_error());
 			
 			$sql = "INSERT INTO posts (page_id, post_authorId, post_date, post_title, post_content, post_lastModified, post_created) VALUES";
 			$sql .= "($this->pageId, $this->authorId, '" . date('Y-m-d H:i:s') . "', '$this->title', '$this->content', " . time() . "," . time() . ")";
 			
-			$result = mysql_query($sql) OR DIE ("Could not create post!");
+			$result = $this->conn->query($sql) OR DIE ("Could not create post!");
 			if($result) {
 				echo "<span class='update_notice'>Created post successfully!</span><br /><br />";
 			}
@@ -83,8 +82,6 @@ class post
 	public function update($postId) {
 	
 		if($this->constr) {
-			mysql_connect(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysql_error());
-			mysql_select_db(DB_NAME) or die("Could not select database. " . mysql_error());
 
 			$sql = "UPDATE posts SET
 			page_id = '$this->pageId', 
@@ -95,7 +92,7 @@ class post
 			WHERE id=$postId;
 			";
 
-			$result = mysql_query($sql) OR DIE ("Could not update post!");
+			$result = $this->conn->query($sql) OR DIE ("Could not update post!");
 			if($result) {
 				echo "<span class='update_notice'>Updated post successfully!</span><br /><br />";
 			}
@@ -117,17 +114,17 @@ class post
 		echo "<span class='update_notice'>Post deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
 		
 		$postSQL = "DELETE FROM posts WHERE page_id=$pageId AND id=$postId";
-		$postResult = mysql_query($postSQL);
+		$postResult = $this->conn->query($postSQL);
 
 	}
 
 	public function loadRecord($postId) {
 		if(isset($postId) && $postId != "new") {
 			$pageSQL = "SELECT * FROM posts WHERE id=$postId";
-			$pageResult = mysql_query($pageSQL);
+			$pageResult = $this->conn->query($pageSQL);
 
-			if ($pageResult !== false && mysql_num_rows($pageResult) > 0 )
-				$row = mysql_fetch_assoc($pageResult);
+			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
+				$row = mysqli_fetch_assoc($pageResult);
 
 			if(isset($row)) {
 				$this->id = $postId;
@@ -150,7 +147,7 @@ class post
 		
 		echo '<form action="admin.php?type=post&action=update&p=' . $pageId . '&c=' . $postId . '" method="post">
 		<label for="pageId">Page:</label><br />';
-		echo getFormattedPages("dropdown", "pageId",$pageId);
+		echo getFormattedPages($this->conn, "dropdown", "pageId",$pageId);
 		echo '
 		<br /><br /><div class="clear"></div>
 		

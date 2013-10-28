@@ -13,21 +13,14 @@ class user
 	public $salt = null;
 	public $email = null;
 	public $isRegistered = null;
-	
+	private $conn = null; //Database connection object
 	/**
-	* Sets the object's properties using the values in the supplied array
+	* Sets the object's properties using the values in the supplied variable
 	*
-	* @param assoc The property values
+	* @param dbConn The database connection object from the main class
 	*/
-	public function __construct($data=array()) {
-		//Set the data to variables if the post data is set
-
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($data['username'])) $this->loginname = $data['username'];
-		if(isset($data['password'])) $this->password = $data['password'];
-		if(isset($data['email'])) $this->email = $data['email'];
-
-		$this->constr = true;
+	public function __construct($dbConn) {
+		$this->conn = $dbConn;
 	}
 
 	/**
@@ -35,9 +28,14 @@ class user
 	*
 	* @param assoc The form post values
 	*/
-	public function storeFormValues ($params) {
+	public function storeFormValues ($params=array()) {
 		// Store all the parameters
-		$this->__construct($params);
+		//I also want to do a sanitization string here. Go find my clean() function somewhere
+		if(isset($params['username'])) $this->loginname = $params['username'];
+		if(isset($params['password'])) $this->password = $params['password'];
+		if(isset($params['email'])) $this->email = $params['email'];
+
+		$this->constr = true;
 	}
 
 	/**
@@ -45,20 +43,17 @@ class user
 	*/
 	public function insert() {
 		if($this->constr) {
-			mysql_connect(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysql_error());
-			mysql_select_db(DB_NAME) or die("Could not select database. " . mysql_error());
 			$salt = unique_salt();
 			$secPass = hash('sha256',$this->password);
 			$secPass = hash('sha256',($secPass . $salt));
 			
 			$sql = "INSERT INTO users (user_login, user_pass, user_salt, user_email,user_created, user_isRegistered) VALUES";
 			$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1)";
-
-			$result = mysql_query($sql) OR DIE ("Could not create user!");
+			
+			$result = $this->conn->query($sql) OR DIE ("Could not create user!");
 			if($result) {
 				echo "<span class='update_notice'>Created user successfully!</span><br /><br />";
 			}
-			
 
 		} else {
 			echo "Failed to load fornm data!";
@@ -71,12 +66,9 @@ class user
 	public function update($userId) {
 	
 		if($this->constr) {
-			mysql_connect(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysql_error());
-			mysql_select_db(DB_NAME) or die("Could not select database. " . mysql_error());
-
 			
 			$secPass = hash('sha256',$this->password);
-			$secPass = hash('sha256',($secPass . get_userSalt($this->loginname)));
+			$secPass = hash('sha256',($secPass . get_userSalt($this->conn, $this->loginname)));
 			
 			$sql = "UPDATE users SET
 			user_login = '$this->loginname', 
@@ -85,11 +77,11 @@ class user
 			WHERE id=$userId;
 			";
 
-			$result = mysql_query($sql) OR DIE ("Could not update user!");
+			$result = $this->conn->query($sql) OR DIE ("Could not update user!");
 			if($result) {
 				echo "<span class='update_notice'>Updated user successfully!</span><br /><br />";
 			}
-
+			
 		} else {
 			echo "Failed to load fornm data!";
 		}
@@ -104,7 +96,7 @@ class user
 		echo "<span class='update_notice'>User deleted! Bye bye '$this->loginname', we will miss you.</span><br /><br />";
 		
 		$userSQL = "DELETE FROM users WHERE id=$userId";
-		$userResult = mysql_query($userSQL);
+		$userResult = $this->conn->query($userSQL);
 		
 		return $userResult;
 	}
@@ -114,10 +106,10 @@ class user
 			
 			$userSQL = "SELECT * FROM users WHERE id=$userId";
 				
-			$userResult = mysql_query($userSQL);
+			$userResult = $this->conn->query($userSQL);
 
-			if ($userResult !== false && mysql_num_rows($userResult) > 0 )
-				$row = mysql_fetch_assoc($userResult);
+			if ($userResult !== false && mysqli_num_rows($userResult) > 0 )
+				$row = mysqli_fetch_assoc($userResult);
 
 			if(isset($row)) {
 				$this->id = $row['id'];

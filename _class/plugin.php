@@ -11,21 +11,15 @@ class template
 	public $path = null;
 	public $file = null;
 	public $name = null;
-
+	private $conn = null; //Database connection object
+	
 	/**
 	* Sets the object's properties using the values in the supplied array
 	*
 	* @param assoc The property values
 	*/
-	public function __construct($data=array()) {
-		//Set the data to variables if the post data is set
-
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($data['path'])) $this->path = $data['path'];
-		if(isset($data['file'])) $this->file = $data['file'];
-		if(isset($data['name'])) $this->name = $data['name'];
-
-		$this->constr = true;
+	public function __construct($dbConn) {
+		$this->conn = $dbConn;
 	}
 
 	/**
@@ -34,8 +28,14 @@ class template
 	* @param assoc The form post values
 	*/
 	public function storeFormValues ($params) {
-		// Store all the parameters
-		$this->__construct($params);
+		//Set the data to variables if the post data is set
+
+		//I also want to do a sanitization string here. Go find my clean() function somewhere
+		if(isset($params['path'])) $this->path = $params['path'];
+		if(isset($params['file'])) $this->file = $params['file'];
+		if(isset($params['name'])) $this->name = $params['name'];
+
+		$this->constr = true;
 	}
 
 	/**
@@ -43,13 +43,11 @@ class template
 	*/
 	public function insert() {
 		if($this->constr) {
-			mysql_connect(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysql_error());
-			mysql_select_db(DB_NAME) or die("Could not select database. " . mysql_error());
 			
 			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES";
 			$sql .= "('$this->path', '$this->file', '$this->name','" . time() . "')";
 
-			$result = mysql_query($sql) OR DIE ("Could not create template!");
+			$result = $this->conn->query($sql) OR DIE ("Could not create template!");
 			if($result) {
 				echo "<span class='update_notice'>Created template successfully!</span><br /><br />";
 			}
@@ -64,8 +62,6 @@ class template
 	public function update($templateId) {
 	
 		if($this->constr) {
-			mysql_connect(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysql_error());
-			mysql_select_db(DB_NAME) or die("Could not select database. " . mysql_error());
 
 			$sql = "UPDATE templates SET
 			template_path = '$this->path', 
@@ -74,7 +70,7 @@ class template
 			WHERE id=$templateId;
 			";
 
-			$result = mysql_query($sql) OR DIE ("Could not update template!");
+			$result = $this->conn->query($sql) OR DIE ("Could not update template!");
 			if($result) {
 				echo "<span class='update_notice'>Updated template successfully!</span><br /><br />";
 			}
@@ -94,7 +90,7 @@ class template
 		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
 		
 		$templateSQL = "DELETE FROM templates WHERE id=$templateId";
-		$templateResult = mysql_query($templateSQL);
+		$templateResult = $this->conn->query($templateSQL);
 		
 		return $templateResult;
 	}
@@ -104,10 +100,10 @@ class template
 			
 			$templateSQL = "SELECT * FROM templates WHERE id=$templateId";
 				
-			$templateResult = mysql_query($templateSQL);
+			$templateResult = $this->conn->query($templateSQL);
 
-			if ($templateResult !== false && mysql_num_rows($templateResult) > 0 )
-				$row = mysql_fetch_assoc($templateResult);
+			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
+				$row = mysqli_fetch_assoc($templateResult);
 
 			if(isset($row)) {
 				$this->id = $row['id'];
