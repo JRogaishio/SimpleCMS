@@ -41,10 +41,7 @@ class cms {
 		
 		//Set the user-name and password off the cookies
 		$_LOGINTOKEN = (isset($_COOKIE['token']) ? clean($_COOKIE['token']) : null);
-
-
-
-		
+	
 		if($mode == "admin")
 			$this->_AUTH = $this->cms_authUser($_LOGINTOKEN);
 		
@@ -118,7 +115,7 @@ class cms {
 						}					
 					}
 
-					//Set the login cookes to expire NOW and unset them
+					//Set the login cookies to expire NOW and unset them
 					setcookie("token", "", time()-3600); 
 					unset($_COOKIE['token']);
 				break;
@@ -152,7 +149,7 @@ class cms {
 			<div class="cms_nav">
 				<div class="cms_navItemTitle"><div id="cms_dash" class="cms_icon"></div><a href="admin.php" class="cms_navItemTitleLink">Dashboard</a></div>
 				<div><div class="cms_navItemTitle"><div id="cms_webm" class="cms_icon"></div>Website Manager</div>
-					<div class="cms_navItemList">
+					<div class="cms_navItemList" id="cms_navItemList_site">
 						<ul>
 						<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit site</a></li>
 						</ul>
@@ -160,7 +157,7 @@ class cms {
 				</div>
 				
 				<div><div class="cms_navItemTitle"><div id="cms_page" class="cms_icon"></div>Page Manager</div>
-					<div class="cms_navItemList">
+					<div class="cms_navItemList" id="cms_navItemList_page">
 						<ul>
 						<li class="cms_navItem"><a href="admin.php?type=pageDisplay" class="cms_navItemLink">Edit Pages</a></li>
 						<li class="cms_navItem"><a href="admin.php?type=page&action=update&p=new" class="cms_navItemLink">Add a Page</a></li>
@@ -168,7 +165,7 @@ class cms {
 					</div>
 				</div>
 				<div><div class="cms_navItemTitle"><div id="cms_post" class="cms_icon"></div>Post Manager</div>
-					<div class="cms_navItemList">
+					<div class="cms_navItemList" id="cms_navItemList_post">
 						<ul>
 						<li class="cms_navItem"><a href="admin.php?type=postDisplay" class="cms_navItemLink">Edit Posts</a></li>
 						<li class="cms_navItem"><a href="admin.php?type=post&action=update&p=' . $this->_PARENT . '&c=new" class="cms_navItemLink">Add a Post</a></li>
@@ -176,7 +173,7 @@ class cms {
 					</div>	
 				</div>	
 				<div><div class="cms_navItemTitle"><div id="cms_template" class="cms_icon"></div>Template Manager</div>
-					<div class="cms_navItemList">
+					<div class="cms_navItemList" id="cms_navItemList_template">
 						<ul>
 						<li class="cms_navItem"><a href="admin.php?type=templateDisplay" class="cms_navItemLink">Edit Templates</a></li>
 						<li class="cms_navItem"><a href="admin.php?type=template&action=update&p=new" class="cms_navItemLink">Add a Template</a></li>
@@ -185,7 +182,7 @@ class cms {
 				</div>	
 					
 				<div><div class="cms_navItemTitle"><div id="cms_user" class="cms_icon"></div>User Manager</div>
-					<div class="cms_navItemList">
+					<div class="cms_navItemList" id="cms_navItemList_user">
 						<ul>
 						<li class="cms_navItem"><a href="admin.php?type=userDisplay" class="cms_navItemLink">Edit Users</a></li>
 						<li class="cms_navItem"><a href="admin.php?type=user&action=update&p=' . $this->_PARENT . '" class="cms_navItemLink">Add a User</a></li>
@@ -194,7 +191,7 @@ class cms {
 				</div>	
 					
 				<div><div class="cms_navItemTitle"><div id="cms_plug" class="cms_icon"></div>Plugin Manager</div>
-					<div class="cms_navItemList">
+					<div class="cms_navItemList" id="cms_navItemList_plug">
 						<ul>
 						<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit Plugins</a></li>
 						<li class="cms_navItem"><a href="#" class="cms_navItemLink">Add a Plugin</a></li>
@@ -226,7 +223,6 @@ class cms {
 	*/
 	private function cms_authUser($token) {
 		//Check to see if any login info was posted or if a token exists
-		echo "TEST!";
 		if((($token!=null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->cms_getNumUsers() > 0) {
 			if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
 				
@@ -782,7 +778,7 @@ class cms {
 
 	/* Connect to the database defined in config.php
 	*/
-	public function connect() {
+	public function connect($connType = null) {
 
 		$this->_CONN = new mysqli(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysqli_error());
 		
@@ -793,8 +789,8 @@ class cms {
 		//Connect to our shiney new database
 		$this->_CONN->select_db(DB_NAME) or die("Could not select database. " . mysqli_error());
 		
-		//Attempt to build the DB if you aren't authenticated
-		if(!$this->_AUTH) {
+		//Attempt to build the DB if you aren't authenticated and we are on the admin page
+		if(!isset($_COOKIE['token']) && $connType == "admin") {
 			$this->buildDB();
 		 }
 	}
@@ -804,8 +800,8 @@ class cms {
 	 * They will only build if the table doesn't exist.
 	*/
 	private function buildDB() {
+
 		/*Table structure for table `board` */
-		
 		$sql = "CREATE TABLE IF NOT EXISTS `board` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `board_postId` int(16) DEFAULT NULL,
