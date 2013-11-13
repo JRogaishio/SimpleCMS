@@ -17,9 +17,9 @@
 	<?php
 
 	
-	$page->display_posts(5,true);
+	$page->display_posts(5, true, true, true, $cms->get_CHILD());
 	
-	
+	$page->display_post_nav(5, $cms->get_CHILD());
 	
 
 	?>

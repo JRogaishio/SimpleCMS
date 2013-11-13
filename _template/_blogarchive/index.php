@@ -17,11 +17,8 @@
 	<?php
 
 	
-	$page->display_posts(5,true);
+	$page->display_posts(-1, true, false, true, $cms->get_CHILD(), "blog");
 	
-	
-	
-
 	?>
 	</div>
 </body>

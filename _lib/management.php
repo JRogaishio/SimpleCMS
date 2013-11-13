@@ -18,6 +18,18 @@ function lookupPageNameById($conn, $pageId) {
 	return $name;
 }
 
+function lookupPageIdByLink($conn, $pageLink) {
+	$pageLink = clean($pageLink);
+	$pageSQL = "SELECT * FROM pages WHERE page_safeLink='$pageLink'";
+	$pageResult =  $conn->query($pageSQL);
+	$ret = null;
+	if(mysqli_num_rows($pageResult) > 0) {
+		$row = mysqli_fetch_assoc($pageResult);
+		$ret = $row['id'];
+	}
+	
+	return $ret;
+}
 
 function getFormattedPages($conn, $format, $eleName, $defaultVal) {
 

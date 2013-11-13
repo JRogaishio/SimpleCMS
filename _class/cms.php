@@ -31,10 +31,10 @@ class cms {
 		$this->_MODE = $mode;
 		
 		//Admin Gets
-		$this->_TYPE = isset( $_GET['type'] ) ? clean($_GET['type']) : "";
-		$this->_ACTION = isset( $_GET['action'] ) ? clean($_GET['action']) : "";
-		$this->_PARENT = isset( $_GET['p'] ) ? clean($_GET['p']) : "";
-		$this->_CHILD = isset( $_GET['c'] ) ? clean($_GET['c']) : "";
+		$this->_TYPE = isset( $_GET['type'] ) ? clean($_GET['type']) : null;
+		$this->_ACTION = isset( $_GET['action'] ) ? clean($_GET['action']) : null;
+		$this->_PARENT = isset( $_GET['p'] ) ? clean($_GET['p']) : null;
+		$this->_CHILD = isset( $_GET['c'] ) ? clean($_GET['c']) : null;
 
 		//Handle global states such as logging out, etc
 		$this->cms_handleState();
@@ -1026,6 +1026,14 @@ class cms {
                                               ``````````````````````````````````````````    ````````                 
 
 		</pre>";
+	}
+	
+	public function get_PARENT() {
+		return $this->_PARENT;
+	}
+	
+	public function get_CHILD() {
+		return $this->_CHILD;
 	}
 	
 	//USER VIEW FUNCTIONS ###############################################################################
