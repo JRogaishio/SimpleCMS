@@ -1,9 +1,11 @@
 <?php
 
 /**
-* Class to handle articles
-*/
-
+ * Class to handle articles attached to pages
+ *
+ * @author Jacob Rogaishio
+ * 
+ */
 class post
 {
 	// Properties
@@ -19,11 +21,10 @@ class post
 	private $conn = null; //Database connection object
 	
 	/**
-	* Sets the object's properties using the values in the supplied array
+	* Stores the connection object in a local variable on construction
 	*
-	* @param assoc The property values
+	* @param dbConn The property values
 	*/
-
 	public function __construct($dbConn) {
 		$this->conn = $dbConn;
 	}
@@ -32,9 +33,8 @@ class post
 	/**
 	* Sets the object's properties using the edit form post values in the supplied array
 	*
-	* @param assoc The form post values
+	* @param params The form post values
 	*/
-
 	public function storeFormValues ($params) {
 		// Store all the parameters
 		//Set the data to variables if the post data is set
@@ -53,11 +53,11 @@ class post
 		$this->constr = true;
 	}
 
-
 	/**
-	* Inserts the current page object into the database, and sets its ID property.
-	*/
-
+	 * Inserts the current post object into the database
+	 * 
+	 * @param $pageId	The page this post is tied to
+	 */
 	public function insert($pageId) {
 		if($this->constr) {
 			
@@ -76,9 +76,10 @@ class post
 
 
 	/**
-	* Updates the current page object in the database.
-	*/
-
+	 * Updates the current post object in the database.
+	 * 
+	 * @param $postId	The post Id to update
+	 */
 	public function update($postId) {
 	
 		if($this->constr) {
@@ -98,15 +99,20 @@ class post
 			}
 
 		} else {
-			echo "Failed to load fornm data!";
+			echo "Failed to load form data!";
 		}
 
 	}
 
 
 	/**
-	* Deletes the current page object from the database.
-	*/
+	 * Deletes the current post object from the database.
+	 * 
+	 * @param $pageId	The page this post is tied to
+	 * @param $postId	The post to be deleted
+	 * 
+	 * @return returns the database result on the delete query
+	 */
 	public function delete($pageId, $postId) {
 		//Load the post from an ID so we can say goodbye...
 		$this->loadRecord($postId);
@@ -115,9 +121,15 @@ class post
 		
 		$postSQL = "DELETE FROM posts WHERE page_id=$pageId AND id=$postId";
 		$postResult = $this->conn->query($postSQL);
-
+		
+		return $postResult;
 	}
 
+	/**
+	 * Loads the post object members based off the post id in the database
+	 * 
+	 * @param $postId	The post to be loaded
+	 */
 	public function loadRecord($postId) {
 		if(isset($postId) && $postId != "new") {
 			$pageSQL = "SELECT * FROM posts WHERE id=$postId";
@@ -140,6 +152,12 @@ class post
 		}
 	}
 	
+	/**
+	 * Builds the admin editor form to add / update posts
+	 * 
+	 * @param $pageId	The page this post is tied to
+	 * @param $postId	The post to be edited
+	 */
 	public function buildEditForm($pageId, $postId) {
 		//Load the page from an ID
 		$this->loadRecord($postId);
@@ -171,3 +189,5 @@ class post
 }
 
 ?>
+
+

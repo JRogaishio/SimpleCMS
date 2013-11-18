@@ -8,6 +8,15 @@ include_once('_class/page.php');
 include_once('_class/post.php');
 include_once('_class/template.php');
 
+/**
+ * Ferret CMS Main class to create admin pages and live content pages
+ * 
+ * FerretCMS is a simple lightweight content management system using PHP and MySQL.
+ * This CMS class is written purely in PHP and JavaScript.
+ *
+ * @author Jacob Rogaishio
+ * 
+ */
 class cms {
 
 	private $_MODE = "user";
@@ -23,30 +32,33 @@ class cms {
 	private $_USER = null;
 	private $_LOGINTOKEN = null;
 	
-	/* This function is called whenever the class is first initialized.
-	 * This takes care of page routing
-	*/
+	/** 
+	 * This function is called whenever the class is first initialized. This takes care of page routing
+	 * 
+	 * @param $mode		Either admin or user and determines how to display the CMS
+	 *
+	 */
 	public function load ($mode) {
 		//Let the CMS know if we are running user or admin rules
 		$this->_MODE = $mode;
 		
 		//Admin Gets
-		$this->_TYPE = isset( $_GET['type'] ) ? clean($_GET['type']) : null;
-		$this->_ACTION = isset( $_GET['action'] ) ? clean($_GET['action']) : null;
-		$this->_PARENT = isset( $_GET['p'] ) ? clean($_GET['p']) : null;
-		$this->_CHILD = isset( $_GET['c'] ) ? clean($_GET['c']) : null;
+		$this->_TYPE = isset( $_GET['type'] ) ? clean($this->_CONN,$_GET['type']) : null;
+		$this->_ACTION = isset( $_GET['action'] ) ? clean($this->_CONN,$_GET['action']) : null;
+		$this->_PARENT = isset( $_GET['p'] ) ? clean($this->_CONN,$_GET['p']) : null;
+		$this->_CHILD = isset( $_GET['c'] ) ? clean($this->_CONN,$_GET['c']) : null;
 
 		//Handle global states such as logging out, etc
 		$this->cms_handleState();
 		
 		//Set the user-name and password off the cookies
-		$_LOGINTOKEN = (isset($_COOKIE['token']) ? clean($_COOKIE['token']) : null);
+		$_LOGINTOKEN = (isset($_COOKIE['token']) ? clean($this->_CONN,$_COOKIE['token']) : null);
 	
 		if($mode == "admin")
 			$this->_AUTH = $this->cms_authUser($_LOGINTOKEN);
 		
 		//user gets
-		$this->_USERPAGE = isset( $_GET['p'] ) ? clean($_GET['p']) : "home";
+		$this->_USERPAGE = isset( $_GET['p'] ) ? clean($this->_CONN,$_GET['p']) : "home";
 		
 				
 		
@@ -96,8 +108,10 @@ class cms {
 		}
 	}
 	
-	/* Handle user triggered state changes such as logging out
-	*/
+	/** 
+	 * Handle user triggered state changes such as logging out
+	 * 
+	 */
 	private function cms_handleState() {
 		if($this->_TYPE == "web_state") {
 			//Build the manager
@@ -107,7 +121,7 @@ class cms {
 					
 					//Grab the username from the token for logging. We don't have the login set yet before we havent authenticated
 					if(isset($_COOKIE['token'])) {
-						$userSQL = "SELECT * FROM users WHERE user_token='" . clean($_COOKIE['token']) . "';";
+						$userSQL = "SELECT * FROM users WHERE user_token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
 						$userResult = $this->_CONN->query($userSQL);
 						if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 							$userData = mysqli_fetch_assoc($userResult);
@@ -126,8 +140,10 @@ class cms {
 		}
 	}
 	
-	/* Build the CMS's top menu
-	*/
+	/** 
+	 * Build the CMS's top menu
+	 * 
+	 */
 	private function cms_displayTop() {
 		echo "
 		<div class=\"cms_top\">
@@ -141,8 +157,10 @@ class cms {
 		";
 	}
 	
-	/* Build the CMS's navigation menu
-	*/
+	/**
+	 * Build the CMS's navigation menu
+	 *
+	 */
 	private function cms_displayNav() {
 	
 		echo '
@@ -209,8 +227,10 @@ class cms {
 		
 	}
 	
-	/* User to determine if we should show the user create page
-	*/
+	/* 
+	 * User to determine if we should show the user create page
+	 *
+	 */
 	private function cms_getNumUsers() {
 		$userSQL = "SELECT * FROM users;";
 		$userResult = $this->_CONN->query($userSQL);
@@ -219,16 +239,22 @@ class cms {
 		return $numUser;
 	}
 	
-	/* Function to authenticate the user against the DB
-	*/
+	/**
+	 * Function to authenticate the user against the DB
+	 *
+	 * @param $token	An encrypted random string used for cookies and saved sessions
+	 *
+	 * @return Returns boolean true or false on authentication success or failure
+	 *
+	 */
 	private function cms_authUser($token) {
 		//Check to see if any login info was posted or if a token exists
 		if((($token!=null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->cms_getNumUsers() > 0) {
 			if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
 				
-				$secPass = encrypt(clean($_POST['login_password']), get_userSalt($this->_CONN, clean($_POST['login_username'])));
+				$secPass = encrypt(clean($this->_CONN,$_POST['login_password']), get_userSalt($this->_CONN, clean($this->_CONN,$_POST['login_username'])));
 			
-				$userSQL = "SELECT * FROM users WHERE user_login='" . clean($_POST['login_username']) . "' AND user_pass='$secPass';";
+				$userSQL = "SELECT * FROM users WHERE user_login='" . clean($this->_CONN,$_POST['login_username']) . "' AND user_pass='$secPass';";
 			} else {
 				$userSQL = "SELECT * FROM users WHERE user_token='$token';";
 			}
@@ -277,7 +303,7 @@ class cms {
 				$this->cms_displayLoginManager();
 				if (isset($_POST) && !empty($_POST)) echo "Bad username or password!<br /><br />";
 				
-				logChange($this->_CONN, "user", 'log_in',null, clean($_POST['login_username']), "FAILED LOGIN");
+				logChange($this->_CONN, "user", 'log_in',null, clean($this->_CONN,$_POST['login_username']), "FAILED LOGIN");
 				
 				return false;
 			}
@@ -302,8 +328,10 @@ class cms {
 		}
 	}
 	
-	/* Display the login page
-	*/
+	/**
+	 * Display the login page
+	 *
+	 */
 	public function cms_displayLoginManager() {
 		//Display da ferret!
 		$this->cms_displayFerret();
@@ -331,8 +359,10 @@ class cms {
 		echo "</div>";
 	}
 		
-	/* Display the list of all pages
-	*/
+	/** 
+	 * Display the list of all pages
+	 *
+	 */
 	public function cms_displayAdminPages() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a><br /><br />';
 		
@@ -361,8 +391,10 @@ class cms {
 		}
 	}
 	
-	/* Display the list of all templates
-	*/
+	/** 
+	 * Display the list of all templates
+	 *
+	 */
 	public function cms_displayAdminTemplates() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a><br /><br />';
 		
@@ -394,8 +426,10 @@ class cms {
 	
 	}
 	
-	/* Display the list of all posts and their respective pages
-	*/
+	/** 
+	 * Display the list of all posts and their respective pages
+	 *
+	 */
 	public function cms_displayAdminPosts() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=postDisplay">Post List</a><br /><br />';
 	
@@ -438,8 +472,10 @@ class cms {
 		
 	}	
 	
-	/* Display the list of all users
-	*/
+	/** 
+	 * Display the list of all users
+	 *
+	 */
 	public function cms_displayAdminUsers() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a><br /><br />';
 		
@@ -470,9 +506,10 @@ class cms {
 	
 	}
 	
-	/* Display the admin homepage.
-	 * Currently this is a list of all pages.
-	*/
+	/** 
+	 * Display the admin homepage. Currently this is a list of all pages.
+	 *
+	 */
 	public function cms_displayMain() {	
 		echo ($this->_AUTH ? "Welcome <strong>" . $this->_USER->loginname . "</strong><br /><br />" : "");
 		echo "
@@ -523,12 +560,14 @@ class cms {
 		echo "</p>";
 	}
 
-	/* Display the User management
-	*/
+	/**
+	 * Display the User management
+	 *
+	 */
 	public function cms_displayUserManager() {
 	
 		//The context is the user ID. We want to update rather than insert if we are editing
-		$userId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
+		$userId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
 		
 		$user = new User($this->_CONN);
 		
@@ -585,12 +624,14 @@ class cms {
 		}
 	}
 	
-	/* Display the page management page
-	*/
+	/**
+	 * Display the page management page
+	 *
+	 */
 	public function cms_displayPageManager() {
 		
 		//The context is the page ID. We want to update rather than insert if we are editing
-		$pageId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
+		$pageId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
 		
 		switch($this->_ACTION) {
 			case "update":
@@ -633,12 +674,14 @@ class cms {
 	
 	}
 	
-	/* Display the template management page
-	*/
+	/**
+	 * Display the template management page
+	 *
+	 */
 	public function cms_displayTemplateManager() {
 		
 		//The context is the page ID. We want to update rather than insert if we are editing
-		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
+		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
 		
 		switch($this->_ACTION) {
 			case "update":
@@ -681,13 +724,14 @@ class cms {
 	
 	}
 	
-	/* Display the plugin management page
-	Work In Progress
-	*/
+	/**
+	 * Display the plugin management page/ Work In Progress
+	 *
+	 */
 	public function display_pluginManager() {
 		
 		//The context is the page ID. We want to update rather than insert if we are editing
-		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($_GET['p']) : "new";
+		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
 		
 		switch($this->_ACTION) {
 			case "update":
@@ -726,12 +770,14 @@ class cms {
 		}
 	}
 	
-	/* Display the post management page
-	*/
+	/**
+	 * Display the post management page
+	 *
+	 */
 	public function cms_displayPostManager() {
 		//The context is the page ID. We want to update rather than insert if we are editing
-		$pageId = isset($_GET['p']) ? clean($_GET['p']) : "new";
-		$postId = isset($_GET['c']) ? clean($_GET['c']) : "new";
+		$pageId = isset($_GET['p']) ? clean($this->_CONN,$_GET['p']) : "new";
+		$postId = isset($_GET['c']) ? clean($this->_CONN,$_GET['c']) : "new";
 		
 		switch($this->_ACTION) {
 			case "update":
@@ -776,8 +822,12 @@ class cms {
 		
 	}
 
-	/* Connect to the database defined in config.php
-	*/
+	/**
+	 * Connect to the database defined in config.php
+	 *
+	 * @param $connType		Can be either user or admin and is used to prevent unnecessary SQL database builds
+	 *
+	 */
 	public function connect($connType = null) {
 
 		$this->_CONN = new mysqli(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysqli_error());
@@ -795,10 +845,10 @@ class cms {
 		 }
 	}
 
-	/* Build the tables required by the CMS.
-	 * These inserts are NOT going to override or remove.
-	 * They will only build if the table doesn't exist.
-	*/
+	/**
+	 * Build the tables required by the CMS. They will only build if the table doesn't exist.
+	 *
+	 */
 	private function buildDB() {
 
 		/*Table structure for table `board` */
@@ -904,8 +954,10 @@ class cms {
 		
 	}
 	
-	/* Display any global warnings such as missing homepage, etc
-	*/
+	/**
+	 * Display any global warnings such as missing homepage, etc
+	 *
+	 */
 	public function cms_displayWarnings() {
 		//Make sure a homepage is set
 		$pageSQL = "SELECT * FROM pages WHERE page_isHome=1;";
@@ -917,8 +969,10 @@ class cms {
 	
 	}
 
-	/* By far the MOST important function in the whole CMS
-	*/
+	/**
+	 * By far the MOST important function in the whole CMS
+	 *
+	 */
 	public function cms_displayFerret() {
 		echo "<pre class='cms_ferret'>                
                                                                         .`                                           
@@ -1028,16 +1082,34 @@ class cms {
 		</pre>";
 	}
 	
+	/**
+	 * Returns the 'p' get data in the URL
+	 *
+	 * @return Returns get p= data from the url
+	 * 
+	 */
 	public function get_PARENT() {
 		return $this->_PARENT;
 	}
 	
+	/**
+	 * Returns the 'c' get data in the URL
+	 *
+	 * @return Returns get c= data from the url
+	 * 
+	 */
 	public function get_CHILD() {
 		return $this->_CHILD;
 	}
 	
 	//USER VIEW FUNCTIONS ###############################################################################
 	
+	/**
+	 * Loads the page and template for the live website
+	 *
+	 * @param $pSafeLink		The link used to access the page. Ex: p=blog
+	 * 
+	 */
 	public function load_page($pSafeLink) {
 		global $cms; //Make the CMS variable a global so the pages can reference it
 	
@@ -1075,6 +1147,12 @@ class cms {
 	
 	}
 	
+	/**
+	 * The navigation bar to show on the user page
+	 *
+	 * @param $data		 An array of all the safe links to display in the navigation. Ex home, blog, archive
+	 * 
+	 */
 	public function load_navigation($data=array()) {
 
 		echo "<ul class='cms_ul_nav'>";
@@ -1098,3 +1176,4 @@ class cms {
 }
 
 ?>
+

@@ -1,9 +1,11 @@
 <?php
 
 /**
-* Class to handle articles
-*/
-
+ * Class to handle pages
+ *
+ * @author Jacob Rogaishio
+ * 
+ */
 class page
 {
 	// Properties
@@ -19,9 +21,9 @@ class page
 	private $conn = null; //Database connection object
 	
 	/**
-	* Sets the object's properties using the values in the supplied array
+	* Stores the connection object in a local variable on construction
 	*
-	* @param assoc The property values
+	* @param dbConn The property values
 	*/
 	public function __construct($dbConn) {
 		$this->conn = $dbConn;
@@ -30,7 +32,7 @@ class page
 	/**
 	* Sets the object's properties using the edit form post values in the supplied array
 	*
-	* @param assoc The form post values
+	* @param params The form post values
 	*/
 	public function storeFormValues ($params) {
 		//Set the data to variables if the post data is set
@@ -72,12 +74,21 @@ class page
 	}
 
 	/**
-	* Updates the current page object in the database.
-	*/
+	 * Updates the current page object in the database.
+	 * 
+	 * @param $pageId	The page Id to update
+	 */
 	public function update($pageId) {
 	
 		if($this->constr) {
 
+			//Reset all home pages since we are setting a new one
+			if($this->isHome == true) {
+				$sql = "UPDATE pages SET page_isHome = 'false';";
+				$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
+			}
+		
+			//Update the page SQL
 			$sql = "UPDATE pages SET
 			page_template = '$this->template', 
 			page_safeLink = '$this->safeLink', 
@@ -94,14 +105,18 @@ class page
 			}
 
 		} else {
-			echo "Failed to load fornm data!";
+			echo "Failed to load form data!";
 		}
 
 	}
 
 	/**
-	* Deletes the current page object from the database.
-	*/
+	 * Deletes the current page object from the database.
+	 * 
+	 * @param $pageId	The page to be deleted
+	 * 
+	 * @return returns the database result on the delete query
+	 */
 	public function delete($pageId) {
 		//Load the page from an ID so we can say goodbye...
 		$this->loadRecord($pageId);
@@ -115,6 +130,11 @@ class page
 		$postResult = $this->conn->query($postSQL);
 	}
 	
+	/**
+	 * Loads the page object members based off the page id in the database
+	 * 
+	 * @param $pageId	The page to be loaded
+	 */
 	public function loadRecord($pageId) {
 		if(isset($pageId) && $pageId != "new") {
 			
@@ -143,6 +163,11 @@ class page
 	
 	}
 	
+	/**
+	 * Builds the admin editor form to add / update pages
+	 * 
+	 * @param $pageId	The page to be edited
+	 */
 	public function buildEditForm($pageId) {
 
 		//Load the page from an ID
@@ -251,10 +276,10 @@ class page
 				$tempLink = $this->safeLink;
 			}
 			if($postLimit == -1)
-				$postSQL = "SELECT * FROM posts WHERE page_id=$tempId " . ($childId != null ? "AND id = " . clean($childId) : "") . " ORDER BY post_created DESC";
+				$postSQL = "SELECT * FROM posts WHERE page_id=$tempId " . ($childId != null ? "AND id = " . clean($this->conn,$childId) : "") . " ORDER BY post_created DESC";
 			else {
-				if(strpos(clean($childId), "~") !== false) {
-					$temp = str_replace("~", "", (clean($childId)));
+				if(strpos(clean($this->conn,$childId), "~") !== false) {
+					$temp = str_replace("~", "", (clean($this->conn,$childId)));
 					$startPos = $temp;
 					
 					$postSQL = "SELECT * FROM posts WHERE page_id=$tempId ORDER BY post_created DESC LIMIT $startPos, $postLimit";
@@ -311,8 +336,8 @@ class page
 	}
 	
 	public function display_post_nav($postLimit, $childId) {
-		if(strpos(clean($childId), "~") !== false) {
-			$temp = str_replace("~", "", (clean($childId))); //Grab the current page # we are on
+		if(strpos(clean($this->conn,$childId), "~") !== false) {
+			$temp = str_replace("~", "", (clean($this->conn,$childId))); //Grab the current page # we are on
 			if ($temp <= 0)
 				$temp = 0;
 				
@@ -335,3 +360,4 @@ class page
 }
 
 ?>
+

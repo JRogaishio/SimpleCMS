@@ -1,9 +1,11 @@
 <?php
 
 /**
-* Class to handle articles
-*/
-
+ * Class to handle plug-ins
+ *
+ * @author Jacob Rogaishio
+ * 
+ */
 class template
 {
 	// Properties
@@ -14,9 +16,9 @@ class template
 	private $conn = null; //Database connection object
 	
 	/**
-	* Sets the object's properties using the values in the supplied array
+	* Stores the connection object in a local variable on construction
 	*
-	* @param assoc The property values
+	* @param dbConn The property values
 	*/
 	public function __construct($dbConn) {
 		$this->conn = $dbConn;
@@ -25,7 +27,7 @@ class template
 	/**
 	* Sets the object's properties using the edit form post values in the supplied array
 	*
-	* @param assoc The form post values
+	* @param params The form post values
 	*/
 	public function storeFormValues ($params) {
 		//Set the data to variables if the post data is set
@@ -39,8 +41,8 @@ class template
 	}
 
 	/**
-	* Inserts the current page object into the database, and sets its ID property.
-	*/
+	 * Inserts the current plugin object into the database
+	 */
 	public function insert() {
 		if($this->constr) {
 			
@@ -57,9 +59,11 @@ class template
 	}
 
 	/**
-	* Updates the current page object in the database.
-	*/
-	public function update($templateId) {
+	 * Updates the current plugin object in the database.
+	 * 
+	 * @param $plugId	The plugin Id to update
+	 */
+	public function update($plugId) {
 	
 		if($this->constr) {
 
@@ -67,7 +71,7 @@ class template
 			template_path = '$this->path', 
 			template_file = '$this->file', 
 			template_name = '$this->name'
-			WHERE id=$templateId;
+			WHERE id=$plugId;
 			";
 
 			$result = $this->conn->query($sql) OR DIE ("Could not update template!");
@@ -76,29 +80,38 @@ class template
 			}
 
 		} else {
-			echo "Failed to load fornm data!";
+			echo "Failed to load form data!";
 		}
 
 	}
 
 	/**
-	* Deletes the current page object from the database.
-	*/
-	public function delete($templateId) {
+	 * Deletes the current plugin object from the database.
+	 * 
+	 * @param $plugId	The plugin to be deleted
+	 * 
+	 * @return returns the database result on the delete query
+	 */
+	public function delete($plugId) {
 		//Load the page from an ID so we can say goodbye...
-		$this->loadRecord($templateId);
+		$this->loadRecord($plugId);
 		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
 		
-		$templateSQL = "DELETE FROM templates WHERE id=$templateId";
+		$templateSQL = "DELETE FROM templates WHERE id=$plugId";
 		$templateResult = $this->conn->query($templateSQL);
 		
 		return $templateResult;
 	}
 	
-	public function loadRecord($templateId) {
-		if(isset($templateId) && $templateId != "new") {
+	/**
+	 * Loads the plugin object members based off the plugin id in the database
+	 * 
+	 * @param $pluginId	The plugin to be loaded
+	 */
+	public function loadRecord($pluginId) {
+		if(isset($pluginId) && $pluginId != "new") {
 			
-			$templateSQL = "SELECT * FROM templates WHERE id=$templateId";
+			$templateSQL = "SELECT * FROM templates WHERE id=$pluginId";
 				
 			$templateResult = $this->conn->query($templateSQL);
 
@@ -117,10 +130,15 @@ class template
 	
 	}
 	
-	public function buildEditForm($templateId) {
+	/**
+	 * Builds the admin editor form to add / update plugins
+	 * 
+	 * @param $pluginId	The plugin to be edited
+	 */
+	public function buildEditForm($pluginId) {
 
 		//Load the page from an ID
-		$this->loadRecord($templateId);
+		$this->loadRecord($pluginId);
 
 		echo "<div id='main_content'>";
 		echo '
@@ -140,8 +158,8 @@ class template
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($templateId) || $templateId == "new") ? "Create" : "Update") . ' This Template!" /><br /><br />
-			' . ((isset($templateId) && $templateId != "new") ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pluginId) || $pluginId == "new") ? "Create" : "Update") . ' This Template!" /><br /><br />
+			' . ((isset($pluginId) && $pluginId != "new") ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
 			</form>
 		';
 		echo "</div>";
@@ -158,3 +176,4 @@ class template
 }
 
 ?>
+

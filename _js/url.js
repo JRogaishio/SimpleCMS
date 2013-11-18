@@ -5,3 +5,4 @@ function getUrlVars() {
     });
     return vars;
 }
+

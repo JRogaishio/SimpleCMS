@@ -1,9 +1,11 @@
 <?php
 
 /**
-* Class to handle articles
-*/
-
+ * Class to handle page templates
+ *
+ * @author Jacob Rogaishio
+ * 
+ */
 class template
 {
 	// Properties
@@ -14,9 +16,9 @@ class template
 	private $conn = null; //Database connection object
 	
 	/**
-	* Sets the object's properties using the values in the supplied array
+	* Stores the connection object in a local variable on construction
 	*
-	* @param assoc The property values
+	* @param dbConn The property values
 	*/
 	public function __construct($dbConn) {
 		$this->conn = $dbConn;
@@ -25,7 +27,7 @@ class template
 	/**
 	* Sets the object's properties using the edit form post values in the supplied array
 	*
-	* @param assoc The form post values
+	* @param params The form post values
 	*/
 	public function storeFormValues ($params) {
 		//Set the data to variables if the post data is set
@@ -39,8 +41,8 @@ class template
 	}
 
 	/**
-	* Inserts the current page object into the database, and sets its ID property.
-	*/
+	 * Inserts the current template object into the database
+	 */
 	public function insert() {
 		if($this->constr) {
 			
@@ -59,8 +61,10 @@ class template
 	}
 
 	/**
-	* Updates the current page object in the database.
-	*/
+	 * Updates the current template object in the database.
+	 * 
+	 * @param $templateId	The template Id to update
+	 */
 	public function update($templateId) {
 	
 		if($this->constr) {
@@ -78,13 +82,17 @@ class template
 			}
 
 		} else {
-			echo "Failed to load fornm data!";
+			echo "Failed to load form data!";
 		}
 	}
 
 	/**
-	* Deletes the current page object from the database.
-	*/
+	 * Deletes the current template object from the database.
+	 * 
+	 * @param $templateId	The template to be deleted
+	 * 
+	 * @return returns the database result on the delete query
+	 */
 	public function delete($templateId) {
 		//Load the page from an ID so we can say goodbye...
 		$this->loadRecord($templateId);
@@ -96,6 +104,11 @@ class template
 		return $templateResult;
 	}
 	
+	/**
+	 * Loads the template object members based off the template id in the database
+	 * 
+	 * @param $templateId	The template to be loaded
+	 */
 	public function loadRecord($templateId) {
 		if(isset($templateId) && $templateId != "new") {
 			
@@ -118,6 +131,11 @@ class template
 	
 	}
 	
+	/**
+	 * Builds the admin editor form to add / update templates
+	 * 
+	 * @param $templateId	The template to be edited
+	 */
 	public function buildEditForm($templateId) {
 
 		//Load the page from an ID
@@ -155,3 +173,5 @@ class template
 }
 
 ?>
+
+

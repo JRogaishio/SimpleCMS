@@ -1,9 +1,11 @@
 <?php
 
 /**
-* Class to handle articles
-*/
-
+ * Class to handle users
+ *
+ * @author Jacob Rogaishio
+ * 
+ */
 class user
 {
 	// Properties
@@ -14,10 +16,11 @@ class user
 	public $email = null;
 	public $isRegistered = null;
 	private $conn = null; //Database connection object
+	
 	/**
-	* Sets the object's properties using the values in the supplied variable
+	* Stores the connection object in a local variable on construction
 	*
-	* @param dbConn The database connection object from the main class
+	* @param dbConn The property values
 	*/
 	public function __construct($dbConn) {
 		$this->conn = $dbConn;
@@ -26,7 +29,7 @@ class user
 	/**
 	* Sets the object's properties using the edit form post values in the supplied array
 	*
-	* @param assoc The form post values
+	* @param params The form post values
 	*/
 	public function storeFormValues ($params=array()) {
 		// Store all the parameters
@@ -39,8 +42,8 @@ class user
 	}
 
 	/**
-	* Inserts the current page object into the database, and sets its ID property.
-	*/
+	 * Inserts the current user object into the database
+	 */
 	public function insert() {
 		if($this->constr) {
 			$salt = unique_salt();
@@ -61,8 +64,10 @@ class user
 	}
 
 	/**
-	* Updates the current page object in the database.
-	*/
+	 * Updates the current user object in the database.
+	 * 
+	 * @param $userId	The user Id to update
+	 */
 	public function update($userId) {
 	
 		if($this->constr) {
@@ -83,13 +88,17 @@ class user
 			}
 			
 		} else {
-			echo "Failed to load fornm data!";
+			echo "Failed to load form data!";
 		}
 	}
 
 	/**
-	* Deletes the current page object from the database.
-	*/
+	 * Deletes the current user object from the database.
+	 * 
+	 * @param $userId	The user to be deleted
+	 * 
+	 * @return returns the database result on the delete query
+	 */
 	public function delete($userId) {
 		//Load the page from an ID so we can say goodbye...
 		$this->loadRecord($userId);
@@ -101,6 +110,11 @@ class user
 		return $userResult;
 	}
 	
+	/**
+	 * Loads the user object members based off the user id in the database
+	 * 
+	 * @param $userId	The user to be loaded
+	 */
 	public function loadRecord($userId) {
 		if(isset($userId) && $userId != "new") {
 			
@@ -125,6 +139,11 @@ class user
 	
 	}
 	
+	/**
+	 * Builds the admin editor form to add / update users
+	 * 
+	 * @param $userId	The user to be edited
+	 */
 	public function buildEditForm($userId) {
 
 		//Load the page from an ID
@@ -158,3 +177,4 @@ class user
 }
 
 ?>
+
