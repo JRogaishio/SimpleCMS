@@ -18,19 +18,19 @@ class user
 	private $conn = null; //Database connection object
 	
 	/**
-	* Stores the connection object in a local variable on construction
-	*
-	* @param dbConn The property values
-	*/
+	 * Stores the connection object in a local variable on construction
+	 *
+	 * @param dbConn The property values
+	 */
 	public function __construct($dbConn) {
 		$this->conn = $dbConn;
 	}
 
 	/**
-	* Sets the object's properties using the edit form post values in the supplied array
-	*
-	* @param params The form post values
-	*/
+	 * Sets the object's properties using the edit form post values in the supplied array
+	 *
+	 * @param params The form post values
+	 */
 	public function storeFormValues ($params=array()) {
 		// Store all the parameters
 		//I also want to do a sanitization string here. Go find my clean() function somewhere

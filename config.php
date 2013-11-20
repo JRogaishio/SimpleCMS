@@ -9,7 +9,7 @@ define( "DB_PASSWORD", "" );
 define( "CLASS_PATH", "_class" );
 define( "TEMPLATE_PATH", "_template" );
 define( "ADMINFORM_PATH", "_adminForm" );
-define( "SITE_ROOT", "localhost/ferretCMS/");
+define( "SITE_ROOT", "http://localhost/ferretCMS/");
 define( "ADMIN_USERNAME", "admin" );
 define( "ADMIN_PASSWORD", "pass" );
 require( CLASS_PATH . "/cms.php" );

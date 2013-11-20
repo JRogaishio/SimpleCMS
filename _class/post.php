@@ -21,20 +21,20 @@ class post
 	private $conn = null; //Database connection object
 	
 	/**
-	* Stores the connection object in a local variable on construction
-	*
-	* @param dbConn The property values
-	*/
+	 * Stores the connection object in a local variable on construction
+	 *
+	 * @param dbConn The property values
+	 */
 	public function __construct($dbConn) {
 		$this->conn = $dbConn;
 	}
 
 
 	/**
-	* Sets the object's properties using the edit form post values in the supplied array
-	*
-	* @param params The form post values
-	*/
+	 * Sets the object's properties using the edit form post values in the supplied array
+	 *
+	 * @param params The form post values
+	 */
 	public function storeFormValues ($params) {
 		// Store all the parameters
 		//Set the data to variables if the post data is set

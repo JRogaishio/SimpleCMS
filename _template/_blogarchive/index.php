@@ -5,7 +5,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title><?php echo $page->title; ?></title>
-	<link rel="stylesheet" type="text/css" href="<?php echo TEMPLATE_PATH . "/" . $page->templatePath . "/main.css";?>" />
+	<link rel="stylesheet" type="text/css" href="<?php echo SITE_ROOT . TEMPLATE_PATH . "/" . $page->templatePath . "/main.css";?>" />
 	
 </head>
 

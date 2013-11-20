@@ -199,5 +199,52 @@ function logChange($conn, $type, $action, $userId, $user, $change) {
 	return $result;	
 }
 
+/**
+ * Gets the link format from the database
+ * 
+ * @param $conn		A database connection object
+ * 
+ * @return returns the link format per the database
+ */
+function get_linkFormat($conn) {
+
+	$siteSQL = "SELECT * FROM site;";
+	$siteResult =  $conn->query($siteSQL);
+
+	if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {
+		$siteData = mysqli_fetch_assoc($siteResult);
+		return $siteData['site_linkFormat'];
+	} else {
+		return false;
+	}
+
+}
+
+
+/**
+ * Generates the link per the supplied format
+ * 
+ * @param $format	A link format
+ * @param $p		The parent link
+ * @param $c		The child link
+ *
+ * @return returns the formatted link
+ */
+function formatLink($format, $p, $c=null) {
+	$ret = "";
+	switch($format) {
+		case "raw":
+			$ret = "?p=" . $p . ($c != "" && $c != null ? "&c=" . $c : "");
+			return $ret;
+			break;
+		case "clean":
+			$ret = SITE_ROOT . "page/" . $p . "/" . ($c != "" && $c != null ? "article/" . $c : "");
+			return $ret;
+			break;
+		default:
+			return false;
+	}
+}
+
 ?>
 

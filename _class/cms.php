@@ -26,7 +26,7 @@ class cms {
 	private $_CHILD = "user";
 	private $_USERPAGE = "user";
 	private $_CONN = null;
-	
+	private $_LINKFORMAT = "";
 	//Login stuff
 	private $_AUTH = false;	
 	private $_USER = null;
@@ -47,7 +47,7 @@ class cms {
 		$this->_ACTION = isset( $_GET['action'] ) ? clean($this->_CONN,$_GET['action']) : null;
 		$this->_PARENT = isset( $_GET['p'] ) ? clean($this->_CONN,$_GET['p']) : null;
 		$this->_CHILD = isset( $_GET['c'] ) ? clean($this->_CONN,$_GET['c']) : null;
-
+		$this->_LINKFORMAT = get_linkFormat($this->_CONN);
 		//Handle global states such as logging out, etc
 		$this->cms_handleState();
 		
@@ -301,7 +301,7 @@ class cms {
 			} else {
 				//Display the login manager if the auth failed
 				$this->cms_displayLoginManager();
-				if (isset($_POST) && !empty($_POST)) echo "Bad username or password!<br /><br />";
+				if (isset($_POST) && !empty($_POST)) echo "Bad user name or password!<br /><br />";
 				
 				logChange($this->_CONN, "user", 'log_in',null, clean($this->_CONN,$_POST['login_username']), "FAILED LOGIN");
 				
@@ -952,6 +952,16 @@ class cms {
 		)";
 		$this->_CONN->query($sql) OR DIE ("Could not build table \"users\"");
 		
+		/*Table structure for table `site` */
+
+		$sql = "CREATE TABLE IF NOT EXISTS `site` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `site_name` varchar(64) DEFAULT NULL,
+		  `site_linkFormat` varchar(64) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		)";
+		$this->_CONN->query($sql) OR DIE ("Could not build table \"site\"");
+		
 	}
 	
 	/**
@@ -1116,7 +1126,7 @@ class cms {
 		$page = new Page($this->_CONN);
 
 		//Load the page
-		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home") {
+		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home" && $pSafeLink != "404ERROR") {
 			$pageSQL = "SELECT * FROM pages WHERE page_safeLink='$pSafeLink'";
 			$pageResult = $this->_CONN->query($pageSQL);
 
@@ -1131,7 +1141,7 @@ class cms {
 		}
 		
 		//Load the page
-		if(isset($page->template) && $page->template != null && $page->constr == true) {
+		if(isset($page->template) && $page->template != null && $page->constr == true && $pSafeLink != "404ERROR") {
 			$templateSQL = "SELECT * FROM templates WHERE id=$page->template";
 			$templateResult = $this->_CONN->query($templateSQL);
 
@@ -1165,9 +1175,8 @@ class cms {
 				$pageData = mysqli_fetch_assoc($pageResult);
 
 			if(isset($pageData)) {
-				echo "<li class='cms_li_nav' id='nav-$data[$i]'><a href='?p=" . $pageData['page_safeLink'] . "'>" . $pageData['page_title'] . "</a></li>";
+				echo "<li class='cms_li_nav' id='nav-$data[$i]'><a href='" . formatLink($this->_LINKFORMAT, $pageData['page_safeLink'])  . "'>" . $pageData['page_title'] . "</a></li>";
 			}
-		
 		}
 		
 		echo "</ul>";

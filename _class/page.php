@@ -19,21 +19,23 @@ class page
 	public $isHome = null;
 	public $constr = false;
 	private $conn = null; //Database connection object
+	private $linkFormat = null;
 	
 	/**
-	* Stores the connection object in a local variable on construction
-	*
-	* @param dbConn The property values
-	*/
+	 * Stores the connection object in a local variable on construction
+	 *
+	 * @param dbConn The property values
+	 */
 	public function __construct($dbConn) {
 		$this->conn = $dbConn;
+		$this->linkFormat = get_linkFormat($dbConn);
 	}
 
 	/**
-	* Sets the object's properties using the edit form post values in the supplied array
-	*
-	* @param params The form post values
-	*/
+	 * Sets the object's properties using the edit form post values in the supplied array
+	 *
+	 * @param params The form post values
+	 */
 	public function storeFormValues ($params) {
 		//Set the data to variables if the post data is set
 
@@ -314,7 +316,8 @@ class page
 						<br />";
 					}
 					if ($showPerma == true)
-						$entry_display .= "Permalink: <a href='index.php?p=$tempLink&c=$postId'>Permalink</a><br /><br />";
+						$entry_display .= "Permalink: <a href='" . formatLink($this->linkFormat, $tempLink, $postId) . "'>Permalink</a><br /><br />";
+						
 						
 					$entry_display .=  "</div>";
 
@@ -350,10 +353,11 @@ class page
 			//Calculate how far ahead we need to go
 			$nextNum = $startPos + $postLimit;
 				
-			echo "<a href='index.php?p=$this->safeLink&c=~$backNum' class='cms_page_nav'>back</a> <a href='index.php?p=$this->safeLink&c=~$nextNum' class='cms_page_nav'>next</a>";
+			echo "<a href='" . formatLink($this->linkFormat, $this->safeLink, "~" . $backNum) . "' class='cms_page_nav'>back</a> <a href='" . formatLink($this->linkFormat, $this->safeLink, "~" . $nextNum) . "' class='cms_page_nav'>next</a>";
 		} else {
-			echo "<a href='index.php?p=$this->safeLink&c=~0' class='cms_page_nav'>back</a> <a href='index.php?p=$this->safeLink&c=~$postLimit' class='cms_page_nav'>next</a>";
+			echo "<a href='" . formatLink($this->linkFormat, $this->safeLink, "~0") . "' class='cms_page_nav'>back</a> <a href='" . formatLink($this->linkFormat, $this->safeLink, "~" . $postLimit) . "' class='cms_page_nav'>next</a>";
 		}
+		
 	}
 	
 	
