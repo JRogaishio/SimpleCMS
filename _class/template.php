@@ -33,9 +33,9 @@ class template
 		//Set the data to variables if the post data is set
 
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['path'])) $this->path = $params['path'];
-		if(isset($params['file'])) $this->file = $params['file'];
-		if(isset($params['name'])) $this->name = $params['name'];
+		if(isset($params['path'])) $this->path = clean($this->conn, $params['path']);
+		if(isset($params['file'])) $this->file = clean($this->conn, $params['file']);
+		if(isset($params['name'])) $this->name = clean($this->conn, $params['name']);
 
 		$this->constr = true;
 	}
@@ -56,7 +56,7 @@ class template
 			
 
 		} else {
-			echo "Failed to load fornm data!";
+			echo "Failed to load form data!";
 		}
 	}
 

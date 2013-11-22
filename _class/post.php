@@ -39,16 +39,12 @@ class post
 		// Store all the parameters
 		//Set the data to variables if the post data is set
 
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['id'])) $this->id = (int) $params['id'];
-		if(isset($params['pageId'])) $this->pageId = (int) $params['pageId'];
-		
-		//if(isset($params['authorId'])) $this->authorId = $params['authorId'];
-		
-		if(isset($params['postDate'])) $this->postDate = $params['postDate'];
-		if(isset($params['title'])) $this->title = $params['title'];
-		if(isset($params['content'])) $this->content = $params['content'];
-		if(isset($params['lastMod'])) $this->lastMod = $params['lastMod'];
+		if(isset($params['id'])) $this->id = (int) clean($this->conn, $params['id']);
+		if(isset($params['pageId'])) $this->pageId = (int) clean($this->conn, $params['pageId']);
+		if(isset($params['postDate'])) $this->postDate = clean($this->conn, $params['postDate']);
+		if(isset($params['title'])) $this->title = clean($this->conn, $params['title']);
+		if(isset($params['content'])) $this->content = clean($this->conn, $params['content']);
+		if(isset($params['lastMod'])) $this->lastMod = clean($this->conn, $params['lastMod']);
 
 		$this->constr = true;
 	}
@@ -70,7 +66,7 @@ class post
 			}
 
 		} else {
-			echo "Failed to load fornm data!";
+			echo "Failed to load form data!";
 		}
 	}
 

@@ -208,7 +208,7 @@ function logChange($conn, $type, $action, $userId, $user, $change) {
  */
 function get_linkFormat($conn) {
 
-	$siteSQL = "SELECT * FROM site;";
+	$siteSQL = "SELECT * FROM sites;";
 	$siteResult =  $conn->query($siteSQL);
 
 	if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {
@@ -232,6 +232,7 @@ function get_linkFormat($conn) {
  */
 function formatLink($format, $p, $c=null) {
 	$ret = "";
+
 	switch($format) {
 		case "raw":
 			$ret = "?p=" . $p . ($c != "" && $c != null ? "&c=" . $c : "");

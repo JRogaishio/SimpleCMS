@@ -3,6 +3,7 @@ include_once('_lib/database.php');
 include_once('_lib/encrypt.php');
 include_once('_lib/management.php');
 
+include_once('_class/site.php');
 include_once('_class/user.php');
 include_once('_class/page.php');
 include_once('_class/post.php');
@@ -72,6 +73,12 @@ class cms {
 				
 			//Build the manager
 			switch($this->_TYPE) {
+				case "site":
+					echo $this->cms_displaySiteManager();
+					break;
+				case "siteDisplay":
+					echo $this->cms_displayAdminSite();
+					break;
 				case "page":
 					echo $this->cms_displayPageManager();
 					break;
@@ -166,13 +173,15 @@ class cms {
 		echo '
 			<div class="cms_nav">
 				<div class="cms_navItemTitle"><div id="cms_dash" class="cms_icon"></div><a href="admin.php" class="cms_navItemTitleLink">Dashboard</a></div>
-				<div><div class="cms_navItemTitle"><div id="cms_webm" class="cms_icon"></div>Website Manager</div>
+				
+				<div><div class="cms_navItemTitle"><div id="cms_site" class="cms_icon"></div>Website Manager</div>
 					<div class="cms_navItemList" id="cms_navItemList_site">
 						<ul>
-						<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit site</a></li>
+						<li class="cms_navItem"><a href="admin.php?type=siteDisplay" class="cms_navItemLink">Edit Site</a></li>
 						</ul>
 					</div>
 				</div>
+			
 				
 				<div><div class="cms_navItemTitle"><div id="cms_page" class="cms_icon"></div>Page Manager</div>
 					<div class="cms_navItemList" id="cms_navItemList_page">
@@ -207,7 +216,7 @@ class cms {
 						</ul>
 					</div>	
 				</div>	
-					
+					<!--
 				<div><div class="cms_navItemTitle"><div id="cms_plug" class="cms_icon"></div>Plugin Manager</div>
 					<div class="cms_navItemList" id="cms_navItemList_plug">
 						<ul>
@@ -216,6 +225,7 @@ class cms {
 						</ul>
 					</div>	
 				</div>
+				-->
 				<div><div class="cms_navItemTitle"></div></div>
 				
 			</div>
@@ -358,6 +368,37 @@ class cms {
 		';
 		echo "</div>";
 	}
+		
+	/** 
+	 * Display the site manager
+	 *
+	 */
+	public function cms_displayAdminSite() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=siteDisplay">Site</a><br /><br />';
+		
+		$siteSQL = "SELECT * FROM sites ORDER BY id DESC";
+		$siteResult = $this->_CONN->query($siteSQL);
+	
+		if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($siteResult) ) {
+				
+				$name = stripslashes($row['site_name']);
+
+				echo "
+				<div class=\"site\">
+					<h2>
+					Site: <a href=\"admin.php?type=site&action=update&p=".$row['id']."\" class=\"cms_siteEditLink\" >$name</a>
+					</h2>
+				</div>";
+			}
+		} else {
+			echo "
+			<p>
+				No sites found!
+			</p>";
+		}
+	}	
+		
 		
 	/** 
 	 * Display the list of all pages
@@ -623,6 +664,41 @@ class cms {
 			$user->buildLogin();
 		}
 	}
+	
+	/**
+	 * Display the site management page
+	 *
+	 */
+	public function cms_displaySiteManager() {
+		
+		//The context is the site ID. We want to update rather than insert if we are editing
+		$siteId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
+		
+		switch($this->_ACTION) {
+			case "update":
+				//Determine if the form has been submitted
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the site edit form: save the new article
+					$site = new Site($this->_CONN);
+					$site->storeFormValues($_POST);
+					
+					$site->update($siteId);
+					//Re-build the site creation form once we are done
+					$site->buildEditForm($siteId);
+					logChange($this->_CONN, "site", 'update',$this->_USER->id,$this->_USER->loginname, $site->name . " updated");
+				
+				} else {
+					// User has not posted the site edit form yet: display the form
+					$site = new Site($this->_CONN);
+					$site->buildEditForm($siteId);
+				}
+				break;
+			default:
+				echo "Error with site manager<br /><br />";
+				$this->cms_displayMain();
+		}
+	}
+	
 	
 	/**
 	 * Display the page management page
@@ -954,13 +1030,20 @@ class cms {
 		
 		/*Table structure for table `site` */
 
-		$sql = "CREATE TABLE IF NOT EXISTS `site` (
+		$sql = "CREATE TABLE IF NOT EXISTS `sites` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `site_name` varchar(64) DEFAULT NULL,
 		  `site_linkFormat` varchar(64) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
 		$this->_CONN->query($sql) OR DIE ("Could not build table \"site\"");
+		
+		
+		/*Insert site data for `site` */
+		
+		$sql = "INSERT INTO sites (site_name, site_linkFormat) VALUES
+				('My FerretCMS Website', 'clean')";
+		$this->_CONN->query($sql) OR DIE ("Could not insert default data into \"site\"");
 		
 	}
 	

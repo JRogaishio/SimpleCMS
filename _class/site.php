@@ -1,18 +1,17 @@
 <?php
 
 /**
- * Class to handle page templates
+ * Class to handle website information
  *
  * @author Jacob Rogaishio
  * 
  */
-class template
+class site
 {
 	// Properties
 	public $id = null;
-	public $path = null;
-	public $file = null;
 	public $name = null;
+	public $linkFormat = null;
 	private $conn = null; //Database connection object
 	
 	/**
@@ -33,52 +32,29 @@ class template
 		//Set the data to variables if the post data is set
 
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['path'])) $this->path = $params['path'];
-		if(isset($params['file'])) $this->file = $params['file'];
-		if(isset($params['name'])) $this->name = $params['name'];
-
+		if(isset($params['name'])) $this->name = clean($this->conn, $params['name']);
+		if(isset($params['linkFormat'])) $this->linkFormat = clean($this->conn, $params['linkFormat']);
 		$this->constr = true;
 	}
 
 	/**
-	 * Inserts the current template object into the database
-	 */
-	public function insert() {
-		if($this->constr) {
-			
-			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES";
-			$sql .= "('$this->path', '$this->file', '$this->name','" . time() . "')";
-
-			$result = $this->conn->query($sql) OR DIE ("Could not create template!");
-			if($result) {
-				echo "<span class='update_notice'>Created template successfully!</span><br /><br />";
-			}
-			
-
-		} else {
-			echo "Failed to load fornm data!";
-		}
-	}
-
-	/**
-	 * Updates the current template object in the database.
+	 * Updates the current site object in the database.
 	 * 
-	 * @param $templateId	The template Id to update
+	 * @param $siteId	The site Id to update
 	 */
-	public function update($templateId) {
+	public function update($siteId) {
 	
 		if($this->constr) {
 
-			$sql = "UPDATE templates SET
-			template_path = '$this->path', 
-			template_file = '$this->file', 
-			template_name = '$this->name'
-			WHERE id=$templateId;
+			$sql = "UPDATE sites SET
+			site_name = '$this->name', 
+			site_linkFormat = '$this->linkFormat'
+			WHERE id=$siteId;
 			";
 
-			$result = $this->conn->query($sql) OR DIE ("Could not update template!");
+			$result = $this->conn->query($sql) OR DIE ("Could not update site!");
 			if($result) {
-				echo "<span class='update_notice'>Updated template successfully!</span><br /><br />";
+				echo "<span class='update_notice'>Updated site successfully!</span><br /><br />";
 			}
 
 		} else {
@@ -86,88 +62,65 @@ class template
 		}
 	}
 
-	/**
-	 * Deletes the current template object from the database.
-	 * 
-	 * @param $templateId	The template to be deleted
-	 * 
-	 * @return returns the database result on the delete query
-	 */
-	public function delete($templateId) {
-		//Load the page from an ID so we can say goodbye...
-		$this->loadRecord($templateId);
-		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
-		
-		$templateSQL = "DELETE FROM templates WHERE id=$templateId";
-		$templateResult = $this->conn->query($templateSQL);
-		
-		return $templateResult;
-	}
 	
 	/**
-	 * Loads the template object members based off the template id in the database
+	 * Loads the site object members based off the site id in the database
 	 * 
-	 * @param $templateId	The template to be loaded
+	 * @param $siteId	The site to be loaded
 	 */
-	public function loadRecord($templateId) {
-		if(isset($templateId) && $templateId != "new") {
+	public function loadRecord($siteId) {
+		if(isset($siteId) && $siteId != "new") {
 			
-			$templateSQL = "SELECT * FROM templates WHERE id=$templateId";
+			$siteSQL = "SELECT * FROM sites WHERE id=$siteId";
 				
-			$templateResult = $this->conn->query($templateSQL);
+			$siteResult = $this->conn->query($siteSQL);
 
-			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
-				$row = mysqli_fetch_assoc($templateResult);
+			if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 )
+				$row = mysqli_fetch_assoc($siteResult);
 
 			if(isset($row)) {
 				$this->id = $row['id'];
-				$this->path = $row['template_path'];
-				$this->file = $row['template_file'];
-				$this->name = $row['template_name'];
+				$this->name = $row['site_name'];
+				$this->linkFormat = $row['site_linkFormat'];
 			}
 			
 			$this->constr = true;
 		}
-	
 	}
 	
 	/**
-	 * Builds the admin editor form to add / update templates
+	 * Builds the admin editor form to update the site
 	 * 
-	 * @param $templateId	The template to be edited
+	 * @param $siteId	The site to be edited
 	 */
-	public function buildEditForm($templateId) {
+	public function buildEditForm($siteId) {
 
-		//Load the page from an ID
-		$this->loadRecord($templateId);
+		//Load the site from an ID
+		$this->loadRecord($siteId);
 
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a> > <a href="admin.php?type=template&action=update&p=' . $templateId . '">Tenplate</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=siteDisplay">Site List</a> > <a href="admin.php?type=site&action=update&p=' . $siteId . '">Site</a><br /><br />';
 
-		
 		echo '
-			<form action="admin.php?type=template&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=site&action=update&p=' . $this->id . '" method="post">
 
-			<label for="path" title="This is the name in _template">Template folder name:</label><br />
-			<input name="path" id="path" type="text" maxlength="150" value="' . $this->path . '" />
-			<div class="clear"></div>
-
-			<label for="file" title="This is the name of the template php file">Template filename:</label><br />
-			<input name="file" id="file" type="text" maxlength="150" value="' . $this->file . '" />
-			<div class="clear"></div>
-
-			<label for="name" title="This is the name that will appear when selecting a template">Display name:</label><br />
+			<label for="name" title="This is ...">Site name:</label><br />
 			<input name="name" id="name" type="text" maxlength="150" value="' . $this->name . '" />
+			<div class="clear"></div>
+
+			<label for="linkFormat" title="This is the link format">Link format:</label><br />
+			<select name="linkFormat" id="linkFormat">
+				<option selected value="' . $this->linkFormat . '">-- ' .($this->linkFormat=="clean"?"website.com/page/MyPage":($this->linkFormat=="raw"?"website.com/index.php?p=MyPage":"ERROR - UNKNOWN FORMAT TYPE")) . ' --</option>
+				<option value="clean">website.com/page/MyPage</option>
+				<option value="raw">website.com/index.php?p=MyPage</option>
+			</select>
+
 			<div class="clear"></div>
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($templateId) || $templateId == "new") ? "Create" : "Update") . ' This Template!" /><br /><br />
-			' . ((isset($templateId) && $templateId != "new") ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($siteId) || $siteId == "new") ? "Create" : "Update") . ' This Site!" /><br /><br />
 			</form>
 		';
-
-		
-		
 	}
 	
 }

@@ -34,9 +34,9 @@ class user
 	public function storeFormValues ($params=array()) {
 		// Store all the parameters
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['username'])) $this->loginname = $params['username'];
-		if(isset($params['password'])) $this->password = $params['password'];
-		if(isset($params['email'])) $this->email = $params['email'];
+		if(isset($params['username'])) $this->loginname = clean($this->conn, $params['username']);
+		if(isset($params['password'])) $this->password = clean($this->conn, $params['password']);
+		if(isset($params['email'])) $this->email = clean($this->conn, $params['email']);
 
 		$this->constr = true;
 	}
@@ -59,7 +59,7 @@ class user
 			}
 
 		} else {
-			echo "Failed to load fornm data!";
+			echo "Failed to load form data!";
 		}
 	}
 

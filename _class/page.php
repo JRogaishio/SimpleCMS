@@ -40,13 +40,13 @@ class page
 		//Set the data to variables if the post data is set
 
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['id'])) $this->id = (int) $params['id'];
-		if(isset($params['title'])) $this->title = $params['title'];
-		if(isset($params['template'])) $this->template = $params['template'];
-		if(isset($params['safelink'])) $this->safeLink = $params['safelink'];
-		if(isset($params['metadata'])) $this->metaData = $params['metadata'];
-		if(isset($params['board'])) $this->hasBoard = $params['board'];
-		if(isset($params['homepage'])) $this->isHome = (int) $params['homepage'];
+		if(isset($params['id'])) $this->id = (int) clean($this->conn, $params['id']);
+		if(isset($params['title'])) $this->title = clean($this->conn, $params['title']);
+		if(isset($params['template'])) $this->template = clean($this->conn, $params['template']);
+		if(isset($params['safelink'])) $this->safeLink = clean($this->conn, $params['safelink']);
+		if(isset($params['metadata'])) $this->metaData = clean($this->conn, $params['metadata']);
+		if(isset($params['board'])) $this->hasBoard = clean($this->conn, $params['board']);
+		if(isset($params['homepage'])) $this->isHome = (int) clean($this->conn, $params['homepage']);
 		$this->constr = true;
 	}
 
@@ -71,7 +71,7 @@ class page
 			
 
 		} else {
-			echo "Failed to load fornm data!";
+			echo "Failed to load form data!";
 		}
 	}
 
