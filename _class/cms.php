@@ -718,10 +718,15 @@ class cms {
 					$page->storeFormValues($_POST);
 					
 					if($pageId=="new") {
-						$page->insert();
-						//Re-build the main page after creation
-						$this->cms_displayMain();
-						logChange($this->_CONN, "page", 'add',$this->_USER->id,$this->_USER->loginname, $page->title . " added");
+						$result = $page->insert();
+						if($result) {
+							//Re-build the main page after creation
+							$this->cms_displayMain();
+							logChange($this->_CONN, "page", 'add',$this->_USER->id,$this->_USER->loginname, $page->title . " added");
+						} else {
+							//Re-build the page creation form since the submission failed
+							$page->buildEditForm($pageId);
+						}
 					} else {
 						$page->update($pageId);
 						//Re-build the page creation form once we are done

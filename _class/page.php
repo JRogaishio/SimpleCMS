@@ -56,22 +56,28 @@ class page
 	public function insert() {
 		if($this->constr) {
 
-			if($this->isHome == 1){
-				$sql = "UPDATE pages SET page_isHome=0";
-				$homeResult = $this->conn->query($sql) OR DIE ("Could not update page!");
-			}
-			
-			$sql = "INSERT INTO pages (page_template, page_safeLink, page_meta, page_title, page_hasBoard, page_isHome, page_created) VALUES";
-			$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', '$this->hasBoard', '$this->isHome'," . time() . ")";
+			//Ensure you are not submitting a system page
+			if(!preg_match("/^(SYS_)/", $this->safeLink)) {
+				if($this->isHome == 1){
+					$sql = "UPDATE pages SET page_isHome=0";
+					$homeResult = $this->conn->query($sql) OR DIE ("Could not update page!");
+				}
+				
+				$sql = "INSERT INTO pages (page_template, page_safeLink, page_meta, page_title, page_hasBoard, page_isHome, page_created) VALUES";
+				$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', '$this->hasBoard', '$this->isHome'," . time() . ")";
 
-			$result = $this->conn->query($sql) OR DIE ("Could not create page!");
-			if($result) {
-				echo "<span class='update_notice'>Created page successfully!</span><br /><br />";
+				$result = $this->conn->query($sql) OR DIE ("Could not create page!");
+				if($result) {
+					echo "<span class='update_notice'>Created page successfully!</span><br /><br />";
+					return true;
+				}
+			} else {
+				echo "<span class='update_notice'>Error! Cannot create a new page with SYS_ prefix as the safe link. This is reserved for system pages!</span><br /><br />";
+				return false;
 			}
-			
-
 		} else {
 			echo "Failed to load form data!";
+			return false;
 		}
 	}
 
@@ -79,35 +85,45 @@ class page
 	 * Updates the current page object in the database.
 	 * 
 	 * @param $pageId	The page Id to update
+	 * 
+	 * @return returns true if the insert was successful
 	 */
 	public function update($pageId) {
 	
 		if($this->constr) {
+			if(!preg_match("/^(SYS_)/", $this->safeLink)) {
+				//Reset all home pages since we are setting a new one
+				if($this->isHome == true) {
+					$sql = "UPDATE pages SET page_isHome = 'false';";
+					$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
+				}
+			
+				//Update the page SQL
+				$sql = "UPDATE pages SET
+				page_template = '$this->template', 
+				page_safeLink = '$this->safeLink', 
+				page_meta = '$this->metaData', 
+				page_title = '$this->title', 
+				page_hasBoard = '$this->hasBoard', 
+				page_isHome = '$this->isHome'
+				WHERE id=$pageId;
+				";
 
-			//Reset all home pages since we are setting a new one
-			if($this->isHome == true) {
-				$sql = "UPDATE pages SET page_isHome = 'false';";
-				$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
-			}
-		
-			//Update the page SQL
-			$sql = "UPDATE pages SET
-			page_template = '$this->template', 
-			page_safeLink = '$this->safeLink', 
-			page_meta = '$this->metaData', 
-			page_title = '$this->title', 
-			page_hasBoard = '$this->hasBoard', 
-			page_isHome = '$this->isHome'
-			WHERE id=$pageId;
-			";
-
-			$result = $this->conn->query($sql) OR DIE ("Could not update page!");
-			if($result) {
-				echo "<span class='update_notice'>Updated page successfully!</span><br /><br />";
+				$result = $this->conn->query($sql) OR DIE ("Could not update page!");
+				if($result) {
+					echo "<span class='update_notice'>Updated page successfully!</span><br /><br />";
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				echo "<span class='update_notice'>Error! Cannot update a page with SYS_ prefix as the safe link. This is reserved for system pages!</span><br /><br />";
+				return false;
 			}
 
 		} else {
 			echo "Failed to load form data!";
+			return false;
 		}
 
 	}
