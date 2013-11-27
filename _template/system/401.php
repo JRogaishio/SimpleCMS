@@ -11,12 +11,12 @@
 
 <body>
 	<div id="main">
-	<h1>404 NOT FOUND</h1>
-	<h2>That's a 404 error... :(</h2>
+	<h1>401 UNAUTHORIZED</h1>
+	<h2>That's a 401 error... :(</h2>
 	<br />
 	<br />
 	<?php echo "Count not load page \"" . $cms->get_PARENT() . "\"" . ($cms->get_CHILD() != null ? ", " . $cms->get_CHILD() . ". ": ".");?>   
-	Page not found. Safeface.jpg
+
 	<br />
 	<br />
 	<a href='<?php echo SITE_ROOT; ?>'>Click here to go back to the homepage</a>

@@ -247,5 +247,48 @@ function formatLink($format, $p, $c=null) {
 	}
 }
 
+/**
+ * Generates the correct error code page based off the link provided
+ * 
+ * @param $code	A link format
+ *
+ * @return returns the formatted link
+ */
+function loadErrorPage($code = "SYS_404") {
+	$ret = ERROR_DIR;
+	
+	//Determine if we just have a bad page or a system error
+	if(strpos($code,"SYS_") !== false) {
+		$code = str_replace("SYS_", "", $code); //Clean the code string
+		
+		switch($code) {
+			case "400":
+				$ret .= "400.php";
+				break;
+			case "401":
+				$ret .= "401.php";
+				break;
+			case "403":
+				$ret .= "403.php";
+				break;
+			case "404":
+				$ret .= "404.php";
+				break;
+			case "418":
+				$ret .= "418.php";
+				break;
+			case "500":
+				$ret .= "500.php";
+				break;
+			default:
+				$ret .= "ERROR.php";
+				break;
+		}
+	} else {
+		$ret .= "404.php";
+	}
+	return $ret;
+}
+
 ?>
 

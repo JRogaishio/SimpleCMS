@@ -13,7 +13,7 @@ define( "SITE_ROOT", "http://localhost/ferretCMS/");
 define( "ADMIN_USERNAME", "admin" );
 define( "ADMIN_PASSWORD", "pass" );
 require( CLASS_PATH . "/cms.php" );
-define( "PAGE_NOTFOUND", "_template/system/404.php" );
+define( "ERROR_DIR", "_template/system/" );
 
 function handleException( $exception ) {
   echo "Sorry, a problem occurred. Please try later.";

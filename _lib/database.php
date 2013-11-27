@@ -9,7 +9,7 @@
  
  * @return returns the number of rows in the table provided
  */
-function countRecords($conn, $table_name, $filters) {
+function countRecords($conn, $table_name, $filters = "") {
 	$countSQL = "SELECT * FROM $table_name " . $filters;
 	$countResult = $conn->query($countSQL);
 	

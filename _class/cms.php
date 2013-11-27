@@ -1039,12 +1039,11 @@ class cms {
 		$this->_CONN->query($sql) OR DIE ("Could not build table \"site\"");
 		
 		
-		/*Insert site data for `site` */
-		
-		$sql = "INSERT INTO sites (site_name, site_linkFormat) VALUES
-				('My FerretCMS Website', 'clean')";
-		$this->_CONN->query($sql) OR DIE ("Could not insert default data into \"site\"");
-		
+		/*Insert site data for `site` if we dont have one already*/
+		if(countRecords($this->_CONN, "sites") == 0) {
+			$sql = "INSERT INTO sites (site_name, site_linkFormat) VALUES('My FerretCMS Website', 'clean')";
+			$this->_CONN->query($sql) OR DIE ("Could not insert default data into \"site\"");
+		}
 	}
 	
 	/**
@@ -1209,7 +1208,7 @@ class cms {
 		$page = new Page($this->_CONN);
 
 		//Load the page
-		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home" && $pSafeLink != "404ERROR") {
+		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home" && strpos($pSafeLink,"SYS_") === false) {
 			$pageSQL = "SELECT * FROM pages WHERE page_safeLink='$pSafeLink'";
 			$pageResult = $this->_CONN->query($pageSQL);
 
@@ -1224,7 +1223,7 @@ class cms {
 		}
 		
 		//Load the page
-		if(isset($page->template) && $page->template != null && $page->constr == true && $pSafeLink != "404ERROR") {
+		if(isset($page->template) && $page->template != null && $page->constr == true && strpos($pSafeLink,"SYS_") === false) {
 			$templateSQL = "SELECT * FROM templates WHERE id=$page->template";
 			$templateResult = $this->_CONN->query($templateSQL);
 
@@ -1236,7 +1235,9 @@ class cms {
 				$page->templatePath = $template['template_path'];
 				require(TEMPLATE_PATH . "/" . $template['template_path'] . "/" . $template['template_file']);
 			}
-		} else {require(PAGE_NOTFOUND);}
+		} else {
+	
+		require(loadErrorPage($pSafeLink));}
 	
 	}
 	
