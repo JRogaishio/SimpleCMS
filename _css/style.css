@@ -11,6 +11,11 @@ h5 { font-size: .83em; font-weight:bold;}
 h6 { font-size: .75em; font-weight:bold;}
 strong, b {font-weight:bold;}
 ul {list-style:disc;}
+label{margin-top:15px;}
+input{margin-top:5px;margin-bottom:5px;}
+form{display: inline;}
+table, th,tr,td{padding-left:5px;padding-right:5px;border:1px solid #ccc;}
+th{font-weight:bold;}
 
 body {
 	padding-top:0px;

@@ -630,6 +630,7 @@ class cms {
 		if ($logResult !== false && mysqli_num_rows($logResult) > 0 ) {
 			$resultList .= "
 			<h3>Results in log:</h3>
+			<br /><br />
 			<table border=1>
 			<tr><th>User</th><th>Details</th><th>Date</th><th>IP Address</th></tr>
 			";
