@@ -31,6 +31,8 @@ Cool, anything planned for the future?
 --------------
 You bet! Some planned features for FerretCMS are:
 - Plugin management and implementation
+- User roles
+- Messageboard plugins
 
 License
 --------------
