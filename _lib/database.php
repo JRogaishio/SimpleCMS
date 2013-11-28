@@ -30,7 +30,35 @@ function clean($conn, $str) {
 }
 
 
+/**
+ * Searches a set list of fields for a value in the SQL database
+ * 
+ * @param $conn			A database connection object
+ * @param $search		The value being searched for
+ * @param $table		The table to be searched
+ * @param $col			The columns to search
+ *
+ * @return returns the sanitized string
+ */
+function searchTable($conn, $search, $table, $col=array()) {
+	$searchCols = "";
 
+	for($i=0; $i < count($col); $i++) {
+		if($i>0)
+			$searchCols .= " OR ";
+			
+		$searchCols .= $col[$i] . " LIKE '%" . $search . "%'";
+	}
+	
+	$searchSQL = "SELECT * FROM $table WHERE $searchCols;";
+	$searchResult = $conn->query($searchSQL);
+
+	if ($searchResult !== false && mysqli_num_rows($searchResult) > 0 ) {
+		return $searchResult;
+	} else {
+		return false;
+	}
+}
 
 
 ?>

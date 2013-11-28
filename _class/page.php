@@ -57,7 +57,7 @@ class page
 		if($this->constr) {
 
 			//Ensure you are not submitting a system page
-			if(!preg_match("/^(SYS_)/", $this->safeLink)) {
+			if(!preg_match("/^(SYS_)/", strtoupper($this->safeLink))) {
 				if($this->isHome == 1){
 					$sql = "UPDATE pages SET page_isHome=0";
 					$homeResult = $this->conn->query($sql) OR DIE ("Could not update page!");
@@ -91,7 +91,7 @@ class page
 	public function update($pageId) {
 	
 		if($this->constr) {
-			if(!preg_match("/^(SYS_)/", $this->safeLink)) {
+			if(!preg_match("/^(SYS_)/", strtoupper($this->safeLink))) {
 				//Reset all home pages since we are setting a new one
 				if($this->isHome == true) {
 					$sql = "UPDATE pages SET page_isHome = 'false';";

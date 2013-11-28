@@ -21,10 +21,11 @@ include_once('_class/template.php');
 class cms {
 
 	private $_MODE = "user";
-	private $_TYPE = "user";
-	private $_ACTION = "user";
-	private $_PARENT = "user";
-	private $_CHILD = "user";
+	private $_TYPE = null;
+	private $_ACTION = null;
+	private $_PARENT = null;
+	private $_CHILD = null;
+	private $_FILTER = null;
 	private $_USERPAGE = "user";
 	private $_CONN = null;
 	private $_LINKFORMAT = "";
@@ -48,6 +49,7 @@ class cms {
 		$this->_ACTION = isset( $_GET['action'] ) ? clean($this->_CONN,$_GET['action']) : null;
 		$this->_PARENT = isset( $_GET['p'] ) ? clean($this->_CONN,$_GET['p']) : null;
 		$this->_CHILD = isset( $_GET['c'] ) ? clean($this->_CONN,$_GET['c']) : null;
+		$this->_FILTER = isset( $_GET['f'] ) ? clean($this->_CONN,$_GET['f']) : null;
 		$this->_LINKFORMAT = get_linkFormat($this->_CONN);
 		//Handle global states such as logging out, etc
 		$this->cms_handleState();
@@ -103,6 +105,12 @@ class cms {
 				case "userDisplay":
 					echo $this->cms_displayAdminUsers();
 					break;
+				case "search":
+					echo $this->cms_displaySearch();
+					break;
+				case "log":
+					echo $this->cms_displayLog();
+					break;
 				default:
 					$this->cms_displayMain();
 					break;
@@ -156,7 +164,10 @@ class cms {
 		<div class=\"cms_top\">
 			<h1 class=\"cms_title\"><a href=\"#\">{f}</a></h1>
 			<div class=\"cms_topItems\">
-				<input type=\"text\" value=\"search here\" size=\"25\" class=\"cms_searchBox\" onclick=\"if($(this).val()=='search here'?$(this).val(''):$(this).val());\"/>
+				<form action='admin.php' method='get'>
+				<input type=\"hidden\" name=\"type\" value=\"search\" />
+				<input type=\"text\" name=\"action\" value=\"search here\" size=\"25\" class=\"cms_searchBox\" onclick=\"if($(this).val()=='search here'?$(this).val(''):$(this).val());\"/>
+				</form>
 				<a href=\"admin.php?type=web_state&action=logout\"><span id=\"cms_login\">Log out</span></a> <br />
 			</div>	
 		</div>
@@ -178,6 +189,7 @@ class cms {
 					<div class="cms_navItemList" id="cms_navItemList_site">
 						<ul>
 						<li class="cms_navItem"><a href="admin.php?type=siteDisplay" class="cms_navItemLink">Edit Site</a></li>
+						<li class="cms_navItem"><a href="admin.php?type=log" class="cms_navItemLink">View the log</a></li>						
 						</ul>
 					</div>
 				</div>
@@ -546,6 +558,93 @@ class cms {
 		}
 	
 	}
+	
+	
+	/** 
+	 * Display the results of the search
+	 *
+	 */
+	public function cms_displaySearch() {
+		$resultList = "";
+		$resultNum = 0;
+		echo "Searching <strong>\"" . $this->_ACTION . "\"</strong>...<br />";
+	
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "pages", array('page_safeLink', 'page_meta', 'page_title'));
+		if ($searchResult !== false) {
+			$resultList .= "<br /><h3>Results in pages:</h3>";
+			$resultNum += mysqli_num_rows($searchResult);
+			while($row = mysqli_fetch_assoc($searchResult))
+				$resultList .="<a href=\"admin.php?type=page&action=update&p=".$row['id']."\" title=\"Edit / Manage this page\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >" . $row['page_title'] . " - " . $row['page_safeLink'] . "</a><br />";
+		}
+		
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "posts", array('post_title', 'post_content'));
+		if ($searchResult !== false) {
+			$resultList .= "<br /><h3>Results in posts:</h3>";
+			$resultNum += mysqli_num_rows($searchResult);
+			while($row = mysqli_fetch_assoc($searchResult))
+				$resultList .="<a href=\"admin.php?type=post&action=update&p=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this post\" class=\"cms_pageEditLink\" >" . $row['post_title'] . "</a><br />";
+		}
+		
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "templates", array('template_path', 'template_file', 'template_name'));
+		if ($searchResult !== false) {
+			$resultList .= "<br /><h3>Results in templates:</h3>";
+			$resultNum += mysqli_num_rows($searchResult);
+			while($row = mysqli_fetch_assoc($searchResult))
+				$resultList .="<a href=\"admin.php?type=template&action=update&p=".$row['id']."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"cms_pageEditLink\" >" . $row['template_name'] . " - " . $row['template_path'] . "</a><br />";
+		}
+		
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "users", array('user_login', 'user_email'));
+		if ($searchResult !== false) {
+			$resultList .= "<br /><h3>Results in users:</h3>";
+			$resultNum += mysqli_num_rows($searchResult);
+			while($row = mysqli_fetch_assoc($searchResult))
+				$resultList .="<a href=\"admin.php?type=user&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >" . $row['user_login'] . " - " . $row['user_email'] . "</a><br />";
+		}
+		
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "log", array('log_info'));
+		if ($searchResult !== false) {
+			$resultList .= "<br /><h3>Results in log:</h3>";
+			$resultNum += mysqli_num_rows($searchResult);
+			while($row = mysqli_fetch_assoc($searchResult))
+				$resultList .="<a href=\"admin.php?type=log\" class=\"cms_pageEditLink\">User: " . $row['log_user'] . " - Details: " . $row['log_info'] . "</a><br />";
+		}
+		
+		if($resultList!="") {
+			echo "Found " . $resultNum . " results!<br />";
+			echo $resultList;
+		} else {
+			echo "No results found. :(";
+		}
+	
+	}
+	
+	/** 
+	 * Display the system log
+	 *
+	 */
+	public function cms_displayLog() {
+		$resultList = "";
+		$logSQL = "SELECT * FROM log ORDER BY log_created DESC;";
+		$logResult = $this->_CONN->query($logSQL);
+		
+		if ($logResult !== false && mysqli_num_rows($logResult) > 0 ) {
+			$resultList .= "
+			<h3>Results in log:</h3>
+			<table border=1>
+			<tr><th>User</th><th>Details</th><th>Date</th><th>IP Address</th></tr>
+			";
+			while($row = mysqli_fetch_assoc($logResult))
+				$resultList .= "<tr><td>" . $row['log_user'] . "</td><td>" . $row['log_info'] . "</td><td>" . $row['log_date'] . "</td><td>". $row['log_remoteIp'] . "</td></tr>";
+			
+			$resultList .= "</table>";
+			
+			echo $resultList;
+			
+		} else {
+			echo "No logs found?";
+		}
+	}
+	
 	
 	/** 
 	 * Display the admin homepage. Currently this is a list of all pages.
