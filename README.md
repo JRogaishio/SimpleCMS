@@ -21,6 +21,7 @@ Once that setup is complete, visit the admin.php page in your web browser and th
 What can this new fangled CMS do?
 --------------
 FerretCMS Includes the below features in no particular order:
+- General website settings management
 - Page management
 -	Post management
 -	Template management
@@ -30,9 +31,6 @@ Cool, anything planned for the future?
 --------------
 You bet! Some planned features for FerretCMS are:
 - Plugin management and implementation
-- General website settings management
-- Template management
-- User management
 
 License
 --------------
