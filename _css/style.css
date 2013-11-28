@@ -2,7 +2,16 @@
 margin:0;
 padding:0;
 }
-	
+
+/*Set values for tags from CSS reset*/
+h1 { font-size: 2em; font-weight:bold;}
+h2 { font-size: 1.5em; font-weight:bold;}
+h3 { font-size: 1.17em; font-weight:bold;}
+h5 { font-size: .83em; font-weight:bold;}
+h6 { font-size: .75em; font-weight:bold;}
+strong, b {font-weight:bold;}
+ul {list-style:disc;}
+
 body {
 	padding-top:0px;
 	margin-top:0px;
