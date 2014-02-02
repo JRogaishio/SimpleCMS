@@ -18,6 +18,8 @@ Then open up config.php and change the <code>DB_HOST</code>, <code>DB_USERNAME</
 
 Once that setup is complete, visit the admin.php page in your web browser and the database / tables will build themselves.
 
+Also be sure to update the "RewriteBase" and "ErrorDocument" items on the .htaccess file to match your current setup.
+
 What can this new fangled CMS do?
 --------------
 FerretCMS Includes the below features in no particular order:
