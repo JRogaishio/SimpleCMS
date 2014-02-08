@@ -64,7 +64,7 @@ class page
 				}
 				
 				$sql = "INSERT INTO pages (page_template, page_safeLink, page_meta, page_title, page_hasBoard, page_isHome, page_created) VALUES";
-				$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', '$this->hasBoard', '$this->isHome'," . time() . ")";
+				$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', '" . convertToBit($this->hasBoard) . "', " . convertToBit($this->isHome) . "," . time() . ")";
 
 				$result = $this->conn->query($sql) OR DIE ("Could not create page!");
 				if($result) {

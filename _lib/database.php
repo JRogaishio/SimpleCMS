@@ -38,7 +38,7 @@ function clean($conn, $str) {
  * @param $table		The table to be searched
  * @param $col			The columns to search
  *
- * @return returns the sanitized string
+ * @return returns the result set
  */
 function searchTable($conn, $search, $table, $col=array()) {
 	$searchCols = "";
@@ -58,6 +58,37 @@ function searchTable($conn, $search, $table, $col=array()) {
 	} else {
 		return false;
 	}
+}
+
+/**
+ * Retuns a bit value from a string
+ *
+ * @param $str	A string to be converted
+ *
+ * @return returns the bit value of 1 or 0
+ */
+function convertToBit($str) {
+	$ret = null;
+
+	switch(strtoupper($str)) {
+		case "":
+			$ret = 0;
+			break;
+		case "0":
+			$ret = 0;
+			break;
+		case "1":
+			$ret = 0;
+			break;
+		case "TRUE":
+			$ret = 1;
+			break;
+		case "FALSE":
+			$ret = 0;
+			break;
+	}
+	
+	return $ret;
 }
 
 
