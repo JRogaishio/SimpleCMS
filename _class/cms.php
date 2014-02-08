@@ -582,7 +582,7 @@ class cms {
 			$resultList .= "<br /><h3>Results in posts:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
 			while($row = mysqli_fetch_assoc($searchResult))
-				$resultList .="<a href=\"admin.php?type=post&action=update&p=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this post\" class=\"cms_pageEditLink\" >" . $row['post_title'] . "</a><br />";
+				$resultList .="<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=". $row['id'] . "\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this post\" class=\"cms_pageEditLink\" >" . $row['post_title'] . "</a><br />";
 		}
 		
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "templates", array('template_path', 'template_file', 'template_name'));
