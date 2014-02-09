@@ -50,35 +50,58 @@ class page
 		$this->constr = true;
 	}
 
+	
+	/**
+	 * validate the fields
+	 *
+	 * @return Returns true or false based on validation checks
+	 */
+	private function validate() {
+		$ret = "";
+	
+		if($this->title == "") {
+			$ret = "Please enter a title.";
+		} else if($this->safeLink == "") {
+			$ret = "Please enter a safelink.";
+		} else if(strpos($this->safeLink, " ") !== false) {
+			$ret = "The safelink cannot contain any spaces.";
+		} else if(preg_match("/^(SYS_)/", strtoupper($this->safeLink))) {
+			$ret = "Error! Cannot create a new page with SYS_ prefix as the safe link. This is reserved for system pages!";
+		}
+	
+		return $ret;
+	}	
+	
 	/**
 	* Inserts the current page object into the database, and sets its ID property.
 	*/
 	public function insert() {
+		$ret = true;
 		if($this->constr) {
-
-			//Ensure you are not submitting a system page
-			if(!preg_match("/^(SYS_)/", strtoupper($this->safeLink))) {
+			$error = $this->validate();
+			if($error == "") {
+				//Ensure you are not submitting a system page
 				if($this->isHome == 1){
 					$sql = "UPDATE pages SET page_isHome=0";
 					$homeResult = $this->conn->query($sql) OR DIE ("Could not update page!");
 				}
 				
 				$sql = "INSERT INTO pages (page_template, page_safeLink, page_meta, page_title, page_hasBoard, page_isHome, page_created) VALUES";
-				$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', '" . convertToBit($this->hasBoard) . "', " . convertToBit($this->isHome) . "," . time() . ")";
+				$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', " . convertToBit($this->hasBoard) . ", " . convertToBit($this->isHome) . "," . time() . ")";
 
 				$result = $this->conn->query($sql) OR DIE ("Could not create page!");
 				if($result) {
 					echo "<span class='update_notice'>Created page successfully!</span><br /><br />";
-					return true;
 				}
 			} else {
-				echo "<span class='update_notice'>Error! Cannot create a new page with SYS_ prefix as the safe link. This is reserved for system pages!</span><br /><br />";
-				return false;
+				$ret = false;
+				echo "<p class='cms_warning'>" . $error . "</p><br />";
 			}
 		} else {
+			$ret = false;
 			echo "Failed to load form data!";
-			return false;
 		}
+		return $ret;
 	}
 
 	/**
@@ -89,9 +112,10 @@ class page
 	 * @return returns true if the insert was successful
 	 */
 	public function update($pageId) {
-	
+		$ret = true;
 		if($this->constr) {
-			if(!preg_match("/^(SYS_)/", strtoupper($this->safeLink))) {
+			$error = $this->validate();
+			if($error == "") {
 				//Reset all home pages since we are setting a new one
 				if($this->isHome == true) {
 					$sql = "UPDATE pages SET page_isHome = 'false';";
@@ -112,19 +136,19 @@ class page
 				$result = $this->conn->query($sql) OR DIE ("Could not update page!");
 				if($result) {
 					echo "<span class='update_notice'>Updated page successfully!</span><br /><br />";
-					return true;
 				} else {
-					return false;
+					$ret = false;
 				}
 			} else {
-				echo "<span class='update_notice'>Error! Cannot update a page with SYS_ prefix as the safe link. This is reserved for system pages!</span><br /><br />";
-				return false;
+				$ret = false;
+				echo "<p class='cms_warning'>" . $error . "</p><br />";
 			}
 
 		} else {
+			$ret = false;
 			echo "Failed to load form data!";
-			return false;
 		}
+		return $ret;
 
 	}
 
@@ -138,7 +162,7 @@ class page
 	public function delete($pageId) {
 		//Load the page from an ID so we can say goodbye...
 		$this->loadRecord($pageId);
-		echo "<span class='update_notice'>Post deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
+		echo "<span class='update_notice'>Page deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
 		
 		$pageSQL = "DELETE FROM pages WHERE id=$pageId";
 		$pageResult = $this->conn->query($pageSQL);
@@ -199,28 +223,33 @@ class page
 			<label for="title">Title:</label><br />
 			<input name="title" id="title" type="text" class="cms_pageTextHeader" maxlength="150" value="' . $this->title . '" />
 			<div class="clear"></div>
+			<br />
 
 			<label for="template">Template:</label><br />
 			' . getFormattedTemplates($this->conn, "dropdown", "template",$this->template) . '
-			<br /><br /><div class="clear"></div>
+			<div class="clear"></div>
+			<br />
 
 			<label for="safelink">Safe Link:</label><br />
 			<input name="safelink" id="safelink" type="text" maxlength="150" value="' . $this->safeLink . '" />
 			<div class="clear"></div>
+			<br />
 
 			<label for="metadata">Meta data:</label><br />
 			<input name="metadata" id="metadata" type="text" maxlength="150" value="' . $this->metaData . '" />
 			<div class="clear"></div>
+			<br />
 
 			<label for="board">has Board?:</label><br />
 			<input name="board" id="board" type="checkbox" value="1"'. ($this->hasBoard==1?"checked=checked":""). '/>
 			<div class="clear"></div>
+			<br />
 
 			<label for="homepage">Is homepage?:</label><br />
 			<input name="homepage" id="homepage" type="checkbox" value="1" '. ($this->isHome==1?"checked=checked":"") . '/>
-
 			<div class="clear"></div>
 			<br />
+					
 			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pageId) || $pageId == "new") ? "Create" : "Update") . ' This Page!" /><br /><br />
 			' . ((isset($pageId) && $pageId != "new") ? '<a href="admin.php?type=page&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Page!</a><br /><br />' : '') . '
 			</form>

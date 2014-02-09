@@ -50,24 +50,49 @@ class post
 	}
 
 	/**
+	 * validate the fields
+	 *
+	 * @return Returns true or false based on validation checks
+	 */
+	private function validate() {
+		$ret = "";
+	
+		if($this->title == "") {
+			$ret = "Please enter a title.";
+		} else if($this->content == "") {
+			$ret = "Please enter content.";
+		}
+	
+		return $ret;
+	}
+	
+	
+	/**
 	 * Inserts the current post object into the database
 	 * 
 	 * @param $pageId	The page this post is tied to
 	 */
 	public function insert($pageId) {
+		$ret = true;
 		if($this->constr) {
-			
-			$sql = "INSERT INTO posts (page_id, post_authorId, post_date, post_title, post_content, post_lastModified, post_created) VALUES";
-			$sql .= "($this->pageId, $this->authorId, '" . date('Y-m-d H:i:s') . "', '$this->title', '$this->content', " . time() . "," . time() . ")";
-			
-			$result = $this->conn->query($sql) OR DIE ("Could not create post!");
-			if($result) {
-				echo "<span class='update_notice'>Created post successfully!</span><br /><br />";
+			$error = $this->validate();
+			if($error == "") {
+				$sql = "INSERT INTO posts (page_id, post_authorId, post_date, post_title, post_content, post_lastModified, post_created) VALUES";
+				$sql .= "($this->pageId, $this->authorId, '" . date('Y-m-d H:i:s') . "', '$this->title', '$this->content', " . time() . "," . time() . ")";
+				
+				$result = $this->conn->query($sql) OR DIE ("Could not create post!");
+				if($result) {
+					echo "<span class='update_notice'>Created post successfully!</span><br /><br />";
+				}
+			} else {
+				$ret = false;
+				echo "<p class='cms_warning'>" . $error . "</p><br />";
 			}
-
 		} else {
+			$ret = false;
 			echo "Failed to load form data!";
 		}
+		return $ret;
 	}
 
 
@@ -77,26 +102,32 @@ class post
 	 * @param $postId	The post Id to update
 	 */
 	public function update($postId) {
-	
+		$ret = true;
 		if($this->constr) {
-
-			$sql = "UPDATE posts SET
-			page_id = '$this->pageId', 
-			post_authorId = '$this->authorId', 
-			post_title = '$this->title', 
-			post_content = '$this->content', 
-			post_lastModified = " . time() . "
-			WHERE id=$postId;
-			";
-
-			$result = $this->conn->query($sql) OR DIE ("Could not update post!");
-			if($result) {
-				echo "<span class='update_notice'>Updated post successfully!</span><br /><br />";
+			$error = $this->validate();
+			if($error == "") {
+				$sql = "UPDATE posts SET
+				page_id = '$this->pageId', 
+				post_authorId = '$this->authorId', 
+				post_title = '$this->title', 
+				post_content = '$this->content', 
+				post_lastModified = " . time() . "
+				WHERE id=$postId;
+				";
+	
+				$result = $this->conn->query($sql) OR DIE ("Could not update post!");
+				if($result) {
+					echo "<span class='update_notice'>Updated post successfully!</span><br /><br />";
+				}
+			} else {
+				$ret = false;
+				echo "<p class='cms_warning'>" . $error . "</p><br />";
 			}
-
 		} else {
+			$ret = false;
 			echo "Failed to load form data!";
 		}
+		return $ret;
 
 	}
 
@@ -163,15 +194,18 @@ class post
 		<label for="pageId">Page:</label><br />';
 		echo getFormattedPages($this->conn, "dropdown", "pageId",$pageId);
 		echo '
-		<br /><br /><div class="clear"></div>
+		<div class="clear"></div>
+		<br />
 		
 		<label for="title">Title:</label><br />
 		<input name="title" id="title" type="text" maxlength="150" value="' . $this->title . '"/>
 		<div class="clear"></div>
+		<br />
 
 		<label for="content">Content Text:</label><br />
 		<textarea name="content" id="content" cols="60">' . $this->content . '</textarea>
 		<div class="clear"></div>
+		<br />
 
 		<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($postId) || $postId == "new") ? "Create" : "Update") . ' This Post!" /><br /><br />
 		' . ((isset($postId) && $postId != "new") ? '<a href="admin.php?type=post&action=delete&p=' . $pageId . '&c=' . $postId . '" class="deleteBtn">Delete This Post!</a><br /><br />' : '') . '

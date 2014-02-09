@@ -64,8 +64,8 @@ class user
 		}
 		
 		return $ret;
-		
 	}
+	
 	/**
 	 * Inserts the current user object into the database
 	 */
@@ -84,10 +84,12 @@ class user
 				$result = $this->conn->query($sql) OR DIE ("Could not create user!");
 				if($result) {
 					echo "<span class='update_notice'>Created user successfully!</span><br /><br />";
+				} else {
+					$ret = false;
 				}
 			} else {
 				$ret = false;
-				echo "<p class='cms_warning'>" . $error . "</p><br />";	
+				echo "<p class='cms_warning'>" . $error . "</p><br />";
 			}
 
 		} else {
@@ -103,7 +105,7 @@ class user
 	 * @param $userId	The user Id to update
 	 */
 	public function update($userId) {
-	
+		$ret = true;
 		if($this->constr) {
 			$error = $this->validate();
 			if($error == "") {
@@ -120,13 +122,18 @@ class user
 				$result = $this->conn->query($sql) OR DIE ("Could not update user!");
 				if($result) {
 					echo "<span class='update_notice'>Updated user successfully!</span><br /><br />";
+				} else {
+					$ret = false;
 				}
 			} else {
+				$ret = false;
 				echo "<div class='cms_warning'>" . $error . "</div>";
 			}
 		} else {
+			$ret = false;
 			echo "Failed to load form data!";
 		}
+		return $ret;
 	}
 
 	/**

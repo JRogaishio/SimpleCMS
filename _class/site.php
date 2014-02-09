@@ -37,29 +37,51 @@ class site
 		$this->constr = true;
 	}
 
+	
+	/**
+	 * validate the fields
+	 *
+	 * @return Returns true or false based on validation checks
+	 */
+	private function validate() {
+		$ret = "";
+	
+		if($this->name == "") {
+			$ret = "Please enter a site name.";
+		}
+	
+		return $ret;
+	}
+	
 	/**
 	 * Updates the current site object in the database.
 	 * 
 	 * @param $siteId	The site Id to update
 	 */
 	public function update($siteId) {
-	
+		$ret = true;
 		if($this->constr) {
-
-			$sql = "UPDATE sites SET
-			site_name = '$this->name', 
-			site_linkFormat = '$this->linkFormat'
-			WHERE id=$siteId;
-			";
-
-			$result = $this->conn->query($sql) OR DIE ("Could not update site!");
-			if($result) {
-				echo "<span class='update_notice'>Updated site successfully!</span><br /><br />";
+			$error = $this->validate();
+			if($error == "") {
+				$sql = "UPDATE sites SET
+				site_name = '$this->name', 
+				site_linkFormat = '$this->linkFormat'
+				WHERE id=$siteId;
+				";
+	
+				$result = $this->conn->query($sql) OR DIE ("Could not update site!");
+				if($result) {
+					echo "<span class='update_notice'>Updated site successfully!</span><br /><br />";
+				}
+			} else {
+				$ret = false;
+				echo "<p class='cms_warning'>" . $error . "</p><br />";
 			}
-
 		} else {
+			$ret = false;
 			echo "Failed to load form data!";
 		}
+		return $ret;
 	}
 
 	

@@ -41,23 +41,54 @@ class template
 	}
 
 	/**
+	 * validate the fields
+	 *
+	 * @return Returns true or false based on validation checks
+	 */
+	private function validate() {
+		$ret = "";
+		
+		if($this->path == "") {
+			$ret = "Please enter a folder name in _template/.";
+		} else if(strpos($this->path, " ") !== false) {
+			$ret = "The path cannot contain any spaces.";
+		} else if($this->file == "") {
+			$ret = "Please enter a file to load in template folder (ex. index.php).";
+		} else if(strpos($this->file, " ") !== false) {
+			$ret = "The file cannot contain any spaces.";
+		} else if($this->name == "") {
+			$ret = "Please enter a title.";
+		}
+	
+		return $ret;
+	}
+	
+	/**
 	 * Inserts the current template object into the database
 	 */
 	public function insert() {
+		$ret = true;
 		if($this->constr) {
+			$error = $this->validate();
+			if($error == "") {
 			
-			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES";
-			$sql .= "('$this->path', '$this->file', '$this->name','" . time() . "')";
-
-			$result = $this->conn->query($sql) OR DIE ("Could not create template!");
-			if($result) {
-				echo "<span class='update_notice'>Created template successfully!</span><br /><br />";
+				$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES";
+				$sql .= "('$this->path', '$this->file', '$this->name','" . time() . "')";
+	
+				$result = $this->conn->query($sql) OR DIE ("Could not create template!");
+				if($result) {
+					echo "<span class='update_notice'>Created template successfully!</span><br /><br />";
+				}
+			} else {
+				$ret = false;
+				echo "<p class='cms_warning'>" . $error . "</p><br />";
 			}
-			
 
 		} else {
+			$ret = false;
 			echo "Failed to load form data!";
 		}
+		return $ret;
 	}
 
 	/**

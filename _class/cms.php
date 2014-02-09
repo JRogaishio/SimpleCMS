@@ -727,21 +727,26 @@ class cms {
 							//Only display the main form if the user authenticated
 							//Since the setup uses the above insert, we want to make sure we don't 
 							//genereate the below until they truely login
-							if($this->_AUTH && $result) {
+							if(!$result) {
+								$user->buildEditForm($userId);
+							} else if($this->_AUTH) {
 								//Re-build the main User after creation
 								$this->cms_displayMain();
 								logChange($this->_CONN, "user", 'add',$this->_USER->id,$this->_USER->loginname, $user->loginname . " added");
-							} else if($result) {
-								$this->cms_displayLoginManager();
 							} else {
-								$user->buildEditForm($userId);
-							}
+								$this->cms_displayLoginManager();
+							} 
 							
 						} else {
-							$user->update($userId);
-							//Re-build the User creation form once we are done
-							$user->buildEditForm($userId);
-							logChange($this->_CONN,"user", 'update',$this->_USER->id,$this->_USER->loginname, $user->loginname . " updated");
+							$result = $user->update($userId);
+							
+							if(!$result) {
+								$user->buildEditForm($userId);
+							} else {
+								//Re-build the User creation form once we are done
+								$user->buildEditForm($userId);
+								logChange($this->_CONN,"user", 'update',$this->_USER->id,$this->_USER->loginname, $user->loginname . " updated");
+							}
 						}
 					} else {
 						// User has not posted the article edit form yet: display the form
@@ -783,11 +788,12 @@ class cms {
 					$site = new Site($this->_CONN);
 					$site->storeFormValues($_POST);
 					
-					$site->update($siteId);
+					$result = $site->update($siteId);
 					//Re-build the site creation form once we are done
 					$site->buildEditForm($siteId);
-					logChange($this->_CONN, "site", 'update',$this->_USER->id,$this->_USER->loginname, $site->name . " updated");
-				
+					if($result) {
+						logChange($this->_CONN, "site", 'update',$this->_USER->id,$this->_USER->loginname, $site->name . " updated");
+					}
 				} else {
 					// User has not posted the site edit form yet: display the form
 					$site = new Site($this->_CONN);
@@ -820,19 +826,22 @@ class cms {
 					
 					if($pageId=="new") {
 						$result = $page->insert();
-						if($result) {
+						if(!$result) {
+							//Re-build the page creation form since the submission failed
+							$page->buildEditForm($pageId);
+						} else {
 							//Re-build the main page after creation
 							$this->cms_displayMain();
 							logChange($this->_CONN, "page", 'add',$this->_USER->id,$this->_USER->loginname, $page->title . " added");
-						} else {
-							//Re-build the page creation form since the submission failed
-							$page->buildEditForm($pageId);
 						}
 					} else {
-						$page->update($pageId);
+						$result = $page->update($pageId);
 						//Re-build the page creation form once we are done
 						$page->buildEditForm($pageId);
-						logChange($this->_CONN, "page", 'update',$this->_USER->id,$this->_USER->loginname, $page->title . " updated");
+						
+						if($result) {
+							logChange($this->_CONN, "page", 'update',$this->_USER->id,$this->_USER->loginname, $page->title . " updated");
+						}
 					}
 				} else {
 					// User has not posted the article edit form yet: display the form
@@ -874,15 +883,22 @@ class cms {
 					$template->storeFormValues($_POST);
 					
 					if($templateId=="new") {
-						$template->insert();
-						//Re-build the main page after creation
-						$this->cms_displayMain();
-						logChange($this->_CONN, "template", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
+						$result = $template->insert();
+						
+						if(!$result) {
+							$template->buildEditForm($templateId);
+						} else {
+							$template->buildEditForm(getLastField($this->_CONN,"templates", "id"));
+							logChange($this->_CONN, "template", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
+						}
 					} else {
-						$template->update($templateId);
+						$result = $template->update($templateId);
 						//Re-build the page creation form once we are done
 						$template->buildEditForm($templateId);
-						logChange($this->_CONN, "template", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " updated");
+						
+						if($result) {
+							logChange($this->_CONN, "template", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " updated");
+						}
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
@@ -970,16 +986,27 @@ class cms {
 					$post->storeFormValues($_POST);
 					
 					if($postId=="new") {
-						$post->insert($pageId);
-						logChange($this->_CONN, "post", 'add',$this->_USER->id,$this->_USER->loginname, $post->title . " added");
+						$result = $post->insert($pageId);
+						if(!$result) {
+							//Re-build the post creation form once we are done
+							$post->buildEditForm($pageId,$postId);
+						} else {
+							$post->buildEditForm($pageId,getLastField($this->_CONN,"posts", "id"));
+							logChange($this->_CONN, "post", 'add',$this->_USER->id,$this->_USER->loginname, $post->title . " added");
+						}
 					}
 					else {
-						$post->update($postId);
-						logChange($this->_CONN, "post", 'update',$this->_USER->id,$this->_USER->loginname, $post->title . " updated");
+						$result = $post->update($postId);
+						//Re-build the post creation form once we are done
+						$post->buildEditForm($pageId,$postId);
+						
+						if($result) {
+							logChange($this->_CONN, "post", 'update',$this->_USER->id,$this->_USER->loginname, $post->title . " updated");
+						}
+						
 					}
 						
-					//Re-build the post creation form once we are done
-					$post->buildEditForm($pageId,$postId);
+					
 				} else {
 					// User has not posted the article edit form yet: display the form
 					$post = new Post($this->_CONN);
@@ -1089,16 +1116,9 @@ class cms {
 		)";
 		$this->_CONN->query($sql) OR DIE ("Could not build table \"templates\"");
 		
-		/*Insert the default template */
-		
-		$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES";
-		$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1)";
-				
-		$this->_CONN->query($sql) OR DIE ("Could not insert default template into \"templates\"");
-		
-		/*Insert site data for `site` if we dont have one already*/
+		/*Insert default data for `templates` if we dont have one already*/
 		if(countRecords($this->_CONN, "templates") == 0) {
-			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES('_default', 'Default', 'Default', '" . time() . "')";
+			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES('_default', 'index.php', 'Default', '" . time() . "')";
 			$this->_CONN->query($sql) OR DIE ("Could not insert default data into \"templates\"");
 		}
 		
