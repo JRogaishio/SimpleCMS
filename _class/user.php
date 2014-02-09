@@ -12,6 +12,7 @@ class user
 	public $id = null;
 	public $loginname = null;
 	public $password = null;
+	public $password2 = null;
 	public $salt = null;
 	public $email = null;
 	public $isRegistered = null;
@@ -36,31 +37,66 @@ class user
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
 		if(isset($params['username'])) $this->loginname = clean($this->conn, $params['username']);
 		if(isset($params['password'])) $this->password = clean($this->conn, $params['password']);
+		if(isset($params['password2'])) $this->password2 = clean($this->conn, $params['password2']);
 		if(isset($params['email'])) $this->email = clean($this->conn, $params['email']);
 
 		$this->constr = true;
 	}
 
 	/**
+	 * validate the fields
+	 * 
+	 * @return Returns true or false based on validation checks
+	 */
+	private function validate() {
+		$ret = "";
+		
+		if($this->loginname == "") {
+			$ret = "Please enter a username.";
+		} else if($this->password == "") {
+			$ret = "Please enter a password.";
+		} else if($this->password != $this->password2) {
+			$ret = "The passwords don't match.";
+		} else if($this->email == "") {
+			$ret = "Please enter an email.";
+		} else if(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+			$ret = "Email address is not valid.";
+		}
+		
+		return $ret;
+	}
+	
+	/**
 	 * Inserts the current user object into the database
 	 */
 	public function insert() {
+		$ret = true;
 		if($this->constr) {
-			$salt = unique_salt();
-			$secPass = hash('sha256',$this->password);
-			$secPass = hash('sha256',($secPass . $salt));
-			
-			$sql = "INSERT INTO users (user_login, user_pass, user_salt, user_email,user_created, user_isRegistered) VALUES";
-			$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1)";
-			
-			$result = $this->conn->query($sql) OR DIE ("Could not create user!");
-			if($result) {
-				echo "<span class='update_notice'>Created user successfully!</span><br /><br />";
+			$error = $this->validate();
+			if($error == "") {
+				$salt = unique_salt();
+				$secPass = hash('sha256',$this->password);
+				$secPass = hash('sha256',($secPass . $salt));
+				
+				$sql = "INSERT INTO users (user_login, user_pass, user_salt, user_email,user_created, user_isRegistered) VALUES";
+				$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1)";
+				
+				$result = $this->conn->query($sql) OR DIE ("Could not create user!");
+				if($result) {
+					echo "<span class='update_notice'>Created user successfully!</span><br /><br />";
+				} else {
+					$ret = false;
+				}
+			} else {
+				$ret = false;
+				echo "<p class='cms_warning'>" . $error . "</p><br />";
 			}
 
 		} else {
+			$ret = false;
 			echo "Failed to load form data!";
 		}
+		return $ret;
 	}
 
 	/**
@@ -69,27 +105,35 @@ class user
 	 * @param $userId	The user Id to update
 	 */
 	public function update($userId) {
-	
+		$ret = true;
 		if($this->constr) {
-			
-			$secPass = hash('sha256',$this->password);
-			$secPass = hash('sha256',($secPass . get_userSalt($this->conn, $this->loginname)));
-			
-			$sql = "UPDATE users SET
-			user_login = '$this->loginname', 
-			user_pass = '$secPass', 
-			user_email = '$this->email'
-			WHERE id=$userId;
-			";
-
-			$result = $this->conn->query($sql) OR DIE ("Could not update user!");
-			if($result) {
-				echo "<span class='update_notice'>Updated user successfully!</span><br /><br />";
+			$error = $this->validate();
+			if($error == "") {
+				$secPass = hash('sha256',$this->password);
+				$secPass = hash('sha256',($secPass . get_userSalt($this->conn, $this->loginname)));
+				
+				$sql = "UPDATE users SET
+				user_login = '$this->loginname', 
+				user_pass = '$secPass', 
+				user_email = '$this->email'
+				WHERE id=$userId;
+				";
+	
+				$result = $this->conn->query($sql) OR DIE ("Could not update user!");
+				if($result) {
+					echo "<span class='update_notice'>Updated user successfully!</span><br /><br />";
+				} else {
+					$ret = false;
+				}
+			} else {
+				$ret = false;
+				echo "<div class='cms_warning'>" . $error . "</div>";
 			}
-			
 		} else {
+			$ret = false;
 			echo "Failed to load form data!";
 		}
+		return $ret;
 	}
 
 	/**
@@ -157,15 +201,20 @@ class user
 			<label for="username">Username:</label><br />
 			<input name="username" id="username" class="cms_username"type="text" maxlength="150" value="' . $this->loginname . '" ' . ($this->loginname != null ? "readonly=readonly" : "") . ' />
 			<div class="clear"></div>
-
+			<br />
+					
 			<label for="password">Password:</label><br />
 			<input name="password" id="password" type="password" maxlength="150" value="" />
 			<div class="clear"></div>
 			<br />
+					
+			<label for="password2">Repeat Password:</label><br />
+			<input name="password2" id="password2" type="password" maxlength="150" value="" />
+			<div class="clear"></div>
+			<br />		
+					
 			<label for="email">Email Address:</label><br />
 			<input name="email" id="email" type="text" maxlength="150" value="' . $this->email . '" />
-			<div class="clear"></div>
-
 			<div class="clear"></div>
 			<br />
 			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($userId) || $userId == "new") ? "Create" : "Update") . ' This User!" /><br /><br />

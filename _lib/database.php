@@ -78,7 +78,7 @@ function convertToBit($str) {
 			$ret = 0;
 			break;
 		case "1":
-			$ret = 0;
+			$ret = 1;
 			break;
 		case "TRUE":
 			$ret = 1;
@@ -91,6 +91,27 @@ function convertToBit($str) {
 	return $ret;
 }
 
+/**
+ * Returns a specific field from the last record in a table
+ *
+ * @param $conn			A database connection object
+ * @param $table_name	The table to be searched
+ * @param $field		The field to pull
+
+ * @return returns the number of rows in the table provided
+ */
+function getLastField($conn, $table_name, $field) {
+	$searchSQL = "SELECT $field FROM $table_name ORDER BY id DESC;";
+	$searchResult = $conn->query($searchSQL);
+
+	$ret = "";
+	
+	if(mysqli_num_rows($searchResult) > 0) {
+		$searchData = mysqli_fetch_assoc($searchResult);
+		$ret = $searchData[$field];
+	}
+	
+	return $ret;
+}
 
 ?>
-
