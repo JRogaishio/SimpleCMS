@@ -1089,6 +1089,18 @@ class cms {
 		)";
 		$this->_CONN->query($sql) OR DIE ("Could not build table \"templates\"");
 		
+		/*Insert the default template */
+		
+		$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES";
+		$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1)";
+				
+		$this->_CONN->query($sql) OR DIE ("Could not insert default template into \"templates\"");
+		
+		/*Insert site data for `site` if we dont have one already*/
+		if(countRecords($this->_CONN, "templates") == 0) {
+			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES('_default', 'Default', 'Default', '" . time() . "')";
+			$this->_CONN->query($sql) OR DIE ("Could not insert default data into \"templates\"");
+		}
 		
 		/*Table structure for table `plugins` */
 
@@ -1132,7 +1144,7 @@ class cms {
 		  `log_remoteIp` varchar(64) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
-		$this->_CONN->query($sql) OR DIE ("Could not build table \"users\"");
+		$this->_CONN->query($sql) OR DIE ("Could not build table \"log\"");
 		
 		/*Table structure for table `site` */
 
