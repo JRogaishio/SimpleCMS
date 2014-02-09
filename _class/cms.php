@@ -62,9 +62,8 @@ class cms {
 		
 		//user gets
 		$this->_USERPAGE = isset( $_GET['p'] ) ? clean($this->_CONN,$_GET['p']) : "home";
-		
 				
-		
+		//Load the system based on the mode (admin / public)
 		if($this->_AUTH && $mode == "admin") {
 			$this->cms_displayTop();
 			$this->cms_displayNav();
@@ -723,17 +722,19 @@ class cms {
 						$user->storeFormValues($_POST);
 						
 						if($userId=="new") {
-							$user->insert();
+							$result = $user->insert();
 							
 							//Only display the main form if the user authenticated
 							//Since the setup uses the above insert, we want to make sure we don't 
 							//genereate the below until they truely login
-							if($this->_AUTH) {
+							if($this->_AUTH && $result) {
 								//Re-build the main User after creation
 								$this->cms_displayMain();
 								logChange($this->_CONN, "user", 'add',$this->_USER->id,$this->_USER->loginname, $user->loginname . " added");
-							} else {
+							} else if($result) {
 								$this->cms_displayLoginManager();
+							} else {
+								$user->buildEditForm($userId);
 							}
 							
 						} else {
@@ -1341,8 +1342,15 @@ class cms {
 				require(TEMPLATE_PATH . "/" . $template['template_path'] . "/" . $template['template_file']);
 			}
 		} else {
-	
-		require(loadErrorPage($pSafeLink));}
+			//Check to see if the CMS has already been setup
+			if($this->cms_getNumUsers() == 0) {
+				echo "<p style='font-family:arial;text-align:center;'><strong>Hello</strong> there! I see that you have no users setup.<br />
+				<a href='admin.php'>Click here to redirect to the admin page to setup your CMS.</a>
+				</p><br />";
+			} else {
+				require(loadErrorPage($pSafeLink));
+			}
+		}
 	
 	}
 	
