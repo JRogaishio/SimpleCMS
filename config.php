@@ -14,6 +14,8 @@ define( "ADMIN_USERNAME", "admin" );
 define( "ADMIN_PASSWORD", "pass" );
 require( CLASS_PATH . "/cms.php" );
 define( "ERROR_DIR", "_template/system/" );
+define( "DATEFORMAT", "D, d M Y" );
+define( "TIMEFORMAT", "h:i:s" );
 
 function handleException( $exception ) {
   echo "Sorry, a problem occurred. Please try later.";
