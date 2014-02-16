@@ -342,7 +342,7 @@ class page
 				while($row = mysqli_fetch_assoc($postResult) ) {
 					$postId = stripslashes($row['id']);
 					$title = stripslashes($row['post_title']);
-					$postDate = stripslashes($row['post_date']);
+					$postDate = date(DATEFORMAT . " " . TIMEFORMAT, stripslashes($row['post_created']));
 					$postContent = stripslashes($row['post_content']);
 
 					$entry_display .= "
