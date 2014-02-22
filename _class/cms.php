@@ -271,6 +271,7 @@ class cms extends core {
 				$userData = mysqli_fetch_assoc($userResult);
 
 				$user = new User($this->_CONN);
+				$this->addToScope($user);
 				
 				//Set the user data
 				$user->id = ($userData['id']);
