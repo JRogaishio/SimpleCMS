@@ -1,4 +1,6 @@
 <?php
+include_once('_class/core.php');
+
 include_once('_lib/database.php');
 include_once('_lib/encrypt.php');
 include_once('_lib/management.php');
@@ -18,7 +20,7 @@ include_once('_class/template.php');
  * @author Jacob Rogaishio
  * 
  */
-class cms {
+class cms extends core {
 
 	private $_MODE = "user";
 	private $_TYPE = null;
@@ -238,26 +240,8 @@ class cms {
 				</div>
 				-->
 				<div><div class="cms_navItemTitle"></div></div>
-				
 			</div>
-	
-		';
-	
-	
-		
-		
-	}
-	
-	/* 
-	 * User to determine if we should show the user create page
-	 *
-	 */
-	private function cms_getNumUsers() {
-		$userSQL = "SELECT * FROM users;";
-		$userResult = $this->_CONN->query($userSQL);
-
-		$numUser = mysqli_num_rows($userResult);
-		return $numUser;
+		';		
 	}
 	
 	/**
@@ -270,7 +254,7 @@ class cms {
 	 */
 	private function cms_authUser($token) {
 		//Check to see if any login info was posted or if a token exists
-		if((($token!=null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && $this->cms_getNumUsers() > 0) {
+		if((($token!=null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && countRecords($this->_CONN,"users") > 0) {
 			if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
 				
 				$secPass = encrypt(clean($this->_CONN,$_POST['login_password']), get_userSalt($this->_CONN, clean($this->_CONN,$_POST['login_username'])));
@@ -330,12 +314,12 @@ class cms {
 			}
 			
 			 
-		} else if($this->cms_getNumUsers() == 0) {
+		} else if(countRecords($this->_CONN,"users") == 0) {
 			//Display the user management form
 			echo $this->cms_displayUserManager();
 		
 			//Check again if a user exists after running the user manager
-			if($this->cms_getNumUsers() == 0) {
+			if(countRecords($this->_CONN,"users") == 0) {
 				echo "<p><strong>Hello</strong> there! I see that you have no users setup.<br />
 					Use the above form to create a user account to get started!<br />
 					Once you have created your user, you will be sent to the login form. Use your new account to access all the awesomeness!</p><br />";
@@ -409,7 +393,6 @@ class cms {
 			</p>";
 		}
 	}	
-		
 		
 	/** 
 	 * Display the list of all pages
@@ -558,7 +541,6 @@ class cms {
 	
 	}
 	
-	
 	/** 
 	 * Display the results of the search
 	 *
@@ -645,7 +627,6 @@ class cms {
 		}
 	}
 	
-	
 	/** 
 	 * Display the admin homepage. Currently this is a list of all pages.
 	 *
@@ -710,9 +691,10 @@ class cms {
 		$userId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
 		
 		$user = new User($this->_CONN);
+		$this->addToScope($user);
 		
 		//Allow access to the user editor if you are authenticated or there are no users
-		if($this->_AUTH || $this->cms_getNumUsers() == 0) {
+		if($this->_AUTH || countRecords($this->_CONN,"users") == 0) {
 			switch($this->_ACTION) {
 				case "update":
 					//Determine if the form has been submitted
@@ -759,7 +741,7 @@ class cms {
 					logChange($this->_CONN,"user", 'delete',$this->_USER->id,$this->_USER->loginname, $user->loginname . " deleted");
 					break;
 				default:
-					if($this->cms_getNumUsers() == 0) {
+					if(countRecords($this->_CONN,"users") == 0) {
 						$user->buildEditForm("new");
 					} else {
 						echo "Error with user manager<br /><br />";
@@ -780,12 +762,15 @@ class cms {
 		//The context is the site ID. We want to update rather than insert if we are editing
 		$siteId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
 		
+		$site = new Site($this->_CONN);
+		$this->addToScope($site);
+		
 		switch($this->_ACTION) {
 			case "update":
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
 					// User has posted the site edit form: save the new article
-					$site = new Site($this->_CONN);
+					
 					$site->storeFormValues($_POST);
 					
 					$result = $site->update($siteId);
@@ -796,7 +781,6 @@ class cms {
 					}
 				} else {
 					// User has not posted the site edit form yet: display the form
-					$site = new Site($this->_CONN);
 					$site->buildEditForm($siteId);
 				}
 				break;
@@ -805,7 +789,6 @@ class cms {
 				$this->cms_displayMain();
 		}
 	}
-	
 	
 	/**
 	 * Display the page management page
@@ -816,12 +799,15 @@ class cms {
 		//The context is the page ID. We want to update rather than insert if we are editing
 		$pageId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
 		
+		$page = new Page($this->_CONN);
+		$this->addToScope($page);
+		
 		switch($this->_ACTION) {
 			case "update":
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
 					// User has posted the article edit form: save the new article
-					$page = new Page($this->_CONN);
+					
 					$page->storeFormValues($_POST);
 					
 					if($pageId=="new") {
@@ -845,12 +831,10 @@ class cms {
 					}
 				} else {
 					// User has not posted the article edit form yet: display the form
-					$page = new Page($this->_CONN);
 					$page->buildEditForm($pageId);
 				}
 				break;
 			case "delete":
-				$page = new Page($this->_CONN);
 				$page->delete($pageId);
 				$this->cms_displayMain();
 				logChange($this->_CONN, "page", 'delete',$this->_USER->id,$this->_USER->loginname, $page->title . " deleted");
@@ -859,10 +843,6 @@ class cms {
 				echo "Error with page manager<br /><br />";
 				$this->cms_displayMain();
 		}
-		
-		
-		
-	
 	}
 	
 	/**
@@ -874,12 +854,15 @@ class cms {
 		//The context is the page ID. We want to update rather than insert if we are editing
 		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
 		
+		$template = new Template($this->_CONN);
+		$this->addToScope($template);
+		
 		switch($this->_ACTION) {
 			case "update":
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
 					// User has posted the article edit form: save the new article
-					$template = new Template($this->_CONN);
+					
 					$template->storeFormValues($_POST);
 					
 					if($templateId=="new") {
@@ -902,12 +885,10 @@ class cms {
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
-					$template = new Template($this->_CONN);
 					$template->buildEditForm($templateId);
 				}
 				break;
 			case "delete":
-				$template = new Template($this->_CONN);
 				$template->delete($templateId);
 				$this->cms_displayMain();
 				logChange($this->_CONN, "template", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " deleted");
@@ -916,10 +897,6 @@ class cms {
 				echo "Error with template manager<br /><br />";
 				$this->cms_displayMain();
 		}
-		
-		
-		
-	
 	}
 	
 	/**
@@ -930,13 +907,16 @@ class cms {
 		
 		//The context is the page ID. We want to update rather than insert if we are editing
 		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
+		$template = new Template($this->_CONN);
+		
+		$this->addToScope($template);
 		
 		switch($this->_ACTION) {
 			case "update":
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
 					// User has posted the article edit form: save the new article
-					$template = new Template($this->_CONN);
+					
 					$template->storeFormValues($_POST);
 					
 					if($templateId=="new") {
@@ -952,12 +932,10 @@ class cms {
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
-					$template = new Template($this->_CONN);
 					$template->buildEditForm($templateId);
 				}
 				break;
 			case "delete":
-				$template = new Template($this->_CONN);
 				$template->delete($templateId);
 				$this->cms_displayMain();
 				logChange($this->_CONN, "plugin", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
@@ -977,12 +955,15 @@ class cms {
 		$pageId = isset($_GET['p']) ? clean($this->_CONN,$_GET['p']) : "new";
 		$postId = isset($_GET['c']) ? clean($this->_CONN,$_GET['c']) : "new";
 		
+		$post = new Post($this->_CONN);
+		$this->addToScope($post);
+		
 		switch($this->_ACTION) {
 			case "update":
 				if(isset($_POST['saveChanges'])) {
 
 					// User has posted the article edit form: save the new article
-					$post = new Post($this->_CONN);
+					
 					$post->storeFormValues($_POST);
 					
 					if($postId=="new") {
@@ -1009,18 +990,17 @@ class cms {
 					
 				} else {
 					// User has not posted the article edit form yet: display the form
-					$post = new Post($this->_CONN);
 					$post->buildEditForm($pageId,$postId);
 				}
 				break;
 			case "delete":
 				//Delete the post
-				$post = new Post($this->_CONN);
 				$post->delete($pageId, $postId);
 				logChange($this->_CONN, "post", 'delete',$this->_USER->id,$this->_USER->loginname, $post->title . " deleted");
 				
 				//Display the page form
 				$page = new Page($this->_CONN);
+				$this->addToScope($page);
 				$page->buildEditForm($pageId);
 				
 				break;
@@ -1193,7 +1173,7 @@ class cms {
 		$pageSQL = "SELECT * FROM pages WHERE page_isHome=1;";
 		$pageResult = $this->_CONN->query($pageSQL);
 		
-		if (($pageResult == false || mysqli_num_rows($pageResult) == 0) && $this->cms_getNumUsers() != 0 && $this->_AUTH == true)
+		if (($pageResult == false || mysqli_num_rows($pageResult) == 0) && countRecords($this->_CONN,"users") != 0 && $this->_AUTH == true)
 			echo "<span class='cms_warning'>A homepage is missing! Please set a homepage!</span><br />";
 	
 	
@@ -1344,7 +1324,8 @@ class cms {
 		global $cms; //Make the CMS variable a global so the pages can reference it
 	
 		$page = new Page($this->_CONN);
-
+		$this->addToScope($page);
+		
 		//Load the page
 		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home" && strpos($pSafeLink,"SYS_") === false) {
 			$pageSQL = "SELECT * FROM pages WHERE page_safeLink='$pSafeLink'";
@@ -1375,7 +1356,7 @@ class cms {
 			}
 		} else {
 			//Check to see if the CMS has already been setup
-			if($this->cms_getNumUsers() == 0) {
+			if(countRecords($this->_CONN,"users") == 0) {
 				echo "<p style='font-family:arial;text-align:center;'><strong>Hello</strong> there! I see that you have no users setup.<br />
 				<a href='admin.php'>Click here to redirect to the admin page to setup your CMS.</a>
 				</p><br />";
