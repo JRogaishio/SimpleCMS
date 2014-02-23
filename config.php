@@ -6,7 +6,7 @@ define( "DB_HOST", "localhost" );
 define( "DB_NAME", "ferret_cms" );
 define( "DB_USERNAME", "root" );
 define( "DB_PASSWORD", "" );
-define( "CLASS_PATH", "class" );
+define( "CONTOLLER_PATH", "controller" );
 define( "MODEL_PATH", "model" );
 define( "VIEW_PATH", "view" );
 define( "TEMPLATE_PATH", "template" );

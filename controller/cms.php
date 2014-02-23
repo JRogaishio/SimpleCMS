@@ -1,5 +1,5 @@
 <?php
-include_once('class/core.php');
+include_once('controller/core.php');
 
 include_once('lib/database.php');
 include_once('lib/encrypt.php');
