@@ -109,7 +109,7 @@ class template
 	 * @param $pluginId	The plugin to be loaded
 	 */
 	public function loadRecord($pluginId) {
-		if(isset($pluginId) && $pluginId != "new") {
+		if(isset($pluginId) && $pluginId != null) {
 			
 			$templateSQL = "SELECT * FROM templates WHERE id=$pluginId";
 				
@@ -158,8 +158,8 @@ class template
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pluginId) || $pluginId == "new") ? "Create" : "Update") . ' This Template!" /><br /><br />
-			' . ((isset($pluginId) && $pluginId != "new") ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pluginId) || $pluginId == null) ? "Create" : "Update") . ' This Template!" /><br /><br />
+			' . ((isset($pluginId) && $pluginId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
 			</form>
 		';
 		echo "</div>";

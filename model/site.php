@@ -91,7 +91,7 @@ class site
 	 * @param $siteId	The site to be loaded
 	 */
 	public function loadRecord($siteId) {
-		if(isset($siteId) && $siteId != "new") {
+		if(isset($siteId) && $siteId != null) {
 			
 			$siteSQL = "SELECT * FROM sites WHERE id=$siteId";
 				
@@ -140,7 +140,7 @@ class site
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($siteId) || $siteId == "new") ? "Create" : "Update") . ' This Site!" /><br /><br />
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($siteId) || $siteId == null) ? "Create" : "Update") . ' This Site!" /><br /><br />
 			</form>
 		';
 	}

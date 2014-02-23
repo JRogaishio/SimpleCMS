@@ -20,6 +20,20 @@ class core {
 		if (is_object ( $obj ))
 			$this->_SCOPE [get_class ( $obj )] = $obj;
 	}
+	
+	/**
+	 * Renders a specific PHP file
+	 */
+	public function render($name) {
+		if(isset($name) && $name != null && strpos($name, " ") == null) {
+			$file = "view/" . $name . ".php";
+			
+			if((@include $file) === false)
+			{
+				echo "Cannot include file " . $file . "!";
+			}
+		}
+	}
 }
 
 ?>

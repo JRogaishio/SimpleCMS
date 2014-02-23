@@ -141,7 +141,7 @@ class template
 	 * @param $templateId	The template to be loaded
 	 */
 	public function loadRecord($templateId) {
-		if(isset($templateId) && $templateId != "new") {
+		if(isset($templateId) && $templateId != null) {
 			
 			$templateSQL = "SELECT * FROM templates WHERE id=$templateId";
 				
@@ -192,8 +192,8 @@ class template
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($templateId) || $templateId == "new") ? "Create" : "Update") . ' This Template!" /><br /><br />
-			' . ((isset($templateId) && $templateId != "new") ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($templateId) || $templateId == null) ? "Create" : "Update") . ' This Template!" /><br /><br />
+			' . ((isset($templateId) && $templateId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
 			</form>
 		';
 

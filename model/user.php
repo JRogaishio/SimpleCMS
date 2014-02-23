@@ -160,7 +160,7 @@ class user
 	 * @param $userId	The user to be loaded
 	 */
 	public function loadRecord($userId) {
-		if(isset($userId) && $userId != "new") {
+		if(isset($userId) && $userId != null) {
 			
 			$userSQL = "SELECT * FROM users WHERE id=$userId";
 				
@@ -192,7 +192,7 @@ class user
 
 		//Load the page from an ID
 		$this->loadRecord($userId);
-		if($userId != "new")
+		if($userId != null)
 			echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a> > <a href="admin.php?type=user&action=update&p=' . $userId . '">User</a><br /><br />';
 
 		echo '
@@ -217,8 +217,8 @@ class user
 			<input name="email" id="email" type="text" maxlength="150" value="' . $this->email . '" />
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($userId) || $userId == "new") ? "Create" : "Update") . ' This User!" /><br /><br />
-			' . ((isset($userId) && $userId != "new") ? '<a href="admin.php?type=user&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($userId) || $userId == null) ? "Create" : "Update") . ' This User!" /><br /><br />
+			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=user&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
 			</form>
 		';
 	}

@@ -1,15 +1,15 @@
 <?php
-include_once('_class/core.php');
+include_once('class/core.php');
 
-include_once('_lib/database.php');
-include_once('_lib/encrypt.php');
-include_once('_lib/management.php');
+include_once('lib/database.php');
+include_once('lib/encrypt.php');
+include_once('lib/management.php');
 
-include_once('_class/site.php');
-include_once('_class/user.php');
-include_once('_class/page.php');
-include_once('_class/post.php');
-include_once('_class/template.php');
+include_once('model/site.php');
+include_once('model/user.php');
+include_once('model/page.php');
+include_once('model/post.php');
+include_once('model/template.php');
 
 /**
  * Ferret CMS Main class to create admin pages and live content pages
@@ -67,8 +67,8 @@ class cms extends core {
 				
 		//Load the system based on the mode (admin / public)
 		if($this->_AUTH && $mode == "admin") {
-			$this->cms_displayTop();
-			$this->cms_displayNav();
+			$this->render("siteTop");
+			$this->render("siteNav");
 			$this->cms_displayWarnings();
 			
 			//Build the pages section ##################################################################################
@@ -155,95 +155,7 @@ class cms extends core {
 			}
 		}
 	}
-	
-	/** 
-	 * Build the CMS's top menu
-	 * 
-	 */
-	private function cms_displayTop() {
-		echo "
-		<div class=\"cms_top\">
-			<h1 class=\"cms_title\"><a href=\"#\">{f}</a></h1>
-			<div class=\"cms_topItems\">
-				<form action='admin.php' method='get'>
-				<input type=\"hidden\" name=\"type\" value=\"search\" />
-				<input type=\"text\" name=\"action\" value=\"search here\" size=\"25\" class=\"cms_searchBox\" onclick=\"if($(this).val()=='search here'?$(this).val(''):$(this).val());\"/>
-				</form>
-				<a href=\"admin.php?type=web_state&action=logout\"><span id=\"cms_login\">Log out</span></a> <br />
-			</div>	
-		</div>
-		<div class=\"cms_topSpacer\">&nbsp;</div>
-		";
-	}
-	
-	/**
-	 * Build the CMS's navigation menu
-	 *
-	 */
-	private function cms_displayNav() {
-	
-		echo '
-			<div class="cms_nav">
-				<div class="cms_navItemTitle"><div id="cms_dash" class="cms_icon"></div><a href="admin.php" class="cms_navItemTitleLink">Dashboard</a></div>
-				
-				<div><div class="cms_navItemTitle"><div id="cms_site" class="cms_icon"></div>Website Manager</div>
-					<div class="cms_navItemList" id="cms_navItemList_site">
-						<ul>
-						<li class="cms_navItem"><a href="admin.php?type=siteDisplay" class="cms_navItemLink">Edit Site</a></li>
-						<li class="cms_navItem"><a href="admin.php?type=log" class="cms_navItemLink">View the log</a></li>						
-						</ul>
-					</div>
-				</div>
-			
-				
-				<div><div class="cms_navItemTitle"><div id="cms_page" class="cms_icon"></div>Page Manager</div>
-					<div class="cms_navItemList" id="cms_navItemList_page">
-						<ul>
-						<li class="cms_navItem"><a href="admin.php?type=pageDisplay" class="cms_navItemLink">Edit Pages</a></li>
-						<li class="cms_navItem"><a href="admin.php?type=page&action=update&p=new" class="cms_navItemLink">Add a Page</a></li>
-						</ul>
-					</div>
-				</div>
-				<div><div class="cms_navItemTitle"><div id="cms_post" class="cms_icon"></div>Post Manager</div>
-					<div class="cms_navItemList" id="cms_navItemList_post">
-						<ul>
-						<li class="cms_navItem"><a href="admin.php?type=postDisplay" class="cms_navItemLink">Edit Posts</a></li>
-						<li class="cms_navItem"><a href="admin.php?type=post&action=update&p=' . $this->_PARENT . '&c=new" class="cms_navItemLink">Add a Post</a></li>
-						</ul>
-					</div>	
-				</div>	
-				<div><div class="cms_navItemTitle"><div id="cms_template" class="cms_icon"></div>Template Manager</div>
-					<div class="cms_navItemList" id="cms_navItemList_template">
-						<ul>
-						<li class="cms_navItem"><a href="admin.php?type=templateDisplay" class="cms_navItemLink">Edit Templates</a></li>
-						<li class="cms_navItem"><a href="admin.php?type=template&action=update&p=new" class="cms_navItemLink">Add a Template</a></li>
-						</ul>
-					</div>	
-				</div>	
-					
-				<div><div class="cms_navItemTitle"><div id="cms_user" class="cms_icon"></div>User Manager</div>
-					<div class="cms_navItemList" id="cms_navItemList_user">
-						<ul>
-						<li class="cms_navItem"><a href="admin.php?type=userDisplay" class="cms_navItemLink">Edit Users</a></li>
-						<li class="cms_navItem"><a href="admin.php?type=user&action=update&p=' . $this->_PARENT . '" class="cms_navItemLink">Add a User</a></li>
-						</ul>
-					</div>	
-				</div>	
-					<!--
-				<div><div class="cms_navItemTitle"><div id="cms_plug" class="cms_icon"></div>Plugin Manager</div>
-					<div class="cms_navItemList" id="cms_navItemList_plug">
-						<ul>
-						<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit Plugins</a></li>
-						<li class="cms_navItem"><a href="#" class="cms_navItemLink">Add a Plugin</a></li>
-						</ul>
-					</div>	
-				</div>
-				-->
-				<div><div class="cms_navItemTitle"></div></div>
-			</div>
-		';		
-	}
-	
+
 	/**
 	 * Function to authenticate the user against the DB
 	 *
@@ -687,10 +599,6 @@ class cms extends core {
 	 *
 	 */
 	public function cms_displayUserManager() {
-	
-		//The context is the user ID. We want to update rather than insert if we are editing
-		$userId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
-		
 		$user = new User($this->_CONN);
 		$this->addToScope($user);
 		
@@ -704,14 +612,14 @@ class cms extends core {
 						
 						$user->storeFormValues($_POST);
 						
-						if($userId=="new") {
+						if($this->_PARENT == null) {
 							$result = $user->insert();
 							
 							//Only display the main form if the user authenticated
 							//Since the setup uses the above insert, we want to make sure we don't 
 							//genereate the below until they truely login
 							if(!$result) {
-								$user->buildEditForm($userId);
+								$user->buildEditForm($this->_PARENT);
 							} else if($this->_AUTH) {
 								//Re-build the main User after creation
 								$this->cms_displayMain();
@@ -721,23 +629,23 @@ class cms extends core {
 							} 
 							
 						} else {
-							$result = $user->update($userId);
+							$result = $user->update($this->_PARENT);
 							
 							if(!$result) {
-								$user->buildEditForm($userId);
+								$user->buildEditForm($this->_PARENT);
 							} else {
 								//Re-build the User creation form once we are done
-								$user->buildEditForm($userId);
+								$user->buildEditForm($this->_PARENT);
 								logChange($this->_CONN,"user", 'update',$this->_USER->id,$this->_USER->loginname, $user->loginname . " updated");
 							}
 						}
 					} else {
 						// User has not posted the article edit form yet: display the form
-						$user->buildEditForm($userId);
+						$user->buildEditForm($this->_PARENT);
 					}
 					break;
 				case "delete":
-					$user->delete($userId);
+					$user->delete($this->_PARENT);
 					$this->cms_displayMain();
 					logChange($this->_CONN,"user", 'delete',$this->_USER->id,$this->_USER->loginname, $user->loginname . " deleted");
 					break;
@@ -759,10 +667,6 @@ class cms extends core {
 	 *
 	 */
 	public function cms_displaySiteManager() {
-		
-		//The context is the site ID. We want to update rather than insert if we are editing
-		$siteId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
-		
 		$site = new Site($this->_CONN);
 		$this->addToScope($site);
 		
@@ -771,18 +675,17 @@ class cms extends core {
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
 					// User has posted the site edit form: save the new article
-					
 					$site->storeFormValues($_POST);
 					
-					$result = $site->update($siteId);
+					$result = $site->update($this->_PARENT);
 					//Re-build the site creation form once we are done
-					$site->buildEditForm($siteId);
+					$site->buildEditForm($this->_PARENT);
 					if($result) {
 						logChange($this->_CONN, "site", 'update',$this->_USER->id,$this->_USER->loginname, $site->name . " updated");
 					}
 				} else {
 					// User has not posted the site edit form yet: display the form
-					$site->buildEditForm($siteId);
+					$site->buildEditForm($this->_PARENT);
 				}
 				break;
 			default:
@@ -796,10 +699,6 @@ class cms extends core {
 	 *
 	 */
 	public function cms_displayPageManager() {
-		
-		//The context is the page ID. We want to update rather than insert if we are editing
-		$pageId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
-		
 		$page = new Page($this->_CONN);
 		$this->addToScope($page);
 		
@@ -811,20 +710,20 @@ class cms extends core {
 					
 					$page->storeFormValues($_POST);
 					
-					if($pageId=="new") {
+					if($this->_PARENT == null) {
 						$result = $page->insert();
 						if(!$result) {
 							//Re-build the page creation form since the submission failed
-							$page->buildEditForm($pageId);
+							$page->buildEditForm($this->_PARENT);
 						} else {
 							//Re-build the main page after creation
 							$this->cms_displayMain();
 							logChange($this->_CONN, "page", 'add',$this->_USER->id,$this->_USER->loginname, $page->title . " added");
 						}
 					} else {
-						$result = $page->update($pageId);
+						$result = $page->update($this->_PARENT);
 						//Re-build the page creation form once we are done
-						$page->buildEditForm($pageId);
+						$page->buildEditForm($this->_PARENT);
 						
 						if($result) {
 							logChange($this->_CONN, "page", 'update',$this->_USER->id,$this->_USER->loginname, $page->title . " updated");
@@ -832,11 +731,11 @@ class cms extends core {
 					}
 				} else {
 					// User has not posted the article edit form yet: display the form
-					$page->buildEditForm($pageId);
+					$page->buildEditForm($this->_PARENT);
 				}
 				break;
 			case "delete":
-				$page->delete($pageId);
+				$page->delete($this->_PARENT);
 				$this->cms_displayMain();
 				logChange($this->_CONN, "page", 'delete',$this->_USER->id,$this->_USER->loginname, $page->title . " deleted");
 				break;
@@ -851,10 +750,6 @@ class cms extends core {
 	 *
 	 */
 	public function cms_displayTemplateManager() {
-		
-		//The context is the page ID. We want to update rather than insert if we are editing
-		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
-		
 		$template = new Template($this->_CONN);
 		$this->addToScope($template);
 		
@@ -866,19 +761,19 @@ class cms extends core {
 					
 					$template->storeFormValues($_POST);
 					
-					if($templateId=="new") {
+					if($this->_PARENT == null) {
 						$result = $template->insert();
 						
 						if(!$result) {
-							$template->buildEditForm($templateId);
+							$template->buildEditForm($this->_PARENT);
 						} else {
 							$template->buildEditForm(getLastField($this->_CONN,"templates", "id"));
 							logChange($this->_CONN, "template", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 						}
 					} else {
-						$result = $template->update($templateId);
+						$result = $template->update($this->_PARENT);
 						//Re-build the page creation form once we are done
-						$template->buildEditForm($templateId);
+						$template->buildEditForm($this->_PARENT);
 						
 						if($result) {
 							logChange($this->_CONN, "template", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " updated");
@@ -886,11 +781,11 @@ class cms extends core {
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
-					$template->buildEditForm($templateId);
+					$template->buildEditForm($this->_PARENT);
 				}
 				break;
 			case "delete":
-				$template->delete($templateId);
+				$template->delete($this->_PARENT);
 				$this->cms_displayMain();
 				logChange($this->_CONN, "template", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " deleted");
 				break;
@@ -905,9 +800,6 @@ class cms extends core {
 	 *
 	 */
 	public function display_pluginManager() {
-		
-		//The context is the page ID. We want to update rather than insert if we are editing
-		$templateId = (isset($_GET['p']) && !empty($_GET['p'])) ? clean($this->_CONN,$_GET['p']) : "new";
 		$template = new Template($this->_CONN);
 		
 		$this->addToScope($template);
@@ -920,24 +812,24 @@ class cms extends core {
 					
 					$template->storeFormValues($_POST);
 					
-					if($templateId=="new") {
+					if($this->_PARENT == null) {
 						$template->insert();
 						//Re-build the main page after creation
 						$this->cms_displayMain();
 						logChange($this->_CONN, "plugin", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 					} else {
-						$template->update($templateId);
+						$template->update($this->_PARENT);
 						//Re-build the page creation form once we are done
 						$template->buildEditForm($templateId);
 						logChange($this->_CONN, "plugin", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
-					$template->buildEditForm($templateId);
+					$template->buildEditForm($this->_PARENT);
 				}
 				break;
 			case "delete":
-				$template->delete($templateId);
+				$template->delete($this->_PARENT);
 				$this->cms_displayMain();
 				logChange($this->_CONN, "plugin", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 				break;
@@ -952,10 +844,6 @@ class cms extends core {
 	 *
 	 */
 	public function cms_displayPostManager() {
-		//The context is the page ID. We want to update rather than insert if we are editing
-		$pageId = isset($_GET['p']) ? clean($this->_CONN,$_GET['p']) : "new";
-		$postId = isset($_GET['c']) ? clean($this->_CONN,$_GET['c']) : "new";
-		
 		$post = new Post($this->_CONN);
 		$this->addToScope($post);
 		
@@ -968,10 +856,10 @@ class cms extends core {
 					$post->storeFormValues($_POST);
 					
 					if($postId=="new") {
-						$result = $post->insert($pageId);
+						$result = $post->insert($this->_PARENT);
 						if(!$result) {
 							//Re-build the post creation form once we are done
-							$post->buildEditForm($pageId,$postId);
+							$post->buildEditForm($this->_PARENT, $this->_CHILD);
 						} else {
 							$post->buildEditForm($pageId,getLastField($this->_CONN,"posts", "id"));
 							logChange($this->_CONN, "post", 'add',$this->_USER->id,$this->_USER->loginname, $post->title . " added");
@@ -980,7 +868,7 @@ class cms extends core {
 					else {
 						$result = $post->update($postId);
 						//Re-build the post creation form once we are done
-						$post->buildEditForm($pageId,$postId);
+						$post->buildEditForm($this->_PARENT, $this->_CHILD);
 						
 						if($result) {
 							logChange($this->_CONN, "post", 'update',$this->_USER->id,$this->_USER->loginname, $post->title . " updated");
@@ -991,18 +879,18 @@ class cms extends core {
 					
 				} else {
 					// User has not posted the article edit form yet: display the form
-					$post->buildEditForm($pageId,$postId);
+					$post->buildEditForm($this->_PARENT, $this->_CHILD);
 				}
 				break;
 			case "delete":
 				//Delete the post
-				$post->delete($pageId, $postId);
+				$post->delete($this->_PARENT, $this->_CHILD);
 				logChange($this->_CONN, "post", 'delete',$this->_USER->id,$this->_USER->loginname, $post->title . " deleted");
 				
 				//Display the page form
 				$page = new Page($this->_CONN);
 				$this->addToScope($page);
-				$page->buildEditForm($pageId);
+				$page->buildEditForm($this->_PARENT);
 				
 				break;
 			default:

@@ -178,7 +178,7 @@ class page
 	 * @param $pageId	The page to be loaded
 	 */
 	public function loadRecord($pageId) {
-		if(isset($pageId) && $pageId != "new") {
+		if(isset($pageId) && $pageId != null) {
 			
 			if($pageId == "home")
 				$pageSQL = "SELECT * FROM pages WHERE page_isHome=true";
@@ -250,23 +250,23 @@ class page
 			<div class="clear"></div>
 			<br />
 					
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pageId) || $pageId == "new") ? "Create" : "Update") . ' This Page!" /><br /><br />
-			' . ((isset($pageId) && $pageId != "new") ? '<a href="admin.php?type=page&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Page!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pageId) || $pageId == null) ? "Create" : "Update") . ' This Page!" /><br /><br />
+			' . ((isset($pageId) && $pageId != null) ? '<a href="admin.php?type=page&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Page!</a><br /><br />' : '') . '
 			</form>
 		';
 		
-		if(isset($pageId) && $pageId != "new")
+		if(isset($pageId) && $pageId != null)
 			echo "<h2>Current Posts</h2><br />";
 		
 		echo $this->display_pagePosts($pageId);
 		
-		if(isset($pageId) && $pageId != "new")
+		if(isset($pageId) && $pageId != null)
 			echo "<p><a href=\"{$_SERVER['PHP_SELF']}?type=post&action=update&p=$this->id\" class=\"actionLink\">Add a New Post</a><br /></p>";
 
 	}
 
 	private function display_pagePosts($pageId) {
-		if($pageId != "new" && $pageId != null) {
+		if($pageId != null) {
 			$postSQL = "SELECT * FROM posts WHERE page_id=$pageId ORDER BY post_created ASC";
 			$postResult = $this->conn->query($postSQL);
 			$entry_display = "";
