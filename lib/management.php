@@ -178,28 +178,6 @@ function get_userSalt($conn, $username) {
 }
 
 /**
- * Inserts any changes in the log database table
- * 
- * @param $conn		A database connection object
- * @param $type		The type of changed performed. Ex. user, page
- * @param $action	The action performed on the change type. Ex. log_out, log_in, add, remove
- * @param $userId	The user Id who performed the change
- * @param $user	The The user name who performed the change
- * @param $change	A more detailed description of the change made. Ex. "Page Blog added"
- * 
- * @return returns the result of the mysql query
- */
-function logChange($conn, $type, $action, $userId, $user, $change) {
-
-	$sql = "INSERT INTO log (log_type, log_action, log_userId, log_user, log_info, log_date, log_created, log_remoteIp) VALUES";
-	$sql .= "('$type', '$action', '$userId', '$user', '$change', '" . date('Y-m-d H:i:s') . "','" . time() . "','" . $_SERVER['REMOTE_ADDR'] . "')";
-
-	$result = $conn->query($sql) OR DIE ("Could not write to log!");
-	
-	return $result;	
-}
-
-/**
  * Gets the link format from the database
  * 
  * @param $conn		A database connection object
@@ -219,7 +197,6 @@ function get_linkFormat($conn) {
 	}
 
 }
-
 
 /**
  * Generates the link per the supplied format

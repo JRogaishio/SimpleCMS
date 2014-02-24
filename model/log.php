@@ -23,7 +23,6 @@ class log
 	/**
 	 * Inserts any changes in the log database table
 	 *
-	 * @param $conn		A database connection object
 	 * @param $type		The type of changed performed. Ex. user, page
 	 * @param $action	The action performed on the change type. Ex. log_out, log_in, add, remove
 	 * @param $userId	The user Id who performed the change
