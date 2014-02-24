@@ -223,6 +223,27 @@ class user
 		';
 	}
 	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `users` */
+		$sql = "CREATE TABLE IF NOT EXISTS `users` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `user_login` varchar(64) DEFAULT NULL,
+		  `user_pass` varchar(64) DEFAULT NULL,
+		  `user_salt` varchar(64) DEFAULT NULL,
+		  `user_token` varchar(64) DEFAULT NULL,
+		  `user_email` varchar(128) DEFAULT NULL,
+		  `user_created` varchar(100) DEFAULT NULL,
+		  `user_isRegistered` tinyint(1) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		)";
+		$this->conn->query($sql) OR DIE ("Could not build table \"users\"");
+	
+	}
+	
 }
 
 ?>

@@ -145,6 +145,28 @@ class site
 		';
 	}
 	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `site` */
+		$sql = "CREATE TABLE IF NOT EXISTS `sites` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `site_name` varchar(64) DEFAULT NULL,
+		  `site_linkFormat` varchar(64) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		)";
+		$this->conn->query($sql) OR DIE ("Could not build table \"site\"");
+		
+		
+		/*Insert site data for `site` if we dont have one already*/
+		if(countRecords($this->conn, "sites") == 0) {
+			$sql = "INSERT INTO sites (site_name, site_linkFormat) VALUES('My FerretCMS Website', 'clean')";
+			$this->conn->query($sql) OR DIE ("Could not insert default data into \"site\"");
+		}
+	
+	}
 }
 
 ?>

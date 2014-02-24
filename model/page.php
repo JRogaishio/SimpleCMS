@@ -404,7 +404,26 @@ class page
 		}
 		
 	}
-
+	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `pages` */
+		$sql = "CREATE TABLE IF NOT EXISTS `pages` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `page_template` int(16) DEFAULT NULL,
+		  `page_safeLink` varchar(32) DEFAULT NULL,
+		  `page_meta` text,
+		  `page_title` varchar(128) DEFAULT NULL,
+		  `page_hasBoard` tinyint(1) DEFAULT NULL,
+		  `page_isHome` tinyint(1) DEFAULT NULL,
+		  `page_created` varchar(128) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		)";
+		$this->conn->query($sql) OR DIE ("Could not build table \"pages\"");
+	}
 }
 
 ?>

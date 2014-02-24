@@ -6,7 +6,7 @@
  * @author Jacob Rogaishio
  * 
  */
-class template
+class plugin
 {
 	// Properties
 	public $id = null;
@@ -173,6 +173,23 @@ class template
 		
 	}
 	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `plugins` */
+		$sql = "CREATE TABLE IF NOT EXISTS `plugins` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `plugin_path` varchar(128) DEFAULT NULL,
+		  `plugin_file` varchar(128) DEFAULT NULL,
+		  `tplugin_name` varchar(64) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		)";
+		
+		$this->conn->query($sql) OR DIE ("Could not build table \"plugins\"");
+		
+	}
 }
 
 ?>

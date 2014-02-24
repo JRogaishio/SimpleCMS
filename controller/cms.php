@@ -9,7 +9,9 @@ include_once('model/site.php');
 include_once('model/user.php');
 include_once('model/page.php');
 include_once('model/post.php');
+include_once('model/plugin.php');
 include_once('model/template.php');
+include_once('model/log.php');
 
 /**
  * Ferret CMS Main class to create admin pages and live content pages
@@ -31,10 +33,13 @@ class cms extends core {
 	private $_USERPAGE = "user";
 	private $_CONN = null;
 	private $_LINKFORMAT = "";
+	private $_LOG;
 	//Login stuff
 	private $_AUTH = false;	
 	private $_USER = null;
 	private $_LOGINTOKEN = null;
+	
+	public function __construct() {}
 	
 	/** 
 	 * This function is called whenever the class is first initialized. This takes care of page routing
@@ -141,7 +146,7 @@ class cms extends core {
 						$userResult = $this->_CONN->query($userSQL);
 						if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 							$userData = mysqli_fetch_assoc($userResult);
-							logChange($this->_CONN, "user", 'log_out',$userData['id'], $userData['user_login'], "logged out");
+							$this->_LOG->trackChange("user", 'log_out',$userData['id'], $userData['user_login'], "logged out");
 						}					
 					}
 
@@ -212,7 +217,7 @@ class cms extends core {
 				
 				//Log that a user logged in. POST data is only set on the initial login
 				if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
-					logChange($this->_CONN, "user", 'log_in',$user->id,$user->loginname, "logged in");
+					$this->_LOG->trackChange("user", 'log_in',$user->id,$user->loginname, "logged in");
 				}
 				return true;
 				
@@ -221,7 +226,7 @@ class cms extends core {
 				$this->cms_displayLoginManager();
 				if (isset($_POST) && !empty($_POST)) echo "Bad user name or password!<br /><br />";
 				
-				logChange($this->_CONN, "user", 'log_in',null, clean($this->_CONN,$_POST['login_username']), "FAILED LOGIN");
+				$this->_LOG->trackChange("user", 'log_in',null, clean($this->_CONN,$_POST['login_username']), "FAILED LOGIN");
 				
 				return false;
 			}
@@ -623,7 +628,7 @@ class cms extends core {
 							} else if($this->_AUTH) {
 								//Re-build the main User after creation
 								$this->cms_displayMain();
-								logChange($this->_CONN, "user", 'add',$this->_USER->id,$this->_USER->loginname, $user->loginname . " added");
+								$this->_LOG->trackChange("user", 'add',$this->_USER->id,$this->_USER->loginname, $user->loginname . " added");
 							} else {
 								$this->cms_displayLoginManager();
 							} 
@@ -636,7 +641,7 @@ class cms extends core {
 							} else {
 								//Re-build the User creation form once we are done
 								$user->buildEditForm($this->_PARENT);
-								logChange($this->_CONN,"user", 'update',$this->_USER->id,$this->_USER->loginname, $user->loginname . " updated");
+								$this->_LOG->trackChange("user", 'update',$this->_USER->id,$this->_USER->loginname, $user->loginname . " updated");
 							}
 						}
 					} else {
@@ -647,7 +652,7 @@ class cms extends core {
 				case "delete":
 					$user->delete($this->_PARENT);
 					$this->cms_displayMain();
-					logChange($this->_CONN,"user", 'delete',$this->_USER->id,$this->_USER->loginname, $user->loginname . " deleted");
+					$this->_LOG->trackChange("user", 'delete',$this->_USER->id,$this->_USER->loginname, $user->loginname . " deleted");
 					break;
 				default:
 					if(countRecords($this->_CONN,"users") == 0) {
@@ -681,7 +686,7 @@ class cms extends core {
 					//Re-build the site creation form once we are done
 					$site->buildEditForm($this->_PARENT);
 					if($result) {
-						logChange($this->_CONN, "site", 'update',$this->_USER->id,$this->_USER->loginname, $site->name . " updated");
+						$this->_LOG->trackChange("site", 'update',$this->_USER->id,$this->_USER->loginname, $site->name . " updated");
 					}
 				} else {
 					// User has not posted the site edit form yet: display the form
@@ -718,7 +723,7 @@ class cms extends core {
 						} else {
 							//Re-build the main page after creation
 							$this->cms_displayMain();
-							logChange($this->_CONN, "page", 'add',$this->_USER->id,$this->_USER->loginname, $page->title . " added");
+							$this->_LOG->trackChange("page", 'add',$this->_USER->id,$this->_USER->loginname, $page->title . " added");
 						}
 					} else {
 						$result = $page->update($this->_PARENT);
@@ -726,7 +731,7 @@ class cms extends core {
 						$page->buildEditForm($this->_PARENT);
 						
 						if($result) {
-							logChange($this->_CONN, "page", 'update',$this->_USER->id,$this->_USER->loginname, $page->title . " updated");
+							$this->_LOG->trackChange("page", 'update',$this->_USER->id,$this->_USER->loginname, $page->title . " updated");
 						}
 					}
 				} else {
@@ -737,7 +742,7 @@ class cms extends core {
 			case "delete":
 				$page->delete($this->_PARENT);
 				$this->cms_displayMain();
-				logChange($this->_CONN, "page", 'delete',$this->_USER->id,$this->_USER->loginname, $page->title . " deleted");
+				$this->_LOG->trackChange("page", 'delete',$this->_USER->id,$this->_USER->loginname, $page->title . " deleted");
 				break;
 			default:
 				echo "Error with page manager<br /><br />";
@@ -768,7 +773,7 @@ class cms extends core {
 							$template->buildEditForm($this->_PARENT);
 						} else {
 							$template->buildEditForm(getLastField($this->_CONN,"templates", "id"));
-							logChange($this->_CONN, "template", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
+							$this->_LOG->trackChange("template", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 						}
 					} else {
 						$result = $template->update($this->_PARENT);
@@ -776,7 +781,7 @@ class cms extends core {
 						$template->buildEditForm($this->_PARENT);
 						
 						if($result) {
-							logChange($this->_CONN, "template", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " updated");
+							$this->_LOG->trackChange("template", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " updated");
 						}
 					}
 				} else {
@@ -787,7 +792,7 @@ class cms extends core {
 			case "delete":
 				$template->delete($this->_PARENT);
 				$this->cms_displayMain();
-				logChange($this->_CONN, "template", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " deleted");
+				$this->_LOG->trackChange("template", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " deleted");
 				break;
 			default:
 				echo "Error with template manager<br /><br />";
@@ -816,12 +821,12 @@ class cms extends core {
 						$template->insert();
 						//Re-build the main page after creation
 						$this->cms_displayMain();
-						logChange($this->_CONN, "plugin", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
+						$this->_LOG->trackChange("plugin", 'add',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 					} else {
 						$template->update($this->_PARENT);
 						//Re-build the page creation form once we are done
 						$template->buildEditForm($templateId);
-						logChange($this->_CONN, "plugin", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
+						$this->_LOG->trackChange("plugin", 'update',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
@@ -831,7 +836,7 @@ class cms extends core {
 			case "delete":
 				$template->delete($this->_PARENT);
 				$this->cms_displayMain();
-				logChange($this->_CONN, "plugin", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
+				$this->_LOG->trackChange("plugin", 'delete',$this->_USER->id,$this->_USER->loginname, $template->name . " added");
 				break;
 			default:
 				echo "Error with template manager<br /><br />";
@@ -862,7 +867,7 @@ class cms extends core {
 							$post->buildEditForm($this->_PARENT, $this->_CHILD);
 						} else {
 							$post->buildEditForm($pageId,getLastField($this->_CONN,"posts", "id"));
-							logChange($this->_CONN, "post", 'add',$this->_USER->id,$this->_USER->loginname, $post->title . " added");
+							$this->_LOG->trackChange("post", 'add',$this->_USER->id,$this->_USER->loginname, $post->title . " added");
 						}
 					}
 					else {
@@ -871,7 +876,7 @@ class cms extends core {
 						$post->buildEditForm($this->_PARENT, $this->_CHILD);
 						
 						if($result) {
-							logChange($this->_CONN, "post", 'update',$this->_USER->id,$this->_USER->loginname, $post->title . " updated");
+							$this->_LOG->trackChange("post", 'update',$this->_USER->id,$this->_USER->loginname, $post->title . " updated");
 						}
 						
 					}
@@ -885,7 +890,7 @@ class cms extends core {
 			case "delete":
 				//Delete the post
 				$post->delete($this->_PARENT, $this->_CHILD);
-				logChange($this->_CONN, "post", 'delete',$this->_USER->id,$this->_USER->loginname, $post->title . " deleted");
+				$this->_LOG->trackChange("post", 'delete',$this->_USER->id,$this->_USER->loginname, $post->title . " deleted");
 				
 				//Display the page form
 				$page = new Page($this->_CONN);
@@ -921,6 +926,9 @@ class cms extends core {
 		if(!isset($_COOKIE['token']) && $connType == "admin") {
 			$this->buildDB();
 		 }
+		 
+		 //Create a logging object
+		 $this->_LOG = new log($this->_CONN);
 	}
 
 	/**
@@ -928,129 +936,29 @@ class cms extends core {
 	 *
 	 */
 	private function buildDB() {
-
-		/*Table structure for table `board` */
-		$sql = "CREATE TABLE IF NOT EXISTS `board` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `board_postId` int(16) DEFAULT NULL,
-		  `board_authorId` int(16) DEFAULT NULL,
-		  `board_comment` text,
-		  `board_replyTo` int(16) DEFAULT NULL,
-		  `board_datePosted` datetime DEFAULT NULL,
-		  `board_lastUpdated` datetime DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-		$this->_CONN->query($sql) OR DIE ("Could not build table \"board\"");
+		$page = new page($this->_CONN);
+		$page->buildTable();
 		
-		/*Table structure for table `pages` */
-
-		$sql = "CREATE TABLE IF NOT EXISTS `pages` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `page_template` int(16) DEFAULT NULL,
-		  `page_safeLink` varchar(32) DEFAULT NULL,
-		  `page_meta` text,
-		  `page_title` varchar(128) DEFAULT NULL,
-		  `page_hasBoard` tinyint(1) DEFAULT NULL,
-		  `page_isHome` tinyint(1) DEFAULT NULL,
-		  `page_created` varchar(128) DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-		$this->_CONN->query($sql) OR DIE ("Could not build table \"pages\"");
+		$post = new post($this->_CONN);
+		$post->buildTable();
 		
-		/*Table structure for table `posts` */
-
-		$sql = "CREATE TABLE IF NOT EXISTS `posts` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `page_id` int(16) DEFAULT NULL,
-		  `post_authorId` int(16) DEFAULT NULL,
-		  `post_date` datetime DEFAULT NULL,
-		  `post_title` varchar(150) DEFAULT NULL,
-		  `post_content` text,
-		  `post_lastModified` VARCHAR(100) DEFAULT NULL,
-		  `post_created` VARCHAR(128) DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-		$this->_CONN->query($sql) OR DIE ("Could not build table \"posts\"");
+		$template = new template($this->_CONN);
+		$template->buildTable();
 		
-		/*Table structure for table `templates` */
-
-		$sql = "CREATE TABLE IF NOT EXISTS `templates` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `template_path` varchar(128) DEFAULT NULL,
-		  `template_file` varchar(128) DEFAULT NULL,
-		  `template_name` varchar(64) DEFAULT NULL,
-		  `template_created` varchar(128) DEFAULT NULL,
-		  
-		  PRIMARY KEY (`id`)
-		)";
-		$this->_CONN->query($sql) OR DIE ("Could not build table \"templates\"");
+		$user = new user($this->_CONN);
+		$user->buildTable();
 		
-		/*Insert default data for `templates` if we dont have one already*/
-		if(countRecords($this->_CONN, "templates") == 0) {
-			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES('_default', 'index.php', 'Default', '" . time() . "')";
-			$this->_CONN->query($sql) OR DIE ("Could not insert default data into \"templates\"");
-		}
+		$site = new site($this->_CONN);
+		$site->buildTable();
 		
-		/*Table structure for table `plugins` */
-
-		$sql = "CREATE TABLE IF NOT EXISTS `plugins` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `plugin_path` varchar(128) DEFAULT NULL,
-		  `plugin_file` varchar(128) DEFAULT NULL,
-		  `tplugin_name` varchar(64) DEFAULT NULL,		  
-		  PRIMARY KEY (`id`)
-		)";
+		$log = new log($this->_CONN);
+		$log->buildTable();
 		
-		$this->_CONN->query($sql) OR DIE ("Could not build table \"plugins\"");
+		$plugin = new plugin($this->_CONN);
+		$plugin->buildTable();
 		
 		
-		/*Table structure for table `users` */
-
-		$sql = "CREATE TABLE IF NOT EXISTS `users` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `user_login` varchar(64) DEFAULT NULL,
-		  `user_pass` varchar(64) DEFAULT NULL,
-		  `user_salt` varchar(64) DEFAULT NULL,
-		  `user_token` varchar(64) DEFAULT NULL,
-		  `user_email` varchar(128) DEFAULT NULL,
-		  `user_created` varchar(100) DEFAULT NULL,
-		  `user_isRegistered` tinyint(1) DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-		$this->_CONN->query($sql) OR DIE ("Could not build table \"users\"");
 		
-		/*Table structure for table `log` */
-
-		$sql = "CREATE TABLE IF NOT EXISTS `log` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `log_type` varchar(64) DEFAULT NULL,
-		  `log_action` varchar(64) DEFAULT NULL,
-		  `log_userId` varchar(64) DEFAULT NULL,
-		  `log_user` varchar(64) DEFAULT NULL,
-		  `log_info` text,
-		  `log_date` datetime DEFAULT NULL,
-		  `log_created` varchar(128) DEFAULT NULL,
-		  `log_remoteIp` varchar(64) DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-		$this->_CONN->query($sql) OR DIE ("Could not build table \"log\"");
-		
-		/*Table structure for table `site` */
-
-		$sql = "CREATE TABLE IF NOT EXISTS `sites` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `site_name` varchar(64) DEFAULT NULL,
-		  `site_linkFormat` varchar(64) DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-		$this->_CONN->query($sql) OR DIE ("Could not build table \"site\"");
-		
-		
-		/*Insert site data for `site` if we dont have one already*/
-		if(countRecords($this->_CONN, "sites") == 0) {
-			$sql = "INSERT INTO sites (site_name, site_linkFormat) VALUES('My FerretCMS Website', 'clean')";
-			$this->_CONN->query($sql) OR DIE ("Could not insert default data into \"site\"");
-		}
 	}
 	
 	/**

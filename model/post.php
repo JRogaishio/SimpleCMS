@@ -216,6 +216,25 @@ class post
 
 	}
 
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `posts` */
+		$sql = "CREATE TABLE IF NOT EXISTS `posts` (
+			  `id` int(16) NOT NULL AUTO_INCREMENT,
+			  `page_id` int(16) DEFAULT NULL,
+			  `post_authorId` int(16) DEFAULT NULL,
+			  `post_date` datetime DEFAULT NULL,
+			  `post_title` varchar(150) DEFAULT NULL,
+			  `post_content` text,
+			  `post_lastModified` VARCHAR(100) DEFAULT NULL,
+			  `post_created` VARCHAR(128) DEFAULT NULL,
+			  PRIMARY KEY (`id`)
+			)";
+		$this->conn->query($sql) OR DIE ("Could not build table \"posts\"");
+	}
 }
 
 ?>

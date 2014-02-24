@@ -201,6 +201,31 @@ class template
 		
 	}
 	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `templates` */
+		$sql = "CREATE TABLE IF NOT EXISTS `templates` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `template_path` varchar(128) DEFAULT NULL,
+		  `template_file` varchar(128) DEFAULT NULL,
+		  `template_name` varchar(64) DEFAULT NULL,
+		  `template_created` varchar(128) DEFAULT NULL,
+		
+		  PRIMARY KEY (`id`)
+		)";
+		$this->conn->query($sql) OR DIE ("Could not build table \"templates\"");
+		
+		/*Insert default data for `templates` if we dont have one already*/
+		if(countRecords($this->conn, "templates") == 0) {
+			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES('_default', 'index.php', 'Default', '" . time() . "')";
+			$this->conn->query($sql) OR DIE ("Could not insert default data into \"templates\"");
+		}
+		
+	}
+	
 }
 
 ?>
