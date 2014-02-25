@@ -6,14 +6,18 @@ define( "DB_HOST", "localhost" );
 define( "DB_NAME", "ferret_cms" );
 define( "DB_USERNAME", "root" );
 define( "DB_PASSWORD", "" );
-define( "CLASS_PATH", "_class" );
-define( "TEMPLATE_PATH", "_template" );
-define( "ADMINFORM_PATH", "_adminForm" );
+define( "CONTOLLER_PATH", "controller" );
+define( "MODEL_PATH", "model" );
+define( "VIEW_PATH", "view" );
+define( "TEMPLATE_PATH", "template" );
+define( "ADMINFORM_PATH", "adminForm" );
+define( "LIBRARY_PATH", "lib" );
 define( "SITE_ROOT", "http://localhost/ferretCMS/");
 define( "ADMIN_USERNAME", "admin" );
 define( "ADMIN_PASSWORD", "pass" );
-require( CLASS_PATH . "/cms.php" );
-define( "ERROR_DIR", "_template/system/" );
+define( "ERROR_DIR", "template/system/" );
+define( "DATEFORMAT", "M, j Y" );
+define( "TIMEFORMAT", "h:i:s A" );
 
 function handleException( $exception ) {
   echo "Sorry, a problem occurred. Please try later.";

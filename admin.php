@@ -1,5 +1,6 @@
 <?php
-require("config.php");
+require_once("config.php");
+require_once( CONTOLLER_PATH . "/admin.php" );
 ?>
 <!DOCTYPE html>
 
@@ -7,11 +8,11 @@ require("config.php");
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>Ferret CMS</title>
-	<link rel="stylesheet" type="text/css" href="_css/reset.css" />
-	<link rel="stylesheet" type="text/css" href="_css/style.css" />
-	<script type="text/javascript" src="_js/url.js"></script>
-	<script type="text/javascript" src="_js/jquery-2.0.3.min.js"></script>
-	<script type="text/javascript" src="_js/tinymce/tinymce.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/reset.css" />
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	<script type="text/javascript" src="js/url.js"></script>
+	<script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
+	<script type="text/javascript" src="js/tinymce/tinymce.min.js"></script>
 	
 	<script type="text/javascript">
 	tinymce.init({
@@ -52,9 +53,9 @@ require("config.php");
 <body>
 	<?php
 	//Create a new CMS object and load it!
-	$cms = new cms();
-	$cms->connect("admin");
-	$cms->load("admin");
+	$cms = new admin("admin");
+	$cms->connect();
+	$cms->load();
 
 	?>
 </body>

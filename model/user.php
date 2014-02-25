@@ -6,7 +6,7 @@
  * @author Jacob Rogaishio
  * 
  */
-class user
+class user extends model
 {
 	// Properties
 	public $id = null;
@@ -16,17 +16,7 @@ class user
 	public $salt = null;
 	public $email = null;
 	public $isRegistered = null;
-	private $conn = null; //Database connection object
 	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-	}
-
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -160,7 +150,7 @@ class user
 	 * @param $userId	The user to be loaded
 	 */
 	public function loadRecord($userId) {
-		if(isset($userId) && $userId != "new") {
+		if(isset($userId) && $userId != null) {
 			
 			$userSQL = "SELECT * FROM users WHERE id=$userId";
 				
@@ -192,7 +182,7 @@ class user
 
 		//Load the page from an ID
 		$this->loadRecord($userId);
-		if($userId != "new")
+		if($userId != null)
 			echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a> > <a href="admin.php?type=user&action=update&p=' . $userId . '">User</a><br /><br />';
 
 		echo '
@@ -217,10 +207,99 @@ class user
 			<input name="email" id="email" type="text" maxlength="150" value="' . $this->email . '" />
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($userId) || $userId == "new") ? "Create" : "Update") . ' This User!" /><br /><br />
-			' . ((isset($userId) && $userId != "new") ? '<a href="admin.php?type=user&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($userId) || $userId == null) ? "Create" : "Update") . ' This User!" /><br /><br />
+			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=user&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
 			</form>
 		';
+	}
+	
+
+	/**
+	 * Display the User management
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $log, $auth) {
+		$ret = false;
+		//Allow access to the user editor if you are authenticated or there are no users
+		if($auth || countRecords(parent::$conn,"users") == 0) {
+			switch($action) {
+				case "update":
+					//Determine if the form has been submitted
+					if(isset($_POST['saveChanges'])) {
+						// User has posted the article edit form: save the new article
+						$this->storeFormValues($_POST);
+	
+						if($parent == null) {
+							$result = $this->insert();
+								
+							//Only display the main form if the user authenticated
+							//Since the setup uses the above insert, we want to make sure we don't
+							//genereate the below until they truely login
+							if(!$result) {
+								$this->buildEditForm($parent);
+							} else if($auth) {
+								//Re-build the main User after creation
+								$ret = true;
+								$log->trackChange("user", 'add',$user->id,$user->loginname, $this->loginname . " added");
+							} else {
+								parent::render("siteLogin");
+							}
+								
+						} else {
+							$result = $this->update($parent);
+								
+							if(!$result) {
+								$this->buildEditForm($parent);
+							} else {
+								//Re-build the User creation form once we are done
+								$this->buildEditForm($parent);
+								$log->trackChange("user", 'update',$user->id,$user->loginname, $this->loginname . " updated");
+							}
+						}
+					} else {
+						// User has not posted the article edit form yet: display the form
+						$this->buildEditForm($parent);
+					}
+					break;
+				case "delete":
+					$this->delete($parent);
+					$ret = true;
+					$log->trackChange("user", 'delete',$user->id,$user->loginname, $this->loginname . " deleted");
+					break;
+				default:
+					if(countRecords(parent::conn,"users") == 0) {
+						$this->buildEditForm(null);
+					} else {
+						echo "Error with user manager<br /><br />";
+					}
+			}
+		} else {
+			//Show the login if your not authenticated and users exist in the DB
+			$user->buildLogin();
+		}
+		return $ret;
+	}
+	
+	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `users` */
+		$sql = "CREATE TABLE IF NOT EXISTS `users` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `user_login` varchar(64) DEFAULT NULL,
+		  `user_pass` varchar(64) DEFAULT NULL,
+		  `user_salt` varchar(64) DEFAULT NULL,
+		  `user_token` varchar(64) DEFAULT NULL,
+		  `user_email` varchar(128) DEFAULT NULL,
+		  `user_created` varchar(100) DEFAULT NULL,
+		  `user_isRegistered` tinyint(1) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		)";
+		$this->conn->query($sql) OR DIE ("Could not build table \"users\"");
+	
 	}
 	
 }

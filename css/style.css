@@ -135,7 +135,7 @@ body {
 .cms_icon {
 	height:32px;
 	width:32px;
-	background-image:url("../_img/icon_sheet.png")
+	background-image:url("../img/icon_sheet.png")
 }
 
 .cms_loginManager {

@@ -6,7 +6,7 @@
  * @author Jacob Rogaishio
  * 
  */
-class page
+class page extends model
 {
 	// Properties
 	public $id = null;
@@ -18,18 +18,6 @@ class page
 	public $hasBoard = null;
 	public $isHome = null;
 	public $constr = false;
-	private $conn = null; //Database connection object
-	private $linkFormat = null;
-	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-		$this->linkFormat = get_linkFormat($dbConn);
-	}
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -83,7 +71,7 @@ class page
 				//Ensure you are not submitting a system page
 				if($this->isHome == 1){
 					$sql = "UPDATE pages SET page_isHome=0";
-					$homeResult = $this->conn->query($sql) OR DIE ("Could not update page!");
+					$homeResult = $this->conn->query($sql) OR DIE ("Could not update home page!");
 				}
 				
 				$sql = "INSERT INTO pages (page_template, page_safeLink, page_meta, page_title, page_hasBoard, page_isHome, page_created) VALUES";
@@ -128,8 +116,8 @@ class page
 				page_safeLink = '$this->safeLink', 
 				page_meta = '$this->metaData', 
 				page_title = '$this->title', 
-				page_hasBoard = '$this->hasBoard', 
-				page_isHome = '$this->isHome'
+				page_hasBoard = " . convertToBit($this->hasBoard) . ", 
+				page_isHome = " . convertToBit($this->isHome) . "
 				WHERE id=$pageId;
 				";
 
@@ -178,7 +166,7 @@ class page
 	 * @param $pageId	The page to be loaded
 	 */
 	public function loadRecord($pageId) {
-		if(isset($pageId) && $pageId != "new") {
+		if(isset($pageId) && $pageId != null) {
 			
 			if($pageId == "home")
 				$pageSQL = "SELECT * FROM pages WHERE page_isHome=true";
@@ -250,23 +238,23 @@ class page
 			<div class="clear"></div>
 			<br />
 					
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pageId) || $pageId == "new") ? "Create" : "Update") . ' This Page!" /><br /><br />
-			' . ((isset($pageId) && $pageId != "new") ? '<a href="admin.php?type=page&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Page!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pageId) || $pageId == null) ? "Create" : "Update") . ' This Page!" /><br /><br />
+			' . ((isset($pageId) && $pageId != null) ? '<a href="admin.php?type=page&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Page!</a><br /><br />' : '') . '
 			</form>
 		';
 		
-		if(isset($pageId) && $pageId != "new")
+		if(isset($pageId) && $pageId != null)
 			echo "<h2>Current Posts</h2><br />";
 		
 		echo $this->display_pagePosts($pageId);
 		
-		if(isset($pageId) && $pageId != "new")
+		if(isset($pageId) && $pageId != null)
 			echo "<p><a href=\"{$_SERVER['PHP_SELF']}?type=post&action=update&p=$this->id\" class=\"actionLink\">Add a New Post</a><br /></p>";
 
 	}
 
 	private function display_pagePosts($pageId) {
-		if($pageId != "new" && $pageId != null) {
+		if($pageId != null) {
 			$postSQL = "SELECT * FROM posts WHERE page_id=$pageId ORDER BY post_created ASC";
 			$postResult = $this->conn->query($postSQL);
 			$entry_display = "";
@@ -342,7 +330,7 @@ class page
 				while($row = mysqli_fetch_assoc($postResult) ) {
 					$postId = stripslashes($row['id']);
 					$title = stripslashes($row['post_title']);
-					$postDate = stripslashes($row['post_date']);
+					$postDate = date(DATEFORMAT . " " . TIMEFORMAT, stripslashes($row['post_created']));
 					$postContent = stripslashes($row['post_content']);
 
 					$entry_display .= "
@@ -405,7 +393,75 @@ class page
 		
 	}
 	
+	/**
+	 * Display the page management page
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+		$ret = false;
+		switch($action) {
+			case "update":
+				//Determine if the form has been submitted
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the article edit form: save the new article
+						
+					$this->storeFormValues($_POST);
+						
+					if($parent == null) {
+						$result = $this->insert();
+						if(!$result) {
+							//Re-build the page creation form since the submission failed
+							$this->buildEditForm($parent);
+						} else {
+							//Re-build the main page after creation
+							$log->trackChange("page", 'add',$user->id,$user->loginname, $this->title . " added");
+							$ret = true;
+						}
+					} else {
+						$result = $this->update($parent);
+						//Re-build the page creation form once we are done
+						$this->buildEditForm($parent);
 	
+						if($result) {
+							$log->trackChange("page", 'update',$user->id,$user->loginname, $this->title . " updated");
+						}
+					}
+				} else {
+					// User has not posted the article edit form yet: display the form
+					$this->buildEditForm($parent);
+				}
+				break;
+			case "delete":
+				$this->delete($parent);
+				$log->trackChange("page", 'delete',$user->id,$user->loginname, $this->title . " deleted");
+				$ret = true;
+				break;
+			default:
+				echo "Error with page manager<br /><br />";
+				$ret = true;
+		}
+		return $ret;
+	}
+	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `pages` */
+		$sql = "CREATE TABLE IF NOT EXISTS `pages` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `page_template` int(16) DEFAULT NULL,
+		  `page_safeLink` varchar(32) DEFAULT NULL,
+		  `page_meta` text,
+		  `page_title` varchar(128) DEFAULT NULL,
+		  `page_hasBoard` tinyint(1) DEFAULT NULL,
+		  `page_isHome` tinyint(1) DEFAULT NULL,
+		  `page_created` varchar(128) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		)";
+		$this->conn->query($sql) OR DIE ("Could not build table \"pages\"");
+	}
 }
 
 ?>

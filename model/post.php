@@ -6,7 +6,7 @@
  * @author Jacob Rogaishio
  * 
  */
-class post
+class post extends model
 {
 	// Properties
 	public $id = null;
@@ -18,17 +18,6 @@ class post
 	public $content = null;
 	public $lastMod = null;
 	public $constr = false;
-	private $conn = null; //Database connection object
-	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-	}
-
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -158,7 +147,7 @@ class post
 	 * @param $postId	The post to be loaded
 	 */
 	public function loadRecord($postId) {
-		if(isset($postId) && $postId != "new") {
+		if(isset($postId) && $postId != null) {
 			$pageSQL = "SELECT * FROM posts WHERE id=$postId";
 			$pageResult = $this->conn->query($pageSQL);
 
@@ -207,8 +196,8 @@ class post
 		<div class="clear"></div>
 		<br />
 
-		<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($postId) || $postId == "new") ? "Create" : "Update") . ' This Post!" /><br /><br />
-		' . ((isset($postId) && $postId != "new") ? '<a href="admin.php?type=post&action=delete&p=' . $pageId . '&c=' . $postId . '" class="deleteBtn">Delete This Post!</a><br /><br />' : '') . '
+		<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($postId) || $postId == null) ? "Create" : "Update") . ' This Post!" /><br /><br />
+		' . ((isset($postId) && $postId != null) ? '<a href="admin.php?type=post&action=delete&p=' . $pageId . '&c=' . $postId . '" class="deleteBtn">Delete This Post!</a><br /><br />' : '') . '
 		</form>
 		<br />
 		
@@ -216,6 +205,82 @@ class post
 
 	}
 
+	/**
+	 * Display the post management page
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+		$ret = false;
+		switch($action) {
+			case "update":
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the article edit form: save the new article
+					$this->storeFormValues($_POST);
+						
+					if($child==null) {
+						$result = $this->insert($parent);
+						if(!$result) {
+							//Re-build the post creation form once we are done
+							$this->buildEditForm($parent, $child);
+						} else {
+							$this->buildEditForm($parent,getLastField($this->conn,"posts", "id"));
+							$log->trackChange("post", 'add',$user->id,$user->loginname, $this->title . " added");
+						}
+					}
+					else {
+						$result = $this->update($postId);
+						//Re-build the post creation form once we are done
+						$this->buildEditForm($parent, $child);
+	
+						if($result) {
+							$log->trackChange("post", 'update',$user->id,$user->loginname, $this->title . " updated");
+						}
+	
+					}
+	
+						
+				} else {
+					// User has not posted the article edit form yet: display the form
+					$this->buildEditForm($parent, $child);
+				}
+				break;
+			case "delete":
+				//Delete the post
+				$this->delete($parent, $child);
+				$log->trackChange("post", 'delete',$user->id,$user->loginname, $this->title . " deleted");
+	
+				//Display the page form
+				$page = new Page($this->conn);
+				parent::addToScope($page);
+				$page->buildEditForm($parent);
+	
+				break;
+			default:
+				echo "Error with post manager<br /><br />";
+				$ret = true;
+		}
+		return $ret;
+	}
+	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `posts` */
+		$sql = "CREATE TABLE IF NOT EXISTS `posts` (
+			  `id` int(16) NOT NULL AUTO_INCREMENT,
+			  `page_id` int(16) DEFAULT NULL,
+			  `post_authorId` int(16) DEFAULT NULL,
+			  `post_date` datetime DEFAULT NULL,
+			  `post_title` varchar(150) DEFAULT NULL,
+			  `post_content` text,
+			  `post_lastModified` VARCHAR(100) DEFAULT NULL,
+			  `post_created` VARCHAR(128) DEFAULT NULL,
+			  PRIMARY KEY (`id`)
+			)";
+		$this->conn->query($sql) OR DIE ("Could not build table \"posts\"");
+	}
 }
 
 ?>

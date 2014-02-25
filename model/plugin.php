@@ -6,23 +6,14 @@
  * @author Jacob Rogaishio
  * 
  */
-class template
+class plugin extends model
 {
 	// Properties
 	public $id = null;
 	public $path = null;
 	public $file = null;
 	public $name = null;
-	private $conn = null; //Database connection object
 	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-	}
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -109,7 +100,7 @@ class template
 	 * @param $pluginId	The plugin to be loaded
 	 */
 	public function loadRecord($pluginId) {
-		if(isset($pluginId) && $pluginId != "new") {
+		if(isset($pluginId) && $pluginId != null) {
 			
 			$templateSQL = "SELECT * FROM templates WHERE id=$pluginId";
 				
@@ -158,8 +149,8 @@ class template
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pluginId) || $pluginId == "new") ? "Create" : "Update") . ' This Template!" /><br /><br />
-			' . ((isset($pluginId) && $pluginId != "new") ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pluginId) || $pluginId == null) ? "Create" : "Update") . ' This Template!" /><br /><br />
+			' . ((isset($pluginId) && $pluginId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
 			</form>
 		';
 		echo "</div>";
@@ -173,6 +164,65 @@ class template
 		
 	}
 	
+	/**
+	 * Display the plugin management page/ Work In Progress
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+		$ret = false;
+		switch($action) {
+			case "update":
+				//Determine if the form has been submitted
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the article edit form: save the new article
+						
+					$this->storeFormValues($_POST);
+						
+					if($parent == null) {
+						$this->insert();
+						//Re-build the main page after creation
+						$ret = true;
+						$log->trackChange("plugin", 'add',$user->id,$user->loginname, $this->name . " added");
+					} else {
+						$this->update($parent);
+						//Re-build the page creation form once we are done
+						$this->buildEditForm($templateId);
+						$log->trackChange("plugin", 'update',$user->id,$user->loginname, $this->name . " added");
+					}
+				} else {
+					// User has not posted the template edit form yet: display the form
+					$this->buildEditForm($parent);
+				}
+				break;
+			case "delete":
+				$this->delete($parent);
+				$ret = true;
+				$log->trackChange("plugin", 'delete',$user->id,$user->loginname, $this->name . " added");
+				break;
+			default:
+				echo "Error with template manager<br /><br />";
+				$ret = true;
+		}
+		return $ret;
+	}
+	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `plugins` */
+		$sql = "CREATE TABLE IF NOT EXISTS `plugins` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `plugin_path` varchar(128) DEFAULT NULL,
+		  `plugin_file` varchar(128) DEFAULT NULL,
+		  `tplugin_name` varchar(64) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		)";
+		
+		$this->conn->query($sql) OR DIE ("Could not build table \"plugins\"");
+		
+	}
 }
 
 ?>

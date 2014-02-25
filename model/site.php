@@ -6,22 +6,13 @@
  * @author Jacob Rogaishio
  * 
  */
-class site
+class site extends model
 {
 	// Properties
 	public $id = null;
 	public $name = null;
 	public $linkFormat = null;
-	private $conn = null; //Database connection object
 	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-	}
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -91,7 +82,7 @@ class site
 	 * @param $siteId	The site to be loaded
 	 */
 	public function loadRecord($siteId) {
-		if(isset($siteId) && $siteId != "new") {
+		if(isset($siteId) && $siteId != null) {
 			
 			$siteSQL = "SELECT * FROM sites WHERE id=$siteId";
 				
@@ -140,11 +131,64 @@ class site
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($siteId) || $siteId == "new") ? "Create" : "Update") . ' This Site!" /><br /><br />
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($siteId) || $siteId == null) ? "Create" : "Update") . ' This Site!" /><br /><br />
 			</form>
 		';
 	}
 	
+	/**
+	 * Display the site management page
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+		$ret = false;
+		switch($action) {
+			case "update":
+				//Determine if the form has been submitted
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the site edit form: save the new article
+					$this->storeFormValues($_POST);
+						
+					$result = $this->update($parent);
+					//Re-build the site creation form once we are done
+					$this->buildEditForm($parent);
+					if($result) {
+						$log->trackChange("site", 'update',$user->id,$user->loginname, $this->name . " updated");
+					}
+				} else {
+					// User has not posted the site edit form yet: display the form
+					$this->buildEditForm($parent);
+				}
+				break;
+			default:
+				echo "Error with site manager<br /><br />";
+				$ret = true;
+		}
+		return $ret;
+	}
+	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `site` */
+		$sql = "CREATE TABLE IF NOT EXISTS `sites` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `site_name` varchar(64) DEFAULT NULL,
+		  `site_linkFormat` varchar(64) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		)";
+		$this->conn->query($sql) OR DIE ("Could not build table \"site\"");
+		
+		
+		/*Insert site data for `site` if we dont have one already*/
+		if(countRecords($this->conn, "sites") == 0) {
+			$sql = "INSERT INTO sites (site_name, site_linkFormat) VALUES('My FerretCMS Website', 'clean')";
+			$this->conn->query($sql) OR DIE ("Could not insert default data into \"site\"");
+		}
+	
+	}
 }
 
 ?>

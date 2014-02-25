@@ -6,23 +6,14 @@
  * @author Jacob Rogaishio
  * 
  */
-class template
+class template extends model
 {
 	// Properties
 	public $id = null;
 	public $path = null;
 	public $file = null;
 	public $name = null;
-	private $conn = null; //Database connection object
 	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-	}
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -141,7 +132,7 @@ class template
 	 * @param $templateId	The template to be loaded
 	 */
 	public function loadRecord($templateId) {
-		if(isset($templateId) && $templateId != "new") {
+		if(isset($templateId) && $templateId != null) {
 			
 			$templateSQL = "SELECT * FROM templates WHERE id=$templateId";
 				
@@ -192,12 +183,86 @@ class template
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($templateId) || $templateId == "new") ? "Create" : "Update") . ' This Template!" /><br /><br />
-			' . ((isset($templateId) && $templateId != "new") ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($templateId) || $templateId == null) ? "Create" : "Update") . ' This Template!" /><br /><br />
+			' . ((isset($templateId) && $templateId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
 			</form>
 		';
 
 		
+		
+	}
+	
+	/**
+	 * Display the template management page
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+		$ret = false;
+		switch($action) {
+			case "update":
+				//Determine if the form has been submitted
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the article edit form: save the new article
+						
+					$this->storeFormValues($_POST);
+						
+					if($parent == null) {
+						$result = $this->insert();
+	
+						if(!$result) {
+							$this->buildEditForm($parent);
+						} else {
+							$this->buildEditForm(getLastField($this->conn,"templates", "id"));
+							$log->trackChange("template", 'add',$user->id,$user->loginname, $this->name . " added");
+						}
+					} else {
+						$result = $this->update($parent);
+						//Re-build the page creation form once we are done
+						$this->buildEditForm($parent);
+	
+						if($result) {
+							$log->trackChange("template", 'update',$user->id,$user->loginname, $this->name . " updated");
+						}
+					}
+				} else {
+					// User has not posted the template edit form yet: display the form
+					$this->buildEditForm($parent);
+				}
+				break;
+			case "delete":
+				$this->delete($parent);
+				$ret = true;
+				$log->trackChange("template", 'delete',$user->id,$user->loginname, $this->name . " deleted");
+				break;
+			default:
+				echo "Error with template manager<br /><br />";
+				$ret = true;
+		}
+		return $ret;
+	}
+	
+	/**
+	 * Builds the necessary tables for this object
+	 *
+	 */
+	public function buildTable() {
+		/*Table structure for table `templates` */
+		$sql = "CREATE TABLE IF NOT EXISTS `templates` (
+		  `id` int(16) NOT NULL AUTO_INCREMENT,
+		  `template_path` varchar(128) DEFAULT NULL,
+		  `template_file` varchar(128) DEFAULT NULL,
+		  `template_name` varchar(64) DEFAULT NULL,
+		  `template_created` varchar(128) DEFAULT NULL,
+		
+		  PRIMARY KEY (`id`)
+		)";
+		$this->conn->query($sql) OR DIE ("Could not build table \"templates\"");
+		
+		/*Insert default data for `templates` if we dont have one already*/
+		if(countRecords($this->conn, "templates") == 0) {
+			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES('_default', 'index.php', 'Default', '" . time() . "')";
+			$this->conn->query($sql) OR DIE ("Could not insert default data into \"templates\"");
+		}
 		
 	}
 	
