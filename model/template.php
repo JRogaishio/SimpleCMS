@@ -6,23 +6,14 @@
  * @author Jacob Rogaishio
  * 
  */
-class template
+class template extends model
 {
 	// Properties
 	public $id = null;
 	public $path = null;
 	public $file = null;
 	public $name = null;
-	private $conn = null; //Database connection object
 	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-	}
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -199,6 +190,55 @@ class template
 
 		
 		
+	}
+	
+	/**
+	 * Display the template management page
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+		$ret = false;
+		switch($action) {
+			case "update":
+				//Determine if the form has been submitted
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the article edit form: save the new article
+						
+					$this->storeFormValues($_POST);
+						
+					if($parent == null) {
+						$result = $this->insert();
+	
+						if(!$result) {
+							$this->buildEditForm($parent);
+						} else {
+							$this->buildEditForm(getLastField($this->conn,"templates", "id"));
+							$log->trackChange("template", 'add',$user->id,$user->loginname, $this->name . " added");
+						}
+					} else {
+						$result = $this->update($parent);
+						//Re-build the page creation form once we are done
+						$this->buildEditForm($parent);
+	
+						if($result) {
+							$log->trackChange("template", 'update',$user->id,$user->loginname, $this->name . " updated");
+						}
+					}
+				} else {
+					// User has not posted the template edit form yet: display the form
+					$this->buildEditForm($parent);
+				}
+				break;
+			case "delete":
+				$this->delete($parent);
+				$ret = true;
+				$log->trackChange("template", 'delete',$user->id,$user->loginname, $this->name . " deleted");
+				break;
+			default:
+				echo "Error with template manager<br /><br />";
+				$ret = true;
+		}
+		return $ret;
 	}
 	
 	/**

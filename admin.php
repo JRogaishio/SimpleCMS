@@ -1,5 +1,6 @@
 <?php
-require("config.php");
+require_once("config.php");
+require_once( CONTOLLER_PATH . "/admin.php" );
 ?>
 <!DOCTYPE html>
 
@@ -52,9 +53,9 @@ require("config.php");
 <body>
 	<?php
 	//Create a new CMS object and load it!
-	$cms = new cms();
-	$cms->connect("admin");
-	$cms->load("admin");
+	$cms = new admin("admin");
+	$cms->connect();
+	$cms->load();
 
 	?>
 </body>

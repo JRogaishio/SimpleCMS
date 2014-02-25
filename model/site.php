@@ -6,22 +6,13 @@
  * @author Jacob Rogaishio
  * 
  */
-class site
+class site extends model
 {
 	// Properties
 	public $id = null;
 	public $name = null;
 	public $linkFormat = null;
-	private $conn = null; //Database connection object
 	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-	}
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -143,6 +134,37 @@ class site
 			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($siteId) || $siteId == null) ? "Create" : "Update") . ' This Site!" /><br /><br />
 			</form>
 		';
+	}
+	
+	/**
+	 * Display the site management page
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+		$ret = false;
+		switch($action) {
+			case "update":
+				//Determine if the form has been submitted
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the site edit form: save the new article
+					$this->storeFormValues($_POST);
+						
+					$result = $this->update($parent);
+					//Re-build the site creation form once we are done
+					$this->buildEditForm($parent);
+					if($result) {
+						$log->trackChange("site", 'update',$user->id,$user->loginname, $this->name . " updated");
+					}
+				} else {
+					// User has not posted the site edit form yet: display the form
+					$this->buildEditForm($parent);
+				}
+				break;
+			default:
+				echo "Error with site manager<br /><br />";
+				$ret = true;
+		}
+		return $ret;
 	}
 	
 	/**

@@ -15,8 +15,7 @@ define( "LIBRARY_PATH", "lib" );
 define( "SITE_ROOT", "http://localhost/ferretCMS/");
 define( "ADMIN_USERNAME", "admin" );
 define( "ADMIN_PASSWORD", "pass" );
-require( CONTOLLER_PATH . "/cms.php" );
-define( "ERROR_DIR", "_template/system/" );
+define( "ERROR_DIR", "template/system/" );
 define( "DATEFORMAT", "M, j Y" );
 define( "TIMEFORMAT", "h:i:s A" );
 

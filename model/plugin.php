@@ -6,23 +6,14 @@
  * @author Jacob Rogaishio
  * 
  */
-class plugin
+class plugin extends model
 {
 	// Properties
 	public $id = null;
 	public $path = null;
 	public $file = null;
 	public $name = null;
-	private $conn = null; //Database connection object
 	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-	}
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -171,6 +162,48 @@ class plugin
 		echo "</div><div class='clear'></div>";
 		
 		
+	}
+	
+	/**
+	 * Display the plugin management page/ Work In Progress
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+		$ret = false;
+		switch($action) {
+			case "update":
+				//Determine if the form has been submitted
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the article edit form: save the new article
+						
+					$this->storeFormValues($_POST);
+						
+					if($parent == null) {
+						$this->insert();
+						//Re-build the main page after creation
+						$ret = true;
+						$log->trackChange("plugin", 'add',$user->id,$user->loginname, $this->name . " added");
+					} else {
+						$this->update($parent);
+						//Re-build the page creation form once we are done
+						$this->buildEditForm($templateId);
+						$log->trackChange("plugin", 'update',$user->id,$user->loginname, $this->name . " added");
+					}
+				} else {
+					// User has not posted the template edit form yet: display the form
+					$this->buildEditForm($parent);
+				}
+				break;
+			case "delete":
+				$this->delete($parent);
+				$ret = true;
+				$log->trackChange("plugin", 'delete',$user->id,$user->loginname, $this->name . " added");
+				break;
+			default:
+				echo "Error with template manager<br /><br />";
+				$ret = true;
+		}
+		return $ret;
 	}
 	
 	/**

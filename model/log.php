@@ -6,20 +6,9 @@
  * @author Jacob Rogaishio
  * 
  */
-class log
+class log extends model
 {
-	// Properties
-	private $conn = null; //Database connection object
-	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-	}
-	
+
 	/**
 	 * Inserts any changes in the log database table
 	 *

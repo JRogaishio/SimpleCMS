@@ -6,7 +6,7 @@
  * @author Jacob Rogaishio
  * 
  */
-class page
+class page extends model
 {
 	// Properties
 	public $id = null;
@@ -18,18 +18,6 @@ class page
 	public $hasBoard = null;
 	public $isHome = null;
 	public $constr = false;
-	private $conn = null; //Database connection object
-	private $linkFormat = null;
-	
-	/**
-	 * Stores the connection object in a local variable on construction
-	 *
-	 * @param dbConn The property values
-	 */
-	public function __construct($dbConn) {
-		$this->conn = $dbConn;
-		$this->linkFormat = get_linkFormat($dbConn);
-	}
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -83,7 +71,7 @@ class page
 				//Ensure you are not submitting a system page
 				if($this->isHome == 1){
 					$sql = "UPDATE pages SET page_isHome=0";
-					$homeResult = $this->conn->query($sql) OR DIE ("Could not update page!");
+					$homeResult = $this->conn->query($sql) OR DIE ("Could not update home page!");
 				}
 				
 				$sql = "INSERT INTO pages (page_template, page_safeLink, page_meta, page_title, page_hasBoard, page_isHome, page_created) VALUES";
@@ -128,8 +116,8 @@ class page
 				page_safeLink = '$this->safeLink', 
 				page_meta = '$this->metaData', 
 				page_title = '$this->title', 
-				page_hasBoard = '$this->hasBoard', 
-				page_isHome = '$this->isHome'
+				page_hasBoard = " . convertToBit($this->hasBoard) . ", 
+				page_isHome = " . convertToBit($this->isHome) . "
 				WHERE id=$pageId;
 				";
 
@@ -403,6 +391,56 @@ class page
 			echo "<a href='" . formatLink($this->linkFormat, $this->safeLink, "~0") . "' class='cms_page_nav'>back</a> <a href='" . formatLink($this->linkFormat, $this->safeLink, "~" . $postLimit) . "' class='cms_page_nav'>next</a>";
 		}
 		
+	}
+	
+	/**
+	 * Display the page management page
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+		$ret = false;
+		switch($action) {
+			case "update":
+				//Determine if the form has been submitted
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the article edit form: save the new article
+						
+					$this->storeFormValues($_POST);
+						
+					if($parent == null) {
+						$result = $this->insert();
+						if(!$result) {
+							//Re-build the page creation form since the submission failed
+							$this->buildEditForm($parent);
+						} else {
+							//Re-build the main page after creation
+							$log->trackChange("page", 'add',$user->id,$user->loginname, $this->title . " added");
+							$ret = true;
+						}
+					} else {
+						$result = $this->update($parent);
+						//Re-build the page creation form once we are done
+						$this->buildEditForm($parent);
+	
+						if($result) {
+							$log->trackChange("page", 'update',$user->id,$user->loginname, $this->title . " updated");
+						}
+					}
+				} else {
+					// User has not posted the article edit form yet: display the form
+					$this->buildEditForm($parent);
+				}
+				break;
+			case "delete":
+				$this->delete($parent);
+				$log->trackChange("page", 'delete',$user->id,$user->loginname, $this->title . " deleted");
+				$ret = true;
+				break;
+			default:
+				echo "Error with page manager<br /><br />";
+				$ret = true;
+		}
+		return $ret;
 	}
 	
 	/**
