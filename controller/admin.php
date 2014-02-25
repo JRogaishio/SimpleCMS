@@ -48,7 +48,7 @@ class admin extends core {
 					
 					if($result) 
 						echo $this->cms_displayAdminSite();
-					//echo $this->cms_displaySiteManager();
+					
 					break;
 				case "siteDisplay":
 					echo $this->cms_displayAdminSite();
@@ -59,7 +59,7 @@ class admin extends core {
 					parent::addToScope($obj);
 					if($result)
 						echo $this->cms_displayAdminPages();
-					//echo $this->cms_displayPageManager();
+
 					break;
 				case "pageDisplay":
 					echo $this->cms_displayAdminPages();
@@ -70,7 +70,7 @@ class admin extends core {
 					parent::addToScope($obj);
 					if($result)
 						echo $this->cms_displayAdminTemplates();
-					//echo $this->cms_displayTemplateManager();
+
 					break;
 				case "templateDisplay":
 					echo $this->cms_displayAdminTemplates();
@@ -81,7 +81,7 @@ class admin extends core {
 					parent::addToScope($obj);
 					if($result)
 						echo $this->cms_displayAdminPosts();
-					//echo $this->cms_displayPostManager();
+
 					break;
 				case "postDisplay":
 					echo $this->cms_displayAdminPosts();
@@ -92,7 +92,7 @@ class admin extends core {
 					parent::addToScope($obj);
 					if($result)
 						echo $this->cms_displayAdminUsers();
-					//echo $this->cms_displayUserManager();
+
 					break;
 				case "userDisplay":
 					echo $this->cms_displayAdminUsers();
