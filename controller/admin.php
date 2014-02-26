@@ -23,9 +23,9 @@ class admin extends core {
 		$this->cms_handleState();
 		
 		//Set the user-name and password off the cookies
-		$_LOGINTOKEN = (isset($_COOKIE['token']) ? clean($this->_CONN,$_COOKIE['token']) : null);
+		$this->_LOGINTOKEN = (isset($_COOKIE['token']) ? clean($this->_CONN,$_COOKIE['token']) : null);
 		
-		$this->_AUTH = $this->cms_authUser($_LOGINTOKEN);
+		$this->_AUTH = $this->cms_authUser($this->_LOGINTOKEN);
 		
 		//user gets
 		$this->_USERPAGE = isset( $_GET['p'] ) ? clean($this->_CONN,$_GET['p']) : "home";
