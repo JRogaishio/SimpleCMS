@@ -196,7 +196,7 @@ class post extends model
 		<div class="clear"></div>
 		<br />
 
-		<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($postId) || $postId == null) ? "Create" : "Update") . ' This Post!" /><br /><br />
+		<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($postId) || $postId == null) ? "Create" : "Update") . ' This Post!" /><br /><br />
 		' . ((isset($postId) && $postId != null) ? '<a href="admin.php?type=post&action=delete&p=' . $pageId . '&c=' . $postId . '" class="deleteBtn">Delete This Post!</a><br /><br />' : '') . '
 		</form>
 		<br />
@@ -228,7 +228,7 @@ class post extends model
 						}
 					}
 					else {
-						$result = $this->update($postId);
+						$result = $this->update($child);
 						//Re-build the post creation form once we are done
 						$this->buildEditForm($parent, $child);
 	

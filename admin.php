@@ -3,11 +3,18 @@ require_once("config.php");
 require_once( CONTOLLER_PATH . "/admin.php" );
 ?>
 <!DOCTYPE html>
-
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta charset="UTF-8">
 	<title>Ferret CMS</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="FerretCMS Administrator">
+	<meta name="keywords" content="">	
+	
+	<!--Twitter Bootstrap-->
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+	<script src="js/bootstrap.min.js"></script>
+	
 	<link rel="stylesheet" type="text/css" href="css/reset.css" />
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
 	<script type="text/javascript" src="js/url.js"></script>

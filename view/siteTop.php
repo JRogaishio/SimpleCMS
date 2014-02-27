@@ -1,5 +1,5 @@
 <div class="cms_top">
-			<h1 class="cms_title"><a href="#">{f}</a></h1>
+			<h1 class="cms_title"><a href="admin.php">{f}</a></h1>
 			<div class="cms_topItems">
 				<form action='admin.php' method='get'>
 				<input type="hidden" name="type" value="search" />

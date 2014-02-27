@@ -11,7 +11,7 @@ h5 { font-size: .83em; font-weight:bold;}
 h6 { font-size: .75em; font-weight:bold;}
 strong, b {font-weight:bold;}
 ul {list-style:disc;}
-label{margin-top:15px;}
+label{margin-top:0px;}
 input{margin-top:2px;margin-bottom:2px;}
 form{display: inline;}
 table, th,tr,td{padding-left:5px;padding-right:5px;}
@@ -70,7 +70,8 @@ body {
 			font-size:12pt;
 			font-weight:bold;
 		}
-		.cms_searchBox {
+		input.cms_searchBox {
+			height:15px;
 			margin-right:20px;
 			color:#999;
 		}
@@ -93,15 +94,13 @@ body {
 		border-bottom:1px solid #333;
 		width:175px;
 		background:#4D94DB;
-		height:32px;
+		height:22px;
 		background-image: linear-gradient(to left,#A3BDD9,#6591BF 10%);
-		line-height:2;
 	}
 	.cms_navItemTitle:hover  {color:#ccc;}
 		.cms_navItemTitleLink {
 			color:#fff;
 			text-decoration:none;
-			display:block;
 			width:100%;
 		}
 		.cms_navItemTitleLink:hover {color:#ccc;}
@@ -133,9 +132,9 @@ body {
 }
 
 .cms_icon {
-	height:32px;
-	width:32px;
-	background-image:url("../img/icon_sheet.png")
+	margin-left:5px;
+	margin-right:10px;
+	margin-top:4px;
 }
 
 .cms_loginManager {
@@ -152,15 +151,8 @@ body {
 	font-family:"Courier New", Courier, monospace;
 	line-height:3px;
 	font-size:5pt;
+	background:inherit;
 }
-
-#cms_dash {float:left;margin-right:5px;background-position: -224px -32px;}
-#cms_site {float:left;margin-right:5px;background-position: -32px -256px;}
-#cms_page {float:left;margin-right:5px;background-position: -128px -64px;}
-#cms_post {float:left;margin-right:5px;background-position: -32px -160px;}
-#cms_template {float:left;margin-right:5px;background-position: -160px -64px;}
-#cms_user {float:left;margin-right:5px;background-position: -32px -288px;}
-#cms_plug {float:left;margin-right:5px;background-position: -128px -352px;}
 	
 /*END CMS Layout Styles*/
 
@@ -172,7 +164,6 @@ body {
 	
 }
 table label {
-	width:500px;
 	color:#000;
 	background-color:inherit;
 }
@@ -217,7 +208,10 @@ textarea
 	font:12px "Lucida Grande", Sans-Serif;
 }
 
-input.cms_pageTextHeader{font:28px Georgia, Serif;}
+input.cms_pageTextHeader{
+	font:28px Georgia, Serif;
+	height:35px;	
+}
 
 
 label {
