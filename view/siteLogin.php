@@ -120,6 +120,6 @@
 	</table>
 	<div class="clear"></div>
 	<br />
-	<input type="submit" class="updateBtn" value="Login" /><br /><br />
+	<input type="submit" class="btn btn-success btn-large" value="Login" /><br /><br />
 	</form>
 </div>

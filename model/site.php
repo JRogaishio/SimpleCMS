@@ -131,7 +131,7 @@ class site extends model
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($siteId) || $siteId == null) ? "Create" : "Update") . ' This Site!" /><br /><br />
+			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($siteId) || $siteId == null) ? "Create" : "Update") . ' This Site!" /><br /><br />
 			</form>
 		';
 	}

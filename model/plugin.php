@@ -149,7 +149,7 @@ class plugin extends model
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pluginId) || $pluginId == null) ? "Create" : "Update") . ' This Template!" /><br /><br />
+			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($pluginId) || $pluginId == null) ? "Create" : "Update") . ' This Template!" /><br /><br />
 			' . ((isset($pluginId) && $pluginId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
 			</form>
 		';

@@ -238,7 +238,7 @@ class page extends model
 			<div class="clear"></div>
 			<br />
 					
-			<input type="submit" name="saveChanges" class="updateBtn" value="' . ((!isset($pageId) || $pageId == null) ? "Create" : "Update") . ' This Page!" /><br /><br />
+			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($pageId) || $pageId == null) ? "Create" : "Update") . ' This Page!" /><br /><br />
 			' . ((isset($pageId) && $pageId != null) ? '<a href="admin.php?type=page&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Page!</a><br /><br />' : '') . '
 			</form>
 		';
