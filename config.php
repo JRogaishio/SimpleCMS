@@ -12,7 +12,7 @@ define( "VIEW_PATH", "view" );
 define( "TEMPLATE_PATH", "template" );
 define( "ADMINFORM_PATH", "adminForm" );
 define( "LIBRARY_PATH", "lib" );
-define( "SITE_ROOT", "http://localhost/ferretCMS/");
+define( "SITE_ROOT", "http://localhost/ferretCMS/" );
 define( "ADMIN_USERNAME", "admin" );
 define( "ADMIN_PASSWORD", "pass" );
 define( "ERROR_DIR", "template/system/" );
