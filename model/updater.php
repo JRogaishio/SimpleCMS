@@ -73,8 +73,9 @@ class updater {
 
     //Needs work
     public function update() {
-		$ignore = array("ferretCMS-master", "templates", "admin.php")
-	
+		$ignore = array("templates", "admin.php");
+		$branch = "ferretCMS-master";
+		
         echo "<h1>SYSTEM UPDATE</h1>";
 
         ini_set('max_execution_time',60);
@@ -108,11 +109,15 @@ class updater {
 				
 				//Open The File And Do Stuff
 				$zipHandle = zip_open('UPDATES/master.zip');
-				echo '<ul>';
+				echo "<strong>Update details:</strong><br />";
+				echo '<div class="details"><ul>';
 				while ($aF = zip_read($zipHandle) ) {
 					$thisFileName = zip_entry_name($aF);
 					$thisFileDir = dirname($thisFileName);
 				   
+					$thisFileName = str_replace($branch . "/", "", $thisFileName);
+					$thisFileDir = str_replace($branch . "/", "", $thisFileDir);
+
 					//Continue if its not a file
 					if ( substr($thisFileName,-1,1) == '/') continue;
 				   
@@ -122,13 +127,14 @@ class updater {
 					}
 	
 					//Make the directory if we need to...
-					if ( !is_dir ( $thisFileDir ) ) {
-						 mkdir ( $thisFileDir );
-						 echo '<li>Created Directory '.$thisFileDir.'</li>';
+					if ( !is_dir ( $thisFileDir ) && $thisFileDir != "") {
+						 mkdir($thisFileDir, 0777, true);
+						 echo '<li>'.$thisFileDir.'...........DIRECTORY CREATED</li>';
 					}
 				   
 					//Overwrite the file
-					if ( !is_dir($thisFileName) ) {
+					if ( !is_dir($thisFileName) && $thisFileName != "" ) {
+	
 						echo '<li>'.$thisFileName.'...........';
 						$contents = zip_entry_read($aF, zip_entry_filesize($aF));
 						$contents = str_replace("\\r\\n", "\\n", $contents);
@@ -151,13 +157,17 @@ class updater {
 						}
 					}
 				}
-				echo '</ul>';
-				echo '<p class="success">&raquo; CMS Updated to v'.$latestVersion.'</p>';
+				zip_close($zipHandle);
+				echo '</ul></div>';
+				echo '<p class="success">>> FerretCMS Updated to v'.$latestVersion.'</p>';
 				
+				//Remove the updates directory now that we are done with it
+				unlink("UPDATES/master.zip");
+				rmdir('UPDATES/');
 			
 			}
             else {
-				echo '<p>&raquo; FerretCMS is up to date.</p>';
+				echo '<p>>> FerretCMS is up to date.</p>';
 			}
         } else {
             echo '<p>Could not find latest realeases.</p>';
