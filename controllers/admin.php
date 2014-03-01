@@ -209,7 +209,7 @@ class admin extends core {
 			}//On authentication success
 		}//On authentication attempt
 	}
-			
+	
 	/** 
 	 * Display the site manager
 	 *
