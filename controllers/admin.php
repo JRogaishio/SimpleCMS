@@ -161,90 +161,111 @@ class admin extends core {
 	 *
 	 */
 	private function cms_authUser($token) {
-		//Check to see if any login info was posted or if a token exists
-		if((($token!=null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && countRecords($this->_CONN,"users") > 0) {
-			if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
+		$authObj = new authenticate($this->_CONN);
+		
+		$timeRemain = $authObj->checkIP();
+		
+		if($timeRemain != 0) {
+			//Display the login manager if the auth failed
+			parent::render("siteLogin");
+			
+			echo "<br />
+					<p class='cms_warning'>You have entered your username or password incorrectly too many times.<br />
+					Please wait (" . $timeRemain . ") minutes before attempting to login again.</p>";
+		}
+		else {
+			//Check to see if any login info was posted or if a token exists
+			if((($token!=null) || (isset($_POST['login_username']) && isset($_POST['login_password']))) && countRecords($this->_CONN,"users") > 0) {
+				if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
+					
+					$secPass = encrypt(clean($this->_CONN,$_POST['login_password']), get_userSalt($this->_CONN, clean($this->_CONN,$_POST['login_username'])));
 				
-				$secPass = encrypt(clean($this->_CONN,$_POST['login_password']), get_userSalt($this->_CONN, clean($this->_CONN,$_POST['login_username'])));
-			
-				$userSQL = "SELECT * FROM users WHERE user_login='" . clean($this->_CONN,$_POST['login_username']) . "' AND user_pass='$secPass';";
-			} else {
-				$userSQL = "SELECT * FROM users WHERE user_token='$token';";
-			}
-			
-			$userResult = $this->_CONN->query($userSQL);
-
-			//Test to see if the auth was successful
-			if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
-				$userData = mysqli_fetch_assoc($userResult);
-
+					$userSQL = "SELECT * FROM users WHERE user_login='" . clean($this->_CONN,$_POST['login_username']) . "' AND user_pass='$secPass';";
+				} else {
+					$userSQL = "SELECT * FROM users WHERE user_token='$token';";
+				}
+				
+				$userResult = $this->_CONN->query($userSQL);
+	
+				//Test to see if the auth was successful
+				if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
+					$userData = mysqli_fetch_assoc($userResult);
+	
+					$user = new User($this->_CONN);
+					parent::addToScope($user);
+					
+					//Set the user data
+					$user->id = ($userData['id']);
+					$user->loginname = ($userData['user_login']);
+					$user->password = ($userData['user_pass']);
+					$user->salt = ($userData['user_salt']);
+					$user->email = ($userData['user_email']);
+					$user->isRegistered = ($userData['user_isRegistered']);
+		
+					//Set the global variable
+					$this->_USER = $user;
+					
+					//30 minute auth time-out
+					$timeout = time() + 900; 
+					
+					$newToken = hash('sha256', (unique_salt() . $user->loginname));
+		
+					$tokenSQL = "UPDATE users SET user_token = '$newToken' WHERE id=" . $user->id . ";";
+					$tokenResult = $this->_CONN->query($tokenSQL) OR DIE ("Could not update user!");
+					if(!$tokenResult) {
+						echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";
+					}
+					
+					//Create a random cookie based off of the user name and a unique salt
+					setcookie("token", $newToken, $timeout); 
+					
+					//Log that a user logged in. POST data is only set on the initial login
+					if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
+						$this->_LOG->trackChange("user", 'log_in',$user->id,$user->loginname, "logged in");
+					}
+					
+					//Clear out the failed authentications
+					$authObj->clearAttempts();
+					
+					return true;
+					
+				} else {
+					//Display the login manager if the auth failed
+					parent::render("siteLogin");
+					if (isset($_POST) && !empty($_POST)) echo "<br /><p class='cms_warning'>Incorrect user name or password!</p><br /><br />";
+					
+					$this->_LOG->trackChange("user", 'log_in',null, clean($this->_CONN,$_POST['login_username']), "FAILED LOGIN");
+					
+					//Log the failed authentications
+					$authObj->logAttempt($_POST['login_username']);
+					
+					return false;
+				}
+				
+				 
+			} else if(countRecords($this->_CONN,"users") == 0) {
 				$user = new User($this->_CONN);
 				parent::addToScope($user);
-				
-				//Set the user data
-				$user->id = ($userData['id']);
-				$user->loginname = ($userData['user_login']);
-				$user->password = ($userData['user_pass']);
-				$user->salt = ($userData['user_salt']);
-				$user->email = ($userData['user_email']);
-				$user->isRegistered = ($userData['user_isRegistered']);
-	
-				//Set the global variable
 				$this->_USER = $user;
-				
-				//30 minute auth time-out
-				$timeout = time() + 900; 
-				
-				$newToken = hash('sha256', (unique_salt() . $user->loginname));
-	
-				$tokenSQL = "UPDATE users SET user_token = '$newToken' WHERE id=" . $user->id . ";";
-				$tokenResult = $this->_CONN->query($tokenSQL) OR DIE ("Could not update user!");
-				if(!$tokenResult) {
-					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";
+				//Display the user management form
+				echo $user->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_LOG, $this->_AUTH);
+			
+				//Check again if a user exists after running the user manager
+				if(countRecords($this->_CONN,"users") == 0) {
+					echo "<p><strong>Hello</strong> there! I see that you have no users setup.<br />
+						Use the above form to create a user account to get started!<br />
+						Once you have created your user, you will be sent to the login form. Use your new account to access all the awesomeness!</p><br />";
+				} else {
+					parent::render("siteLogin");
 				}
-				
-				//Create a random cookie based off of the user name and a unique salt
-				setcookie("token", $newToken, $timeout); 
-				
-				//Log that a user logged in. POST data is only set on the initial login
-				if(isset($_POST['login_username']) && isset($_POST['login_password'])) {
-					$this->_LOG->trackChange("user", 'log_in',$user->id,$user->loginname, "logged in");
-				}
-				return true;
-				
-			} else {
-				//Display the login manager if the auth failed
-				parent::render("siteLogin");
-				if (isset($_POST) && !empty($_POST)) echo "Bad user name or password!<br /><br />";
-				
-				$this->_LOG->trackChange("user", 'log_in',null, clean($this->_CONN,$_POST['login_username']), "FAILED LOGIN");
 				
 				return false;
-			}
-			
-			 
-		} else if(countRecords($this->_CONN,"users") == 0) {
-			$user = new User($this->_CONN);
-			parent::addToScope($user);
-			$this->_USER = $user;
-			//Display the user management form
-			echo $user->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_LOG, $this->_AUTH);
-		
-			//Check again if a user exists after running the user manager
-			if(countRecords($this->_CONN,"users") == 0) {
-				echo "<p><strong>Hello</strong> there! I see that you have no users setup.<br />
-					Use the above form to create a user account to get started!<br />
-					Once you have created your user, you will be sent to the login form. Use your new account to access all the awesomeness!</p><br />";
 			} else {
+				//Display the login manager if there is no login data posted or no token
 				parent::render("siteLogin");
+				return false;
 			}
-			
-			return false;
-		} else {
-			//Display the login manager if there is no login data posted or no token
-			parent::render("siteLogin");
-			return false;
-		}
+		}//Check authentication table
 	}
 			
 	/** 

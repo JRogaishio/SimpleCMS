@@ -13,6 +13,7 @@ include_once('models/plugin.php');
 include_once('models/template.php');
 include_once('models/updater.php');
 include_once('models/log.php');
+include_once('models/authenticate.php');
 
 class core {
 	protected $_TYPE = null;
@@ -122,6 +123,9 @@ class core {
 	
 		$plugin = new plugin($this->_CONN);
 		$plugin->buildTable();
+		
+		$auth = new authenticate($this->_CONN);
+		$auth->buildTable();
 	}
 	
 	/**
