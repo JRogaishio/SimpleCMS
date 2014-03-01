@@ -192,7 +192,11 @@ class admin extends core {
 				return false;
 			} else {
 				$user = $authObj->authUser($_POST, $token);
-				if($user == null) {
+				
+				//Only display the login if the fields haven't been submitted
+				if(!isset($_POST['login_username']) || !isset($_POST['login_password'])) {
+					parent::render("siteLogin");
+				} else if($user == null) {
 					//Display the login manager if the auth failed
 					parent::render("siteLogin");
 					echo "<br /><p class='cms_warning'>Incorrect user name or password!</p><br /><br />";
