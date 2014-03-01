@@ -39,7 +39,7 @@ class pub extends core {
 	public function load_page($pSafeLink) {
 		global $cms; //Make the CMS variable a global so the pages can reference it
 	
-		$page = new Page($this->_CONN);
+		$page = new Page($this->_CONN, $this->_LOG);
 		$this->addToScope($page);
 		
 		//Load the page

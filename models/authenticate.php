@@ -88,6 +88,83 @@ class authenticate extends model
 	
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Function to authenticate the user against the DB
+	 *
+	 * @param $post		POST data for the current request
+	 * @param $token	An encrypted random string used for cookies and saved sessions
+	 *
+	 * @return Returns either an authenticated user or null on authentication failure
+	 *
+	 */
+	public function authUser($post, $token) {
+		//Check to see if any login info was posted or if a token exists
+		if((($token!=null) || (isset($post['login_username']) && isset($post['login_password']))) && countRecords($this->conn,"users") > 0) {
+			if(isset($post['login_username']) && isset($post['login_password'])) {
+					
+				$secPass = encrypt(clean($this->conn,$post['login_password']), get_userSalt($this->conn, clean($this->conn, $post['login_username'])));
+
+				$userSQL = "SELECT * FROM users WHERE user_login='" . clean($this->conn,$post['login_username']) . "' AND user_pass='$secPass';";
+			} else {
+				$userSQL = "SELECT * FROM users WHERE user_token='$token';";
+			}
+
+			$userResult = $this->conn->query($userSQL);
+
+			//Test to see if the auth was successful
+			if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
+				$userData = mysqli_fetch_assoc($userResult);
+
+				$user = new User($this->conn, $this->log);
+
+				//Set the user data
+				$user->loadRecord($userData['id']);
+					
+				//30 minute auth time-out
+				$timeout = time() + 900;
+					
+				$newToken = hash('sha256', (unique_salt() . $user->loginname));
+
+				$tokenSQL = "UPDATE users SET user_token = '$newToken' WHERE id=" . $user->id . ";";
+				$tokenResult = $this->conn->query($tokenSQL) OR DIE ("Could not update user!");
+				if(!$tokenResult) {
+					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";
+				}
+					
+				//Create a random cookie based off of the user name and a unique salt
+				setcookie("token", $newToken, $timeout);
+					
+				//Log that a user logged in. POST data is only set on the initial login
+				if(isset($post['login_username']) && isset($post['login_password'])) {
+					$this->log->trackChange("user", 'log_in',$user->id,$user->loginname, "logged in");
+				}
+					
+				//Clear out the failed authentications
+				$this->clearAttempts();
+					
+				return $user;
+					
+			} else {
+					
+				$this->log->trackChange("user", 'log_in',null, clean($this->conn,$post['login_username']), "FAILED LOGIN");
+					
+				//Log the failed authentications
+				$this->logAttempt($post['login_username']);
+					
+				return null;
+			}
+		}//Token / Postdata set validation
+	}
+	
+	
 }
 
 ?>

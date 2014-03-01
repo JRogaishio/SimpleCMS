@@ -196,7 +196,7 @@ class template extends model
 	 * Display the template management page
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
 		$ret = false;
 		switch($action) {
 			case "update":
@@ -213,7 +213,7 @@ class template extends model
 							$this->buildEditForm($parent);
 						} else {
 							$this->buildEditForm(getLastField($this->conn,"templates", "id"));
-							$log->trackChange("template", 'add',$user->id,$user->loginname, $this->name . " added");
+							$this->log->trackChange("template", 'add',$user->id,$user->loginname, $this->name . " added");
 						}
 					} else {
 						$result = $this->update($parent);
@@ -221,7 +221,7 @@ class template extends model
 						$this->buildEditForm($parent);
 	
 						if($result) {
-							$log->trackChange("template", 'update',$user->id,$user->loginname, $this->name . " updated");
+							$this->log->trackChange("template", 'update',$user->id,$user->loginname, $this->name . " updated");
 						}
 					}
 				} else {
@@ -232,7 +232,7 @@ class template extends model
 			case "delete":
 				$this->delete($parent);
 				$ret = true;
-				$log->trackChange("template", 'delete',$user->id,$user->loginname, $this->name . " deleted");
+				$this->log->trackChange("template", 'delete',$user->id,$user->loginname, $this->name . " deleted");
 				break;
 			default:
 				echo "Error with template manager<br /><br />";
