@@ -17,7 +17,7 @@ function countRecords($conn, $table_name, $filters = "") {
 	if(!$countResult) {
 		return false;
 	} else {
-		return mysqli_num_rows($countResult) OR DIE("ERROR");
+		return mysqli_num_rows($countResult);
 	}
 }
 /**
