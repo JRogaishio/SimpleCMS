@@ -4,14 +4,15 @@ include_once('lib/database.php');
 include_once('lib/encrypt.php');
 include_once('lib/management.php');
 
-include_once('model/model.php');
-include_once('model/site.php');
-include_once('model/user.php');
-include_once('model/page.php');
-include_once('model/post.php');
-include_once('model/plugin.php');
-include_once('model/template.php');
-include_once('model/log.php');
+include_once('models/model.php');
+include_once('models/site.php');
+include_once('models/user.php');
+include_once('models/page.php');
+include_once('models/post.php');
+include_once('models/plugin.php');
+include_once('models/template.php');
+include_once('models/updater.php');
+include_once('models/log.php');
 
 class core {
 	protected $_TYPE = null;
@@ -87,7 +88,7 @@ class core {
 	 */
 	public function render($name) {
 		if(isset($name) && $name != null && strpos($name, " ") == null) {
-			$file = "view/" . $name . ".php";
+			$file = "views/" . $name . ".php";
 			
 			if((@include $file) === false)
 			{

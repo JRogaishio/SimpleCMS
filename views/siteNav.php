@@ -5,7 +5,8 @@
 		<div class="cms_navItemList" id="cms_navItemList_site">
 			<ul>
 			<li class="cms_navItem"><a href="admin.php?type=siteDisplay" class="cms_navItemLink">Edit Site</a></li>
-			<li class="cms_navItem"><a href="admin.php?type=log" class="cms_navItemLink">View the log</a></li>						
+			<li class="cms_navItem"><a href="admin.php?type=log" class="cms_navItemLink">View the log</a></li>	
+			<li class="cms_navItem"><a href="admin.php?type=updateDisplay" class="cms_navItemLink">View the log</a></li>					
 			</ul>
 		</div>
 	</div>

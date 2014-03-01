@@ -64,7 +64,7 @@ class updater {
     //Gets the latest version from GitHub
     private function getLatestVersion() {
         $ret = null;
-        $ret = file_get_contents('https://raw.github.com/JRogaishio/ferretCMS/master/version.txt') or die ('ERROR GETTING LATEST VERSION FROM GITHUB');
+        $ret = file_get_contents('http://raw.github.com/JRogaishio/ferretCMS/master/version.txt') or die ('ERROR GETTING LATEST VERSION FROM GITHUB');
         $ret = trim($ret);
 
         return $ret;
