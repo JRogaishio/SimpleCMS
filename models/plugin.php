@@ -168,7 +168,7 @@ class plugin extends model
 	 * Display the plugin management page/ Work In Progress
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
 		$ret = false;
 		switch($action) {
 			case "update":
@@ -182,12 +182,12 @@ class plugin extends model
 						$this->insert();
 						//Re-build the main page after creation
 						$ret = true;
-						$log->trackChange("plugin", 'add',$user->id,$user->loginname, $this->name . " added");
+						$this->log->trackChange("plugin", 'add',$user->id,$user->loginname, $this->name . " added");
 					} else {
 						$this->update($parent);
 						//Re-build the page creation form once we are done
 						$this->buildEditForm($templateId);
-						$log->trackChange("plugin", 'update',$user->id,$user->loginname, $this->name . " added");
+						$this->log->trackChange("plugin", 'update',$user->id,$user->loginname, $this->name . " added");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
@@ -197,7 +197,7 @@ class plugin extends model
 			case "delete":
 				$this->delete($parent);
 				$ret = true;
-				$log->trackChange("plugin", 'delete',$user->id,$user->loginname, $this->name . " added");
+				$this->log->trackChange("plugin", 'delete',$user->id,$user->loginname, $this->name . " added");
 				break;
 			default:
 				echo "Error with template manager<br /><br />";

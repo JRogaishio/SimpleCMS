@@ -24,7 +24,7 @@ class core {
 	protected $_USERPAGE = "user";
 	protected $_CONN = null;
 	protected $_LINKFORMAT = "";
-	protected $_LOG;
+	protected $_LOG = null;
 	//Login stuff
 	protected $_AUTH = false;
 	protected $_USER = null;
@@ -103,28 +103,28 @@ class core {
 	 *
 	 */
 	private function buildDB() {
-		$page = new page($this->_CONN);
+		$page = new page($this->_CONN, $this->_LOG);
 		$page->buildTable();
 	
-		$post = new post($this->_CONN);
+		$post = new post($this->_CONN, $this->_LOG);
 		$post->buildTable();
 	
-		$template = new template($this->_CONN);
+		$template = new template($this->_CONN, $this->_LOG);
 		$template->buildTable();
 	
-		$user = new user($this->_CONN);
+		$user = new user($this->_CONN, $this->_LOG);
 		$user->buildTable();
 	
-		$site = new site($this->_CONN);
+		$site = new site($this->_CONN, $this->_LOG);
 		$site->buildTable();
 	
-		$log = new log($this->_CONN);
+		$log = new log($this->_CONN, $this->_LOG);
 		$log->buildTable();
 	
-		$plugin = new plugin($this->_CONN);
+		$plugin = new plugin($this->_CONN, $this->_LOG);
 		$plugin->buildTable();
 		
-		$auth = new authenticate($this->_CONN);
+		$auth = new authenticate($this->_CONN, $this->_LOG);
 		$auth->buildTable();
 	}
 	
@@ -151,7 +151,7 @@ class core {
 		}
 			
 		//Create a logging object
-		$this->_LOG = new log($this->_CONN);
+		$this->_LOG = new log($this->_CONN, null);
 	}
 }
 

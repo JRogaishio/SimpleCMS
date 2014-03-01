@@ -218,7 +218,7 @@ class user extends model
 	 * Display the User management
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $log, $auth) {
+	public function displayManager($action, $parent, $child, $user, $auth) {
 		$ret = false;
 		//Allow access to the user editor if you are authenticated or there are no users
 		if($auth || countRecords($this->conn,"users") == 0) {
@@ -240,7 +240,7 @@ class user extends model
 							} else if($auth) {
 								//Re-build the main User after creation
 								$ret = true;
-								$log->trackChange("user", 'add',$user->id,$user->loginname, $this->loginname . " added");
+								$this->log->trackChange("user", 'add',$user->id,$user->loginname, $this->loginname . " added");
 							} else {
 								parent::render("siteLogin");
 							}
@@ -253,7 +253,7 @@ class user extends model
 							} else {
 								//Re-build the User creation form once we are done
 								$this->buildEditForm($parent);
-								$log->trackChange("user", 'update',$user->id,$user->loginname, $this->loginname . " updated");
+								$this->log->trackChange("user", 'update',$user->id,$user->loginname, $this->loginname . " updated");
 							}
 						}
 					} else {
@@ -264,7 +264,7 @@ class user extends model
 				case "delete":
 					$this->delete($parent);
 					$ret = true;
-					$log->trackChange("user", 'delete',$user->id,$user->loginname, $this->loginname . " deleted");
+					$this->log->trackChange("user", 'delete',$user->id,$user->loginname, $this->loginname . " deleted");
 					break;
 				default:
 					if(countRecords($this->conn,"users") == 0) {

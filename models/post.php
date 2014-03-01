@@ -209,7 +209,7 @@ class post extends model
 	 * Display the post management page
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
 		$ret = false;
 		switch($action) {
 			case "update":
@@ -224,7 +224,7 @@ class post extends model
 							$this->buildEditForm($parent, $child);
 						} else {
 							$this->buildEditForm($parent,getLastField($this->conn,"posts", "id"));
-							$log->trackChange("post", 'add',$user->id,$user->loginname, $this->title . " added");
+							$this->log->trackChange("post", 'add',$user->id,$user->loginname, $this->title . " added");
 						}
 					}
 					else {
@@ -233,7 +233,7 @@ class post extends model
 						$this->buildEditForm($parent, $child);
 	
 						if($result) {
-							$log->trackChange("post", 'update',$user->id,$user->loginname, $this->title . " updated");
+							$this->log->trackChange("post", 'update',$user->id,$user->loginname, $this->title . " updated");
 						}
 	
 					}
@@ -247,7 +247,7 @@ class post extends model
 			case "delete":
 				//Delete the post
 				$this->delete($parent, $child);
-				$log->trackChange("post", 'delete',$user->id,$user->loginname, $this->title . " deleted");
+				$this->log->trackChange("post", 'delete',$user->id,$user->loginname, $this->title . " deleted");
 	
 				//Display the page form
 				$page = new Page($this->conn);

@@ -140,7 +140,7 @@ class site extends model
 	 * Display the site management page
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
 		$ret = false;
 		switch($action) {
 			case "update":
@@ -153,7 +153,7 @@ class site extends model
 					//Re-build the site creation form once we are done
 					$this->buildEditForm($parent);
 					if($result) {
-						$log->trackChange("site", 'update',$user->id,$user->loginname, $this->name . " updated");
+						$this->log->trackChange("site", 'update',$user->id,$user->loginname, $this->name . " updated");
 					}
 				} else {
 					// User has not posted the site edit form yet: display the form

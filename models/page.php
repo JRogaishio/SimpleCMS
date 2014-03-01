@@ -397,7 +397,7 @@ class page extends model
 	 * Display the page management page
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $log, $auth=null) {
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
 		$ret = false;
 		switch($action) {
 			case "update":
@@ -414,7 +414,7 @@ class page extends model
 							$this->buildEditForm($parent);
 						} else {
 							//Re-build the main page after creation
-							$log->trackChange("page", 'add',$user->id,$user->loginname, $this->title . " added");
+							$this->log->trackChange("page", 'add',$user->id,$user->loginname, $this->title . " added");
 							$ret = true;
 						}
 					} else {
@@ -423,7 +423,7 @@ class page extends model
 						$this->buildEditForm($parent);
 	
 						if($result) {
-							$log->trackChange("page", 'update',$user->id,$user->loginname, $this->title . " updated");
+							$this->log->trackChange("page", 'update',$user->id,$user->loginname, $this->title . " updated");
 						}
 					}
 				} else {
@@ -433,7 +433,7 @@ class page extends model
 				break;
 			case "delete":
 				$this->delete($parent);
-				$log->trackChange("page", 'delete',$user->id,$user->loginname, $this->title . " deleted");
+				$this->log->trackChange("page", 'delete',$user->id,$user->loginname, $this->title . " deleted");
 				$ret = true;
 				break;
 			default:
