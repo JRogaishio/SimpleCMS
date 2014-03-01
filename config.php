@@ -2,17 +2,18 @@
 session_start();
 ini_set( "display_errors", true );
 date_default_timezone_set( "America/New_York" );  // http://www.php.net/manual/en/timezones.php
+define( "SYSTEM_VERSION", file_get_contents('version.txt'));
 define( "DB_HOST", "localhost" );
 define( "DB_NAME", "ferret_cms" );
 define( "DB_USERNAME", "root" );
 define( "DB_PASSWORD", "" );
-define( "CONTOLLER_PATH", "controller" );
-define( "MODEL_PATH", "model" );
-define( "VIEW_PATH", "view" );
+define( "CONTOLLER_PATH", "controllers" );
+define( "MODEL_PATH", "models" );
+define( "VIEW_PATH", "views" );
 define( "TEMPLATE_PATH", "template" );
 define( "ADMINFORM_PATH", "adminForm" );
 define( "LIBRARY_PATH", "lib" );
-define( "SITE_ROOT", "http://localhost/ferretCMS/");
+define( "SITE_ROOT", "http://localhost/ferretCMS/" );
 define( "ADMIN_USERNAME", "admin" );
 define( "ADMIN_PASSWORD", "pass" );
 define( "ERROR_DIR", "template/system/" );
