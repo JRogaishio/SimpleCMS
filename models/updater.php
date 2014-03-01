@@ -1,6 +1,6 @@
 <?php
 
-class updater {
+class updater extends model {
 
     public function displayManager() {
         echo "<br />
@@ -74,7 +74,7 @@ class updater {
     }
 
     //Needs work
-    public function update() {
+    public function update($user) {
 		$ignore = array("ferretCMS-master", "config.php", ".htaccess");
 		$branch = "ferretCMS-master";
 		
@@ -167,7 +167,7 @@ class updater {
 				zip_close($zipHandle);
 				echo '</ul></div>';
 				echo '<h4>>> FerretCMS Updated to v'.$latestVersion.'</h4>';
-				
+				$this->log->trackChange("updater", 'update',$user->id,$user->loginname, "Updated to v' . $latestVersion . ");
 				//Remove the updates directory now that we are done with it
 				unlink("UPDATES/master.zip");
 				rmdir('UPDATES/');

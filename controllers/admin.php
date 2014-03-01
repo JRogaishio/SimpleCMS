@@ -104,12 +104,12 @@ class admin extends core {
 					echo $this->cms_displayLog();
 					break;
 				case "updateDisplay":
-					$obj = new updater();
+					$obj = new updater($this->_CONN, $this->_LOG);
 					$obj->displayManager();
 					break;
 				case "update":
-					$obj = new updater();
-					$obj->update();
+					$obj = new updater($this->_CONN, $this->_LOG);
+					$obj->update($this->_USER);
 					break;
 				default:
 					$this->cms_displayMain();
