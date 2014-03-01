@@ -1,5 +1,5 @@
 <?php
-include_once('controller/core.php');
+include_once('controllers/core.php');
 
 /**
  * Ferret CMS Main class to create admin pages and live content pages
