@@ -517,9 +517,9 @@ class admin extends core {
 		<p class='cms_intro'>
 		Glad you asked! FerretCMS is a simple lightweight content management system using PHP and MySQL.<br />
 		For updates check out the GitHub repository here:<br />
-		<a href='https://github.com/twitch2641/ferretCMS'>https://github.com/twitch2641/ferretCMS</a><br />
+		<a href='https://github.com/JRogaishio/ferretCMS'>https://github.com/JRogaishio/ferretCMS</a><br />
 		Or the creators account here:<br />
-		<a href='https://github.com/twitch2641'>https://github.com/twitch2641</a><br />
+		<a href='https://github.com/JRogaishio'>https://github.com/JRogaishio</a><br />
 		</p>
 		<br />
 		<strong>What can this new fangled CMS do?</strong><br />
