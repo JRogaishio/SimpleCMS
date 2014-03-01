@@ -55,7 +55,9 @@ class authenticate extends model
 		
 	}
 	
-	
+	/*
+	 * Logs the failed login attempt in the database
+	 */
 	public function logAttempt($user) {
 		$sql = "INSERT INTO authenticate (auth_login, auth_time, auth_ip) VALUES";
 		$sql .= "('$user', '" . time() . "', '" . $_SERVER['REMOTE_ADDR'] . "')";
@@ -64,6 +66,9 @@ class authenticate extends model
 		
 	}
 	
+	/*
+	 * Clears all the  failed login attempts in the database
+	*/
 	public function clearAttempts() {
 		$sql = "DELETE FROM authenticate WHERE auth_ip='" . $_SERVER['REMOTE_ADDR'] . "';";
 		
