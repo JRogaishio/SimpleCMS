@@ -16,9 +16,13 @@ How do I setup FerretCMS?
 Once downloaded, place all files in your webservers root directory.
 Then open up config.php and change the <code>DB_HOST</code>, <code>DB_USERNAME</code>,<code>DB_PASSWORD</code> and <code>SITE_ROOT</code> if necessary.
 
+Also be sure to update the "RewriteBase" and "ErrorDocument" items on the .htaccess file to match your current setup.
+
+Lastly, be sure that the <code>extension=php_openssl.dll</code> is not commented out on your php.ini installation.
+<code>extension=php_openssl.dll</code> is required to make requests to GitHub for version checking and CMS updating.
+
 Once that setup is complete, visit the admin.php page in your web browser and the database / tables will build themselves.
 
-Also be sure to update the "RewriteBase" and "ErrorDocument" items on the .htaccess file to match your current setup.
 
 What can this new fangled CMS do?
 --------------
