@@ -87,7 +87,7 @@ class updater {
 		
         if ($latestVersion != null) {
             //If we managed to access that file, then lets break up those release versions into an array.
-            echo '<p>CURRENT VERSION: '. SYSTEM_VERSION .'</p>';
+            echo '<br /><p>CURRENT VERSION: '. SYSTEM_VERSION .'</p>';
             echo '<p>Reading Current Releases...</p>';			
 			
 			if ( $this->isBehind(SYSTEM_VERSION)) {
@@ -127,7 +127,7 @@ class updater {
 				   
 					//Skip over this item if it's in the ignore list
 					if(in_array($thisFileName, $ignore) || (in_array($thisFileDir, $ignore))) {
-						 echo '<li>'.str_pad($thisFileName, 65, ".", STR_PAD_RIGHT).' IGNORED!!!DIR:#' . $thisFileDir . '#</li>';
+						 echo '<li>'.str_pad($thisFileName, 65, ".", STR_PAD_RIGHT).' IGNORED</li>';
 						continue;
 					}
 	
@@ -135,7 +135,7 @@ class updater {
 					if ( !is_dir ( $thisFileDir ) && $thisFileDir != "") {
 						 mkdir($thisFileDir, 0777, true);
 						 
-						 echo '<li>'.str_pad($thisFileDir, 65, ".", STR_PAD_RIGHT).'DIRECTORY CREATED</li>';
+						 echo '<li>'.str_pad($thisFileDir, 65, ".", STR_PAD_RIGHT).' DIRECTORY CREATED</li>';
 					}
 				   
 					//Overwrite the file
@@ -166,7 +166,7 @@ class updater {
 				}
 				zip_close($zipHandle);
 				echo '</ul></div>';
-				echo '<p class="success">>> FerretCMS Updated to v'.$latestVersion.'</p>';
+				echo '<h4>>> FerretCMS Updated to v'.$latestVersion.'</h4>';
 				
 				//Remove the updates directory now that we are done with it
 				unlink("UPDATES/master.zip");
