@@ -13,9 +13,13 @@ function countRecords($conn, $table_name, $filters = "") {
 	$countSQL = "SELECT * FROM $table_name " . $filters;
 	$countResult = $conn->query($countSQL);
 	
-	return mysqli_num_rows($countResult);
+	//Return false if the tables doesn't exist
+	if(!$countResult) {
+		return false;
+	} else {
+		return mysqli_num_rows($countResult);
+	}
 }
-
 /**
  * Sanitizes user input using the mysqli_real_escape_string method
  * 

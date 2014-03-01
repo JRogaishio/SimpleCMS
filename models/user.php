@@ -221,7 +221,7 @@ class user extends model
 	public function displayManager($action, $parent, $child, $user, $log, $auth) {
 		$ret = false;
 		//Allow access to the user editor if you are authenticated or there are no users
-		if($auth || countRecords(parent::$conn,"users") == 0) {
+		if($auth || countRecords($this->conn,"users") == 0) {
 			switch($action) {
 				case "update":
 					//Determine if the form has been submitted
@@ -267,7 +267,7 @@ class user extends model
 					$log->trackChange("user", 'delete',$user->id,$user->loginname, $this->loginname . " deleted");
 					break;
 				default:
-					if(countRecords(parent::conn,"users") == 0) {
+					if(countRecords($this->conn,"users") == 0) {
 						$this->buildEditForm(null);
 					} else {
 						echo "Error with user manager<br /><br />";

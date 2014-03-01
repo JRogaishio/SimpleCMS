@@ -224,14 +224,19 @@ class admin extends core {
 			
 			 
 		} else if(countRecords($this->_CONN,"users") == 0) {
+			$user = new User($this->_CONN);
+			parent::addToScope($user);
+			$this->_USER = $user;
 			//Display the user management form
-			echo $this->cms_displayUserManager();
+			echo $user->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_LOG, $this->_AUTH);
 		
 			//Check again if a user exists after running the user manager
 			if(countRecords($this->_CONN,"users") == 0) {
 				echo "<p><strong>Hello</strong> there! I see that you have no users setup.<br />
 					Use the above form to create a user account to get started!<br />
 					Once you have created your user, you will be sent to the login form. Use your new account to access all the awesomeness!</p><br />";
+			} else {
+				parent::render("siteLogin");
 			}
 			
 			return false;
