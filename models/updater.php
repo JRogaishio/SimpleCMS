@@ -171,7 +171,6 @@ class updater extends model {
 				//Remove the updates directory now that we are done with it
 				unlink("UPDATES/master.zip");
 				rmdir('UPDATES/');
-			
 			}
             else {
 				echo '<p>>> FerretCMS is up to date.</p>';

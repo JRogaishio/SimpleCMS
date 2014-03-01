@@ -116,7 +116,6 @@ class admin extends core {
 					break;
 			}
 			echo "<br /><br /></div>";
-
 		}
 	}
 	
