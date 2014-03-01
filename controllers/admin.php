@@ -194,7 +194,7 @@ class admin extends core {
 				$user = $authObj->authUser($_POST, $token);
 				
 				//Only display the login if the fields haven't been submitted
-				if(!isset($_POST['login_username']) || !isset($_POST['login_password'])) {
+				if(!isset($_POST['login_username']) || !isset($_POST['login_password']) && $user == null) {
 					parent::render("siteLogin");
 				} else if($user == null) {
 					//Display the login manager if the auth failed
