@@ -75,7 +75,7 @@ class updater {
 
     //Needs work
     public function update() {
-		$ignore = array("ferretCMS-master", "admin.php", "config.php", ".htaccess");
+		$ignore = array("ferretCMS-master", "config.php", ".htaccess");
 		$branch = "ferretCMS-master";
 		
         echo "<h1>SYSTEM UPDATE</h1>";
