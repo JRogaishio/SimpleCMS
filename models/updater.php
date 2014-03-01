@@ -167,7 +167,7 @@ class updater extends model {
 				zip_close($zipHandle);
 				echo '</ul></div>';
 				echo '<h4>>> FerretCMS Updated to v'.$latestVersion.'</h4>';
-				$this->log->trackChange("updater", 'update',$user->id,$user->loginname, "Updated to v' . $latestVersion . ");
+				$this->log->trackChange("updater", 'update',$user->id,$user->loginname, "Updated to v$latestVersion");
 				//Remove the updates directory now that we are done with it
 				unlink("UPDATES/master.zip");
 				rmdir('UPDATES/');
