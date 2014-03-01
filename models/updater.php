@@ -3,25 +3,27 @@
 class updater {
 
     public function displayManager() {
-        echo "
+        echo "<br />
             <table>
-                <tr><td>Current Version</td><td>" . SYSTEM_VERSION . "</td></tr>
-                <tr><td>Latest Version</td><td>" . $this->getLatestVersion() . "</td></tr>
-            </table>
+                <tr><td>Current Version: </td><td><strong>" . SYSTEM_VERSION . "</strong></td></tr>
+                <tr><td>Latest Version: </td><td><strong>" . $this->getLatestVersion() . "</strong></td></tr>
+            </table><br /><br />
         ";
 
         if($this->isBehind(SYSTEM_VERSION)) {
             //The below is caught by the controller and will run the update function
-            echo "<a href='?type=update&action=run' class='btn btn-primary btn-large'>Click here to update the system</a>";
-         }  
+            echo "<a href='?type=update' class='btn btn-primary'>Click here to update the system</a>";
+         }  else {
+			echo '<p> FerretCMS is up to date.</p>';
+		 }
     }
 
 
-    private function isBehind($version) {
+    private function isBehind($currentVersion) {
         $ret = false;
 		$latestVersion = $this->getLatestVersion();
         //Break the versions into major/minor/patch for checking
-        $current = explode(".", $this->trimRelease($version));
+        $current = explode(".", $this->trimRelease($currentVersion));
         $latest = explode(".", $this->trimRelease($latestVersion));
 
         if($latest[0] > $current[0]) {
@@ -33,7 +35,7 @@ class updater {
         } else if($latest[2] > $current[2]) {
             //If the patch version is behind
             $ret = true;
-        } else if($this->getRelease($version) != $this->getRelease($latestVersion)) {
+        } else if($this->getRelease($currentVersion) != $this->getRelease($latestVersion)) {
             //If the release is different. Ie current is -alpha and current is -beta
             $ret = true;
         }
@@ -55,7 +57,7 @@ class updater {
         $release = "";
 
         if(strpos($version, "-") > 0) {
-            $release = substr($version, strpos($version, "-"), strlen($version));
+            $release = trim(substr($version, strpos($version, "-"), strlen($version)));
         }
 
         return $release;
@@ -73,29 +75,26 @@ class updater {
 
     //Needs work
     public function update() {
-		$ignore = array("templates", "admin.php");
+		$ignore = array("ferretCMS-master", "admin.php", "config.php", ".htaccess");
 		$branch = "ferretCMS-master";
 		
         echo "<h1>SYSTEM UPDATE</h1>";
 
         ini_set('max_execution_time',60);
         //Check for an update. We have a simple file that has a new release version on each line. (1.00, 1.02, 1.03, etc.)
-        $getVersions = $this->getLatestVersion();
+        $latestVersion = $this->getLatestVersion();
 		
 		
-        if ($getVersions != null) {
+        if ($latestVersion != null) {
             //If we managed to access that file, then lets break up those release versions into an array.
             echo '<p>CURRENT VERSION: '. SYSTEM_VERSION .'</p>';
-            echo '<p>Reading Current Releases List</p>';
-            $latestVersion = $this->getLatestVersion();
-			
-			
+            echo '<p>Reading Current Releases...</p>';			
 			
 			if ( $this->isBehind(SYSTEM_VERSION)) {
 				echo '<strong>New Update Found: v' . $latestVersion . '</strong>';
 
 				//Download The File If We Do Not Have It
-				if ( !is_file( SITE_ROOTPATH . '/UPDATES/master.zip' )) {
+				if ( !is_file( 'UPDATES/master.zip' )) {
 					echo '<p>Downloading New Update</p>';
 					$newUpdate = file_get_contents('https://github.com/JRogaishio/ferretCMS/archive/master.zip');
 					if ( !is_dir( 'UPDATES/' ) ) mkdir ( 'UPDATES/' );
@@ -110,34 +109,42 @@ class updater {
 				//Open The File And Do Stuff
 				$zipHandle = zip_open('UPDATES/master.zip');
 				echo "<strong>Update details:</strong><br />";
-				echo '<div class="details"><ul>';
+				echo '<div class="well cms_updateDetails"><ul>';
 				while ($aF = zip_read($zipHandle) ) {
 					$thisFileName = zip_entry_name($aF);
 					$thisFileDir = dirname($thisFileName);
 				   
 					$thisFileName = str_replace($branch . "/", "", $thisFileName);
-					$thisFileDir = str_replace($branch . "/", "", $thisFileDir);
-
+					
+					//Trim out the origin branch folder
+					if(strpos($thisFileDir, "ferretCMS-master") === 0) {
+						$thisFileDir = str_replace($branch . "/", "", $thisFileDir);
+						$thisFileDir = str_replace($branch, "", $thisFileDir);
+					}
+					
 					//Continue if its not a file
 					if ( substr($thisFileName,-1,1) == '/') continue;
 				   
 					//Skip over this item if it's in the ignore list
-					if(in_array($thisFileName, $ignore) || in_array($thisFileName, $ignore)) {
+					if(in_array($thisFileName, $ignore) || (in_array($thisFileDir, $ignore))) {
+						 echo '<li>'.str_pad($thisFileName, 65, ".", STR_PAD_RIGHT).' IGNORED!!!DIR:#' . $thisFileDir . '#</li>';
 						continue;
 					}
 	
 					//Make the directory if we need to...
 					if ( !is_dir ( $thisFileDir ) && $thisFileDir != "") {
 						 mkdir($thisFileDir, 0777, true);
-						 echo '<li>'.$thisFileDir.'...........DIRECTORY CREATED</li>';
+						 
+						 echo '<li>'.str_pad($thisFileDir, 65, ".", STR_PAD_RIGHT).'DIRECTORY CREATED</li>';
 					}
 				   
 					//Overwrite the file
 					if ( !is_dir($thisFileName) && $thisFileName != "" ) {
 	
-						echo '<li>'.$thisFileName.'...........';
+						
+						echo '<li>'. str_pad($thisFileName, 65, ".", STR_PAD_RIGHT);
 						$contents = zip_entry_read($aF, zip_entry_filesize($aF));
-						$contents = str_replace("\\r\\n", "\\n", $contents);
+						//$contents = str_replace("\\r\\n", "\\n", $contents);
 						$updateThis = '';
 					   
 						//If we need to run commands, then do it.

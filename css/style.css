@@ -153,7 +153,16 @@ body {
 	font-size:5pt;
 	background:inherit;
 }
+.cms_updateDetails {
+	font-family:"Courier New", Courier, monospace;
+	max-height:100px;
+	overflow:auto;
+}
+
+.cms_updateDetails li {
+	list-style-type: none;
 	
+}
 /*END CMS Layout Styles*/
 
 /*Styles for the login page*/
