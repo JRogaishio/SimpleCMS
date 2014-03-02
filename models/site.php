@@ -9,9 +9,9 @@
 class site extends model
 {
 	// Properties
-	public $id = null;
-	public $name = null;
-	public $linkFormat = null;
+	protected $id = null;
+	protected $name = null;
+	protected $linkFormat = null;
 	
 
 	//Getters
@@ -163,7 +163,7 @@ class site extends model
 					//Re-build the site creation form once we are done
 					$this->buildEditForm($parent);
 					if($result) {
-						$this->log->trackChange("site", 'update',$user->id,$user->loginname, $this->name . " updated");
+						$this->log->trackChange("site", 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
 					}
 				} else {
 					// User has not posted the site edit form yet: display the form

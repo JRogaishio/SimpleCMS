@@ -4,8 +4,8 @@
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title><?php echo $page->title; ?></title>
-	<link rel="stylesheet" type="text/css" href="<?php echo SITE_ROOT . TEMPLATE_PATH . "/" . $page->templatePath . "/main.css";?>" />
+	<title><?php echo $page->getTitle(); ?></title>
+	<link rel="stylesheet" type="text/css" href="<?php echo SITE_ROOT . TEMPLATE_PATH . "/" . $page->getTemplatePath() . "/main.css";?>" />
 	
 </head>
 
@@ -13,7 +13,7 @@
 	<div id="main">
 	<?php $cms->load_navigation(array("home","blog","archive")); ?>
 	
-	<h1><?php echo $page->title; ?></h1>
+	<h1><?php echo $page->getTitle(); ?></h1>
 	<?php
 
 	

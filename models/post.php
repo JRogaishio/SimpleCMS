@@ -9,15 +9,15 @@
 class post extends model
 {
 	// Properties
-	public $id = null;
-	public $pageId = null;
+	protected $id = null;
+	protected $pageId = null;
 	//Hardcoded the author in for now
-	public $authorId = 1;
-	public $postDate = null;
-	public $title = null;
-	public $content = null;
-	public $lastMod = null;
-	public $constr = false;
+	protected $authorId = 1;
+	protected $postDate = null;
+	protected $title = null;
+	protected $content = null;
+	protected $lastMod = null;
+	protected $constr = false;
 
 	//Getters
 	public function getId() {return $this->id;}
@@ -245,7 +245,7 @@ class post extends model
 							$this->buildEditForm($parent, $child);
 						} else {
 							$this->buildEditForm($parent,getLastField($this->conn,"posts", "id"));
-							$this->log->trackChange("post", 'add',$user->id,$user->loginname, $this->title . " added");
+							$this->log->trackChange("post", 'add',$user->getId(),$user->getLoginname(), $this->title . " added");
 						}
 					}
 					else {
@@ -254,7 +254,7 @@ class post extends model
 						$this->buildEditForm($parent, $child);
 	
 						if($result) {
-							$this->log->trackChange("post", 'update',$user->id,$user->loginname, $this->title . " updated");
+							$this->log->trackChange("post", 'update',$user->getId(),$user->getLoginname(), $this->title . " updated");
 						}
 	
 					}
@@ -268,7 +268,7 @@ class post extends model
 			case "delete":
 				//Delete the post
 				$this->delete($parent, $child);
-				$this->log->trackChange("post", 'delete',$user->id,$user->loginname, $this->title . " deleted");
+				$this->log->trackChange("post", 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
 	
 				//Display the page form
 				$page = new Page($this->conn);

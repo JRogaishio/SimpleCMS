@@ -9,15 +9,15 @@
 class page extends model
 {
 	// Properties
-	public $id = null;
-	public $title = null;
-	public $template = null;
-	public $templatePath = null;
-	public $safeLink = null;
-	public $metaData = null;
-	public $hasBoard = null;
-	public $isHome = null;
-	public $constr = false;
+	protected $id = null;
+	protected $title = null;
+	protected $template = null;
+	protected $templatePath = null;
+	protected $safeLink = null;
+	protected $metaData = null;
+	protected $hasBoard = null;
+	protected $isHome = null;
+	protected $constr = false;
 
 	//Getters
 	public function getId() {return $this->id;}
@@ -127,7 +127,7 @@ class page extends model
 			if($error == "") {
 				//Reset all home pages since we are setting a new one
 				if($this->isHome == true) {
-					$sql = "UPDATE pages SET page_isHome = 'false';";
+					$sql = "UPDATE pages SET page_isHome = false;";
 					$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
 				}
 			
@@ -436,7 +436,7 @@ class page extends model
 							$this->buildEditForm($parent);
 						} else {
 							//Re-build the main page after creation
-							$this->log->trackChange("page", 'add',$user->id,$user->loginname, $this->title . " added");
+							$this->log->trackChange("page", 'add',$user->getId(),$user->getLoginname(), $this->title . " added");
 							$ret = true;
 						}
 					} else {
@@ -445,7 +445,7 @@ class page extends model
 						$this->buildEditForm($parent);
 	
 						if($result) {
-							$this->log->trackChange("page", 'update',$user->id,$user->loginname, $this->title . " updated");
+							$this->log->trackChange("page", 'update',$user->getId(),$user->getLoginname(), $this->title . " updated");
 						}
 					}
 				} else {
@@ -455,7 +455,7 @@ class page extends model
 				break;
 			case "delete":
 				$this->delete($parent);
-				$this->log->trackChange("page", 'delete',$user->id,$user->loginname, $this->title . " deleted");
+				$this->log->trackChange("page", 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
 				$ret = true;
 				break;
 			default:

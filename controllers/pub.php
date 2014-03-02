@@ -58,17 +58,18 @@ class pub extends core {
 			$page->loadRecord("home");
 		}
 		
-		//Load the page
-		if(isset($page->template) && $page->template != null && $page->constr == true && strpos($pSafeLink,"SYS_") === false) {
-			$templateSQL = "SELECT * FROM templates WHERE id=$page->template";
-			$templateResult = $this->_CONN->query($templateSQL);
 
+		//Load the page
+		if($page->getTemplate() != "" && $page->getTemplate() != null && $page->getConstr() == true && strpos($pSafeLink,"SYS_") === false) {
+			$templateSQL = "SELECT * FROM templates WHERE id=" . $page->getTemplate();
+			$templateResult = $this->_CONN->query($templateSQL);
+			
 			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
 				$template = mysqli_fetch_assoc($templateResult);
 
 			if(isset($template)) {
 				//Load the template file
-				$page->templatePath = $template['template_path'];
+				$page->setTemplatePath($template['template_path']);
 				require(TEMPLATE_PATH . "/" . $template['template_path'] . "/" . $template['template_file']);
 			}
 		} else {

@@ -136,9 +136,9 @@ class authenticate extends model
 				//30 minute auth time-out
 				$timeout = time() + 900;
 					
-				$newToken = hash('sha256', (unique_salt() . $user->loginname));
+				$newToken = hash('sha256', (unique_salt() . $user->getLoginname()));
 
-				$tokenSQL = "UPDATE users SET user_token = '$newToken' WHERE id=" . $user->id . ";";
+				$tokenSQL = "UPDATE users SET user_token = '$newToken' WHERE id=" . $user->getId() . ";";
 				$tokenResult = $this->conn->query($tokenSQL) OR DIE ("Could not update user!");
 				if(!$tokenResult) {
 					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";
@@ -149,7 +149,7 @@ class authenticate extends model
 					
 				//Log that a user logged in. POST data is only set on the initial login
 				if(isset($post['login_username']) && isset($post['login_password'])) {
-					$this->log->trackChange("user", 'log_in',$user->id,$user->loginname, "logged in");
+					$this->log->trackChange("user", 'log_in',$user->getId(),$user->getLoginname, "logged in");
 				}
 					
 				//Clear out the failed authentications
