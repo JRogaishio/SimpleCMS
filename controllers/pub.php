@@ -53,12 +53,11 @@ class pub extends core {
 			if(isset($pageData)) {
 				$page->loadRecord($pageData['id']);
 			}
-		} else if($pSafeLink == null || $pSafeLink == "") {
+		} else if($pSafeLink == null || $pSafeLink == "" || $pSafeLink == "home") {
 			//Page safelink is blank! Default to the homepage
 			$page->loadRecord("home");
 		}
 		
-
 		//Load the page
 		if($page->getTemplate() != "" && $page->getTemplate() != null && $page->getConstr() == true && strpos($pSafeLink,"SYS_") === false) {
 			$templateSQL = "SELECT * FROM templates WHERE id=" . $page->getTemplate();
