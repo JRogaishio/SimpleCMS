@@ -19,6 +19,27 @@ class post extends model
 	public $lastMod = null;
 	public $constr = false;
 
+	//Getters
+	public function getId() {return $this->id;}
+	public function getPageId() {return $this->pageId;}
+	public function getAuthorId() {return $this->authorId;}
+	public function getPostDate() {return $this->postDate;}
+	public function getTitle() {return $this->title;}
+	public function getContent() {return $this->content;}
+	public function getLastMod() {return $this->lastMod;}
+	public function getConstr() {return $this->constr;}
+	
+	//Setters
+	public function setId($val) {$this->id = $val;}
+	public function setPageId($val) {$this->pageId = $val;}
+	public function setAuthorId($val) {$this->authorId = $val;}
+	public function setPostDate($val) {$this->postDate = $val;}
+	public function setTitle($val) {$this->title = $val;}
+	public function setContent($val) {$this->content = $val;}
+	public function setLastMod($val) {$this->lastMod = $val;}
+	public function setConstr($val) {$this->constr = $val;}
+	
+	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *

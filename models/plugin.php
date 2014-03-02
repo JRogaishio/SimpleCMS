@@ -14,7 +14,19 @@ class plugin extends model
 	public $file = null;
 	public $name = null;
 	
-
+	//Getters
+	public function getId() {return $this->id;}
+	public function getPath() {return $this->path;}
+	public function getFile() {return $this->file;}
+	public function getName() {return $this->name;}
+	
+	//Setters
+	public function setId($val) {$this->id = $val;}
+	public function setPath($val) {$this->path = $val;}
+	public function setFile($val) {$this->file = $val;}
+	public function setName($val) {$this->name = $val;}
+	
+	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *

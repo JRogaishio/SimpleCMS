@@ -17,6 +17,24 @@ class user extends model
 	public $email = null;
 	public $isRegistered = null;
 	
+	//Getters
+	public function getId() {return $this->id;}
+	public function getLoginname() {return $this->loginname;}
+	public function getPassword() {return $this->password;}
+	public function getPassword2() {return $this->password2;}
+	public function getSalt() {return $this->salt;}
+	public function getEmail() {return $this->email;}
+	public function getIsRegistered() {return $this->isRegistered;}
+	
+	//Setters
+	public function setId($val) {$this->id = $val;}
+	public function setLoginname($val) {$this->loginname = $val;}
+	public function setPassword($val) {$this->password = $val;}
+	public function setPassword2($val) {$this->password2 = $val;}
+	public function setSalt($val) {$this->salt = $val;}
+	public function setEmail($val) {$this->email = $val;}
+	public function setIsRegistered($val) {$this->isRegistered = $val;}
+	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *

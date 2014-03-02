@@ -14,6 +14,16 @@ class site extends model
 	public $linkFormat = null;
 	
 
+	//Getters
+	public function getId() {return $this->id;}
+	public function getName() {return $this->name;}
+	public function getLinkFormat() {return $this->linkFormat;}
+	
+	//Setters
+	public function setId($val) {$this->id = $val;}
+	public function setName($val) {$this->name = $val;}
+	public function setLinkFormat($val) {$this->linkFormat = $val;}
+
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *

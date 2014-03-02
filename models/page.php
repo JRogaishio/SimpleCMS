@@ -19,6 +19,28 @@ class page extends model
 	public $isHome = null;
 	public $constr = false;
 
+	//Getters
+	public function getId() {return $this->id;}
+	public function getTitle() {return $this->title;}
+	public function getTemplate() {return $this->template;}
+	public function getTemplatePath() {return $this->templatePath;}
+	public function getSafeLink() {return $this->safeLink;}
+	public function getMetaData() {return $this->metaData;}
+	public function getHasBoard() {return $this->hasBoard;}
+	public function getIsHome() {return $this->isHome;}
+	public function getConstr() {return $this->constr;}
+
+	//Setters
+	public function setId($val) {$this->id = $val;}
+	public function setTitle($val) {$this->title = $val;}
+	public function setTemplate($val) {$this->template = $val;}
+	public function setTemplatePath($val) {$this->templatePath = $val;}
+	public function setSafeLink($val) {$this->safeLink = $val;}
+	public function setMetaData($val) {$this->metaData = $val;}
+	public function setHasBoard($val) {$this->hasBoard = $val;}
+	public function setIsHome($val) {$this->isHome = $val;}
+	public function setConstr($val) {$this->constr = $val;}
+	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -38,7 +60,6 @@ class page extends model
 		$this->constr = true;
 	}
 
-	
 	/**
 	 * validate the fields
 	 *
@@ -292,6 +313,7 @@ class page extends model
 			return null;
 		}
 	}
+	
 	/*
 	@param postLimit	The max number of posts to display on a single page
 	@param showDate		True / False on whether to show the post date under the title
