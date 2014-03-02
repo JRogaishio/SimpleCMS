@@ -520,7 +520,7 @@ class admin extends core {
 		echo "You have <strong>" . countRecords($this->_CONN,"posts","") . "</strong> posts(s)<br />";
 		echo "You have <strong>" . countRecords($this->_CONN,"templates","") . "</strong> templates(s)<br />";
 		echo "You have <strong>" . countRecords($this->_CONN,"users","") . "</strong> users(s)<br />";
-		echo "You have <strong>" . countRecords($this->_CONN,"plugins","") . "</strong> plugins(s)<br />";
+		//echo "You have <strong>" . countRecords($this->_CONN,"plugins","") . "</strong> plugins(s)<br />";
 		echo "</p>";
 	}
 	
