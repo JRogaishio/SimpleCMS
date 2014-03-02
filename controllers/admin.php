@@ -498,6 +498,11 @@ class admin extends core {
 				<li>Post management</li>
 				<li>Template management</li>
 				<li>User management</li>
+				<li>General website settings management</li>
+				<li>Template management</li>
+				<li>User management</li>
+				<li>Content searching</li>
+				<li>Change logging</li>
 			</ul>
 		
 		<br />
@@ -507,11 +512,6 @@ class admin extends core {
 		</p>
 		<ul class='cms_intro'>
 			<li>Plugin management and implementation</li>
-			<li>General website settings management</li>
-			<li>Template management</li>
-			<li>User management</li>
-			<li>Content searching</li>
-			<li>Change logging</li>
 		</ul>
 		<br />
 		";
