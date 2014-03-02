@@ -149,7 +149,7 @@ class authenticate extends model
 					
 				//Log that a user logged in. POST data is only set on the initial login
 				if(isset($post['login_username']) && isset($post['login_password'])) {
-					$this->log->trackChange("user", 'log_in',$user->getId(),$user->getLoginname, "logged in");
+					$this->log->trackChange("user", 'log_in',$user->getId(),$user->getLoginname(), "logged in");
 				}
 					
 				//Clear out the failed authentications
@@ -159,7 +159,7 @@ class authenticate extends model
 					
 			} else {
 					
-				$this->log->trackChange("user", 'log_in',null, clean($this->conn,$post['login_username']), "FAILED LOGIN");
+				$this->log->trackChange("user", 'log_in',null, clean($this->conn,(isset($post['login_username']) ? $post['login_username'] : null)), "FAILED LOGIN");
 					
 				//Log the failed authentications
 				$this->logAttempt($post['login_username']);
