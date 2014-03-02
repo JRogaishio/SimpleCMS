@@ -6,4 +6,3 @@ $cms = new pub("public");
 $cms->connect();
 $cms->load();
 ?>
-

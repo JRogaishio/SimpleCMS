@@ -9,13 +9,31 @@
 class user extends model
 {
 	// Properties
-	public $id = null;
-	public $loginname = null;
-	public $password = null;
-	public $password2 = null;
-	public $salt = null;
-	public $email = null;
-	public $isRegistered = null;
+	protected $id = null;
+	protected $loginname = null;
+	protected $password = null;
+	protected $password2 = null;
+	protected $salt = null;
+	protected $email = null;
+	protected $isRegistered = null;
+	
+	//Getters
+	public function getId() {return $this->id;}
+	public function getLoginname() {return $this->loginname;}
+	public function getPassword() {return $this->password;}
+	public function getPassword2() {return $this->password2;}
+	public function getSalt() {return $this->salt;}
+	public function getEmail() {return $this->email;}
+	public function getIsRegistered() {return $this->isRegistered;}
+	
+	//Setters
+	public function setId($val) {$this->id = $val;}
+	public function setLoginname($val) {$this->loginname = $val;}
+	public function setPassword($val) {$this->password = $val;}
+	public function setPassword2($val) {$this->password2 = $val;}
+	public function setSalt($val) {$this->salt = $val;}
+	public function setEmail($val) {$this->email = $val;}
+	public function setIsRegistered($val) {$this->isRegistered = $val;}
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -240,7 +258,7 @@ class user extends model
 							} else if($auth) {
 								//Re-build the main User after creation
 								$ret = true;
-								$this->log->trackChange("user", 'add',$user->id,$user->loginname, $this->loginname . " added");
+								$this->log->trackChange("user", 'add',$user->getId(),$user->getLoginname(), $this->loginname . " added");
 							} else {
 								parent::render("siteLogin");
 							}
@@ -253,7 +271,7 @@ class user extends model
 							} else {
 								//Re-build the User creation form once we are done
 								$this->buildEditForm($parent);
-								$this->log->trackChange("user", 'update',$user->id,$user->loginname, $this->loginname . " updated");
+								$this->log->trackChange("user", 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
 							}
 						}
 					} else {
@@ -264,7 +282,7 @@ class user extends model
 				case "delete":
 					$this->delete($parent);
 					$ret = true;
-					$this->log->trackChange("user", 'delete',$user->id,$user->loginname, $this->loginname . " deleted");
+					$this->log->trackChange("user", 'delete',$user->getId(),$user->getLoginname(), $this->loginname . " deleted");
 					break;
 				default:
 					if(countRecords($this->conn,"users") == 0) {

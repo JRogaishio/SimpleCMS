@@ -9,16 +9,38 @@
 class page extends model
 {
 	// Properties
-	public $id = null;
-	public $title = null;
-	public $template = null;
-	public $templatePath = null;
-	public $safeLink = null;
-	public $metaData = null;
-	public $hasBoard = null;
-	public $isHome = null;
-	public $constr = false;
+	protected $id = null;
+	protected $title = null;
+	protected $template = null;
+	protected $templatePath = null;
+	protected $safeLink = null;
+	protected $metaData = null;
+	protected $hasBoard = null;
+	protected $isHome = null;
+	protected $constr = false;
 
+	//Getters
+	public function getId() {return $this->id;}
+	public function getTitle() {return $this->title;}
+	public function getTemplate() {return $this->template;}
+	public function getTemplatePath() {return $this->templatePath;}
+	public function getSafeLink() {return $this->safeLink;}
+	public function getMetaData() {return $this->metaData;}
+	public function getHasBoard() {return $this->hasBoard;}
+	public function getIsHome() {return $this->isHome;}
+	public function getConstr() {return $this->constr;}
+
+	//Setters
+	public function setId($val) {$this->id = $val;}
+	public function setTitle($val) {$this->title = $val;}
+	public function setTemplate($val) {$this->template = $val;}
+	public function setTemplatePath($val) {$this->templatePath = $val;}
+	public function setSafeLink($val) {$this->safeLink = $val;}
+	public function setMetaData($val) {$this->metaData = $val;}
+	public function setHasBoard($val) {$this->hasBoard = $val;}
+	public function setIsHome($val) {$this->isHome = $val;}
+	public function setConstr($val) {$this->constr = $val;}
+	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -38,7 +60,6 @@ class page extends model
 		$this->constr = true;
 	}
 
-	
 	/**
 	 * validate the fields
 	 *
@@ -106,7 +127,7 @@ class page extends model
 			if($error == "") {
 				//Reset all home pages since we are setting a new one
 				if($this->isHome == true) {
-					$sql = "UPDATE pages SET page_isHome = 'false';";
+					$sql = "UPDATE pages SET page_isHome = false;";
 					$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
 				}
 			
@@ -292,6 +313,7 @@ class page extends model
 			return null;
 		}
 	}
+	
 	/*
 	@param postLimit	The max number of posts to display on a single page
 	@param showDate		True / False on whether to show the post date under the title
@@ -414,7 +436,7 @@ class page extends model
 							$this->buildEditForm($parent);
 						} else {
 							//Re-build the main page after creation
-							$this->log->trackChange("page", 'add',$user->id,$user->loginname, $this->title . " added");
+							$this->log->trackChange("page", 'add',$user->getId(),$user->getLoginname(), $this->title . " added");
 							$ret = true;
 						}
 					} else {
@@ -423,7 +445,7 @@ class page extends model
 						$this->buildEditForm($parent);
 	
 						if($result) {
-							$this->log->trackChange("page", 'update',$user->id,$user->loginname, $this->title . " updated");
+							$this->log->trackChange("page", 'update',$user->getId(),$user->getLoginname(), $this->title . " updated");
 						}
 					}
 				} else {
@@ -433,7 +455,7 @@ class page extends model
 				break;
 			case "delete":
 				$this->delete($parent);
-				$this->log->trackChange("page", 'delete',$user->id,$user->loginname, $this->title . " deleted");
+				$this->log->trackChange("page", 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
 				$ret = true;
 				break;
 			default:

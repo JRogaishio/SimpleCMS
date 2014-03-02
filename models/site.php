@@ -9,10 +9,20 @@
 class site extends model
 {
 	// Properties
-	public $id = null;
-	public $name = null;
-	public $linkFormat = null;
+	protected $id = null;
+	protected $name = null;
+	protected $linkFormat = null;
 	
+
+	//Getters
+	public function getId() {return $this->id;}
+	public function getName() {return $this->name;}
+	public function getLinkFormat() {return $this->linkFormat;}
+	
+	//Setters
+	public function setId($val) {$this->id = $val;}
+	public function setName($val) {$this->name = $val;}
+	public function setLinkFormat($val) {$this->linkFormat = $val;}
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -153,7 +163,7 @@ class site extends model
 					//Re-build the site creation form once we are done
 					$this->buildEditForm($parent);
 					if($result) {
-						$this->log->trackChange("site", 'update',$user->id,$user->loginname, $this->name . " updated");
+						$this->log->trackChange("site", 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
 					}
 				} else {
 					// User has not posted the site edit form yet: display the form

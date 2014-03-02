@@ -24,7 +24,7 @@
 		<div class="cms_navItemList" id="cms_navItemList_post">
 			<ul>
 			<li class="cms_navItem"><a href="admin.php?type=postDisplay" class="cms_navItemLink">Edit Posts</a></li>
-			<li class="cms_navItem"><a href="admin.php?type=post&action=update&p=&c=new" class="cms_navItemLink">Add a Post</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=post&action=update&p=&c=" class="cms_navItemLink">Add a Post</a></li>
 			</ul>
 		</div>	
 	</div>	

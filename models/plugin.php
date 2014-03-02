@@ -9,12 +9,24 @@
 class plugin extends model
 {
 	// Properties
-	public $id = null;
-	public $path = null;
-	public $file = null;
-	public $name = null;
+	protected $id = null;
+	protected $path = null;
+	protected $file = null;
+	protected $name = null;
 	
-
+	//Getters
+	public function getId() {return $this->id;}
+	public function getPath() {return $this->path;}
+	public function getFile() {return $this->file;}
+	public function getName() {return $this->name;}
+	
+	//Setters
+	public function setId($val) {$this->id = $val;}
+	public function setPath($val) {$this->path = $val;}
+	public function setFile($val) {$this->file = $val;}
+	public function setName($val) {$this->name = $val;}
+	
+	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -182,12 +194,12 @@ class plugin extends model
 						$this->insert();
 						//Re-build the main page after creation
 						$ret = true;
-						$this->log->trackChange("plugin", 'add',$user->id,$user->loginname, $this->name . " added");
+						$this->log->trackChange("plugin", 'add',$user->getId(),$user->getLoginname(), $this->name . " added");
 					} else {
 						$this->update($parent);
 						//Re-build the page creation form once we are done
 						$this->buildEditForm($templateId);
-						$this->log->trackChange("plugin", 'update',$user->id,$user->loginname, $this->name . " added");
+						$this->log->trackChange("plugin", 'update',$user->getId(),$user->getLoginname(), $this->name . " added");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
@@ -197,7 +209,7 @@ class plugin extends model
 			case "delete":
 				$this->delete($parent);
 				$ret = true;
-				$this->log->trackChange("plugin", 'delete',$user->id,$user->loginname, $this->name . " added");
+				$this->log->trackChange("plugin", 'delete',$user->getId(),$user->getLoginname(), $this->name . " added");
 				break;
 			default:
 				echo "Error with template manager<br /><br />";

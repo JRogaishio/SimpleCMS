@@ -49,7 +49,7 @@ require_once( CONTOLLER_PATH . "/admin.php" );
 		}
 		
 		$(".cms_navItemTitle").click(function(){
-			$(this).parent().children(".cms_navItemList").slideToggle("slow");
+			$(this).parent().children(".cms_navItemList").slideToggle(200);
 		});
 	});
 	

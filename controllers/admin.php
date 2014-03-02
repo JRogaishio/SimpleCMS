@@ -477,7 +477,7 @@ class admin extends core {
 	 *
 	 */
 	public function cms_displayMain() {	
-		echo ($this->_AUTH ? "Welcome <strong>" . $this->_USER->loginname . "</strong><br /><br />" : "");
+		echo ($this->_AUTH ? "Welcome <strong>" . $this->_USER->getLoginname() . "</strong><br /><br />" : "");
 		echo "
 		<h1>Welcome to the FerretCMS!</h1><br />
 		<strong>What is FerretCMS?</strong><br />

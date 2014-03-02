@@ -9,16 +9,37 @@
 class post extends model
 {
 	// Properties
-	public $id = null;
-	public $pageId = null;
+	protected $id = null;
+	protected $pageId = null;
 	//Hardcoded the author in for now
-	public $authorId = 1;
-	public $postDate = null;
-	public $title = null;
-	public $content = null;
-	public $lastMod = null;
-	public $constr = false;
+	protected $authorId = 1;
+	protected $postDate = null;
+	protected $title = null;
+	protected $content = null;
+	protected $lastMod = null;
+	protected $constr = false;
 
+	//Getters
+	public function getId() {return $this->id;}
+	public function getPageId() {return $this->pageId;}
+	public function getAuthorId() {return $this->authorId;}
+	public function getPostDate() {return $this->postDate;}
+	public function getTitle() {return $this->title;}
+	public function getContent() {return $this->content;}
+	public function getLastMod() {return $this->lastMod;}
+	public function getConstr() {return $this->constr;}
+	
+	//Setters
+	public function setId($val) {$this->id = $val;}
+	public function setPageId($val) {$this->pageId = $val;}
+	public function setAuthorId($val) {$this->authorId = $val;}
+	public function setPostDate($val) {$this->postDate = $val;}
+	public function setTitle($val) {$this->title = $val;}
+	public function setContent($val) {$this->content = $val;}
+	public function setLastMod($val) {$this->lastMod = $val;}
+	public function setConstr($val) {$this->constr = $val;}
+	
+	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -30,6 +51,7 @@ class post extends model
 
 		if(isset($params['id'])) $this->id = (int) clean($this->conn, $params['id']);
 		if(isset($params['pageId'])) $this->pageId = (int) clean($this->conn, $params['pageId']);
+		if(isset($params['authorId'])) $this->authorId = (int) clean($this->conn, $params['authorId']);
 		if(isset($params['postDate'])) $this->postDate = clean($this->conn, $params['postDate']);
 		if(isset($params['title'])) $this->title = clean($this->conn, $params['title']);
 		if(isset($params['content'])) $this->content = clean($this->conn, $params['content']);
@@ -104,6 +126,8 @@ class post extends model
 				WHERE id=$postId;
 				";
 	
+				echo $sql;
+				
 				$result = $this->conn->query($sql) OR DIE ("Could not update post!");
 				if($result) {
 					echo "<span class='update_notice'>Updated post successfully!</span><br /><br />";
@@ -174,7 +198,7 @@ class post extends model
 	 * @param $pageId	The page this post is tied to
 	 * @param $postId	The post to be edited
 	 */
-	public function buildEditForm($pageId, $postId) {
+	public function buildEditForm($pageId, $postId, $user) {
 		//Load the page from an ID
 		$this->loadRecord($postId);
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $pageId . '">Page</a> > <a href="admin.php?type=post&action=update&p=' . $pageId . '&c=' . $postId . '">Post</a><br /><br />';
@@ -195,7 +219,7 @@ class post extends model
 		<textarea name="content" id="content" cols="60">' . $this->content . '</textarea>
 		<div class="clear"></div>
 		<br />
-
+		<input type="hidden" name="authorId" value="' . $user->getId() . '" />
 		<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($postId) || $postId == null || $postId == "new") ? "Create" : "Update") . ' This Post!" /><br /><br />
 		' . ((isset($postId) && $postId != null) ? '<a href="admin.php?type=post&action=delete&p=' . $pageId . '&c=' . $postId . '" class="deleteBtn">Delete This Post!</a><br /><br />' : '') . '
 		</form>
@@ -221,19 +245,19 @@ class post extends model
 						$result = $this->insert($parent);
 						if(!$result) {
 							//Re-build the post creation form once we are done
-							$this->buildEditForm($parent, $child);
+							$this->buildEditForm($parent, $child, $user);
 						} else {
-							$this->buildEditForm($parent,getLastField($this->conn,"posts", "id"));
-							$this->log->trackChange("post", 'add',$user->id,$user->loginname, $this->title . " added");
+							$this->buildEditForm($parent,getLastField($this->conn,"posts", "id"), $user);
+							$this->log->trackChange("post", 'add',$user->getId(),$user->getLoginname(), $this->title . " added");
 						}
 					}
 					else {
 						$result = $this->update($child);
 						//Re-build the post creation form once we are done
-						$this->buildEditForm($parent, $child);
+						$this->buildEditForm($parent, $child, $user);
 	
 						if($result) {
-							$this->log->trackChange("post", 'update',$user->id,$user->loginname, $this->title . " updated");
+							$this->log->trackChange("post", 'update',$user->getId(),$user->getLoginname(), $this->title . " updated");
 						}
 	
 					}
@@ -241,13 +265,13 @@ class post extends model
 						
 				} else {
 					// User has not posted the article edit form yet: display the form
-					$this->buildEditForm($parent, $child);
+					$this->buildEditForm($parent, $child, $user);
 				}
 				break;
 			case "delete":
 				//Delete the post
 				$this->delete($parent, $child);
-				$this->log->trackChange("post", 'delete',$user->id,$user->loginname, $this->title . " deleted");
+				$this->log->trackChange("post", 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
 	
 				//Display the page form
 				$page = new Page($this->conn);
