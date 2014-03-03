@@ -6,10 +6,10 @@ What is FerretCMS?
 Glad you asked! FerretCMS is a simple lightweight content management system using PHP and MySQL.
 
 For updates check out the GitHub repository here:
-https://github.com/twitch2641/ferretCMS
+https://github.com/JRogaishio/ferretCMS
 
 Or the creators account here:
-https://github.com/twitch2641
+https://github.com/JRogaishio
 
 How do I setup FerretCMS?
 --------------
