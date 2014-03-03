@@ -70,6 +70,7 @@ class pub extends core {
 				//Load the template file
 				$page->setTemplatePath($template['template_path']);
 				require(TEMPLATE_PATH . "/" . $template['template_path'] . "/" . $template['template_file']);
+				$this->addToScope($template);
 			}
 		} else {
 			//Check to see if the CMS has already been setup
