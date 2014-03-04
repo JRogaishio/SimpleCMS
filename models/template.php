@@ -98,7 +98,7 @@ class template extends model
 	 * 
 	 * @param $templateId	The template Id to update
 	 */
-	public function update($templateId) {
+	public function update() {
 	
 		if($this->constr) {
 
@@ -106,8 +106,7 @@ class template extends model
 			template_path = '$this->path', 
 			template_file = '$this->file', 
 			template_name = '$this->name'
-			WHERE id=$templateId;
-			";
+			WHERE id=" . $this->id . ";";
 
 			$result = $this->conn->query($sql) OR DIE ("Could not update template!");
 			if($result) {
@@ -126,12 +125,10 @@ class template extends model
 	 * 
 	 * @return returns the database result on the delete query
 	 */
-	public function delete($templateId) {
-		//Load the page from an ID so we can say goodbye...
-		$this->loadRecord($templateId);
+	public function delete() {
 		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
 		
-		$templateSQL = "DELETE FROM templates WHERE id=$templateId";
+		$templateSQL = "DELETE FROM templates WHERE id=" . $this->id;
 		$templateResult = $this->conn->query($templateSQL);
 		
 		return $templateResult;
@@ -208,6 +205,7 @@ class template extends model
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {
+		$this->loadRecord($parent);
 		$ret = false;
 		switch($action) {
 			case "update":
@@ -280,5 +278,3 @@ class template extends model
 }
 
 ?>
-
-

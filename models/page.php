@@ -120,7 +120,7 @@ class page extends model
 	 * 
 	 * @return returns true if the insert was successful
 	 */
-	public function update($pageId) {
+	public function update() {
 		$ret = true;
 		if($this->constr) {
 			$error = $this->validate();
@@ -139,8 +139,7 @@ class page extends model
 				page_title = '$this->title', 
 				page_hasBoard = " . convertToBit($this->hasBoard) . ", 
 				page_isHome = " . convertToBit($this->isHome) . "
-				WHERE id=$pageId;
-				";
+				WHERE id=" . $this->id . ";";
 
 				$result = $this->conn->query($sql) OR DIE ("Could not update page!");
 				if($result) {
@@ -168,16 +167,13 @@ class page extends model
 	 * 
 	 * @return returns the database result on the delete query
 	 */
-	public function delete($pageId) {
-		//Load the page from an ID so we can say goodbye...
-		$this->loadRecord($pageId);
+	public function delete() {
 		echo "<span class='update_notice'>Page deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
 		
-		$pageSQL = "DELETE FROM pages WHERE id=$pageId";
+		$pageSQL = "DELETE FROM pages WHERE id=" . $this->id;
 		$pageResult = $this->conn->query($pageSQL);
 		
-		$postSQL = "DELETE FROM posts WHERE page_id=$pageId;";
-
+		$postSQL = "DELETE FROM posts WHERE page_id=" . $this->id;
 		$postResult = $this->conn->query($postSQL);
 	}
 	
@@ -420,6 +416,7 @@ class page extends model
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {
+		$this->loadRecord($parent);
 		$ret = false;
 		switch($action) {
 			case "update":
@@ -440,7 +437,7 @@ class page extends model
 							$ret = true;
 						}
 					} else {
-						$result = $this->update($parent);
+						$result = $this->update();
 						//Re-build the page creation form once we are done
 						$this->buildEditForm($parent);
 	
@@ -454,7 +451,7 @@ class page extends model
 				}
 				break;
 			case "delete":
-				$this->delete($parent);
+				$this->delete();
 				$this->log->trackChange("page", 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
 				$ret = true;
 				break;

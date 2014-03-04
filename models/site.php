@@ -59,7 +59,7 @@ class site extends model
 	 * 
 	 * @param $siteId	The site Id to update
 	 */
-	public function update($siteId) {
+	public function update() {
 		$ret = true;
 		if($this->constr) {
 			$error = $this->validate();
@@ -67,8 +67,7 @@ class site extends model
 				$sql = "UPDATE sites SET
 				site_name = '$this->name', 
 				site_linkFormat = '$this->linkFormat'
-				WHERE id=$siteId;
-				";
+				WHERE id=" . $this->id . ";";
 	
 				$result = $this->conn->query($sql) OR DIE ("Could not update site!");
 				if($result) {
@@ -151,6 +150,7 @@ class site extends model
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {
+		$this->loadRecord($parent);
 		$ret = false;
 		switch($action) {
 			case "update":

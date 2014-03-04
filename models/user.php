@@ -112,7 +112,7 @@ class user extends model
 	 * 
 	 * @param $userId	The user Id to update
 	 */
-	public function update($userId) {
+	public function update() {
 		$ret = true;
 		if($this->constr) {
 			$error = $this->validate();
@@ -124,8 +124,7 @@ class user extends model
 				user_login = '$this->loginname', 
 				user_pass = '$secPass', 
 				user_email = '$this->email'
-				WHERE id=$userId;
-				";
+				WHERE id=" . $this->id . ";";
 	
 				$result = $this->conn->query($sql) OR DIE ("Could not update user!");
 				if($result) {
@@ -151,12 +150,10 @@ class user extends model
 	 * 
 	 * @return returns the database result on the delete query
 	 */
-	public function delete($userId) {
-		//Load the page from an ID so we can say goodbye...
-		$this->loadRecord($userId);
+	public function delete() {
 		echo "<span class='update_notice'>User deleted! Bye bye '$this->loginname', we will miss you.</span><br /><br />";
 		
-		$userSQL = "DELETE FROM users WHERE id=$userId";
+		$userSQL = "DELETE FROM users WHERE id=" . $this->id;
 		$userResult = $this->conn->query($userSQL);
 		
 		return $userResult;
@@ -237,6 +234,7 @@ class user extends model
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth) {
+		$this->loadRecord($parent);
 		$ret = false;
 		//Allow access to the user editor if you are authenticated or there are no users
 		if($auth || countRecords($this->conn,"users") == 0) {
@@ -323,4 +321,3 @@ class user extends model
 }
 
 ?>
-

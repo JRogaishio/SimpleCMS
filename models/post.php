@@ -11,7 +11,6 @@ class post extends model
 	// Properties
 	protected $id = null;
 	protected $pageId = null;
-	//Hardcoded the author in for now
 	protected $authorId = 1;
 	protected $postDate = null;
 	protected $title = null;
@@ -106,13 +105,12 @@ class post extends model
 		return $ret;
 	}
 
-
 	/**
 	 * Updates the current post object in the database.
 	 * 
 	 * @param $postId	The post Id to update
 	 */
-	public function update($postId) {
+	public function update() {
 		$ret = true;
 		if($this->constr) {
 			$error = $this->validate();
@@ -123,10 +121,7 @@ class post extends model
 				post_title = '$this->title', 
 				post_content = '$this->content', 
 				post_lastModified = " . time() . "
-				WHERE id=$postId;
-				";
-	
-				echo $sql;
+				WHERE id=" . $this->id . ";";
 				
 				$result = $this->conn->query($sql) OR DIE ("Could not update post!");
 				if($result) {
@@ -153,13 +148,11 @@ class post extends model
 	 * 
 	 * @return returns the database result on the delete query
 	 */
-	public function delete($pageId, $postId) {
-		//Load the post from an ID so we can say goodbye...
-		$this->loadRecord($postId);
-	
+	public function delete() {	
 		echo "<span class='update_notice'>Post deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
 		
-		$postSQL = "DELETE FROM posts WHERE page_id=$pageId AND id=$postId";
+		$postSQL = "DELETE FROM posts WHERE page_id=" . $this->pageId . " AND id=" . $this->id;
+
 		$postResult = $this->conn->query($postSQL);
 		
 		return $postResult;
@@ -234,6 +227,7 @@ class post extends model
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {
+		$this->loadRecord($child);
 		$ret = false;
 		switch($action) {
 			case "update":
@@ -270,13 +264,11 @@ class post extends model
 				break;
 			case "delete":
 				//Delete the post
-				$this->delete($parent, $child);
+				$this->delete();
 				$this->log->trackChange("post", 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
 	
 				//Display the page form
-				$page = new Page($this->conn);
-				parent::addToScope($page);
-				$page->buildEditForm($parent);
+				$ret = true;
 	
 				break;
 			default:
@@ -308,5 +300,3 @@ class post extends model
 }
 
 ?>
-
-
