@@ -51,7 +51,7 @@ class plugin extends model
 			
 			$sql = "INSERT INTO plugins (plugin_path, plugin_file, plugin_name, plugin_created) VALUES";
 			$sql .= "('$this->path', '$this->file', '$this->name','" . time() . "')";
-
+			
 			$result = $this->conn->query($sql) OR DIE ("Could not create plugin!");
 			if($result) {
 				echo "<span class='update_notice'>Created plugin successfully!</span><br /><br />";
@@ -227,6 +227,7 @@ class plugin extends model
 		  `plugin_path` varchar(128) DEFAULT NULL,
 		  `plugin_file` varchar(128) DEFAULT NULL,
 		  `plugin_name` varchar(64) DEFAULT NULL,
+		  `plugin_created` varchar(128) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
 		

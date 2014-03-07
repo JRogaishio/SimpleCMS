@@ -27,15 +27,7 @@
 			<li class="cms_navItem"><a href="admin.php?type=post&action=update&p=&c=" class="cms_navItemLink">Add a Post</a></li>
 			</ul>
 		</div>	
-	</div>	
-	<div><div class="cms_navItemTitle"><div id="cms_template" class="icon-tasks icon-white cms_icon"></div>Template Manager</div>
-		<div class="cms_navItemList" id="cms_navItemList_template">
-			<ul>
-			<li class="cms_navItem"><a href="admin.php?type=templateDisplay" class="cms_navItemLink">Edit Templates</a></li>
-			<li class="cms_navItem"><a href="admin.php?type=template&action=update&p=" class="cms_navItemLink">Add a Template</a></li>
-			</ul>
-		</div>	
-	</div>	
+	</div>
 		
 	<div><div class="cms_navItemTitle"><div id="cms_user" class="icon-user icon-white cms_icon"></div>User Manager</div>
 		<div class="cms_navItemList" id="cms_navItemList_user">
@@ -45,15 +37,24 @@
 			</ul>
 		</div>	
 	</div>	
-		<!--
-	<div><div class="cms_navItemTitle"><div id="cms_plug" class="cms_icon"></div>Plugin Manager</div>
+	
+	<div><div class="cms_navItemTitle"><div id="cms_template" class="icon-tasks icon-white cms_icon"></div>Template Manager</div>
+		<div class="cms_navItemList" id="cms_navItemList_template">
+			<ul>
+			<li class="cms_navItem"><a href="admin.php?type=templateDisplay" class="cms_navItemLink">Edit Templates</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=template&action=update&p=" class="cms_navItemLink">Add a Template</a></li>
+			</ul>
+		</div>	
+	</div>	
+	
+	<div><div class="cms_navItemTitle"><div id="cms_plugin" class="icon-share icon-white cms_icon"></div>Plugin Manager</div>
 		<div class="cms_navItemList" id="cms_navItemList_plug">
 			<ul>
-			<li class="cms_navItem"><a href="#" class="cms_navItemLink">Edit Plugins</a></li>
-			<li class="cms_navItem"><a href="#" class="cms_navItemLink">Add a Plugin</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=pluginDisplay" class="cms_navItemLink">Edit Plugins</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=plugin&action=update&p=" class="cms_navItemLink">Add a Plugin</a></li>
 			</ul>
 		</div>	
 	</div>
-	-->
+
 	<div><div class="cms_navItemTitle"></div></div>
 </div>
