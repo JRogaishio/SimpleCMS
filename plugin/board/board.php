@@ -12,12 +12,22 @@ I am using recursive functions to build an "indented" format of comments and not
 
 class board {
 
-	var $_postID;
+	private $conn;
+	private $log;
+	private $scope;
+	
+	private $_postID;
+	
+	public function __construct($conn, $log, $scope) {
+		$this->conn = $conn;
+		$this->log = $log;
+		$this->scope = $scope;
+	}
 	
 	/*
 	Initializer function! Woo!
 	*/
-	public function board($postID) {
+	public function loadBoard($postID) {
 		$this->_postID = $postID;
 		
 		$this->displayPostForm(null);

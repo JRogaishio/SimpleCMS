@@ -85,6 +85,36 @@ class core {
 	}
 	
 	/**
+	 * Loads the plugin files
+	 */
+	public function loadPlugins() {
+		
+		$sql = "SELECT * FROM plugins ORDER BY plugin_created DESC";
+		$result = $this->_CONN->query($sql);
+		
+		if ($result !== false && mysqli_num_rows($result) > 0 ) {
+			while($row = mysqli_fetch_assoc($result) ) {
+		
+				$name = stripslashes($row['plugin_name']);
+				$file = stripslashes($row['plugin_file']);
+				$path = stripslashes($row['plugin_path']);
+		
+				//Include the plugin class, initiate it and add it to the scope
+				include_once(PLUGIN_PATH . "/" . $path . "/" . $file);
+				$pluginObj = new $name($this->_CONN, $this->_LOG, $this->_SCOPE);
+				$this->addToScope($pluginObj);
+			}
+		}
+		
+		
+		
+	}
+	
+	
+	
+	
+	
+	/**
 	 * Renders a specific PHP file
 	 */
 	public function render($name) {

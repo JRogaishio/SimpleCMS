@@ -152,7 +152,7 @@ class plugin extends model
 			<input name="file" id="file" type="text" maxlength="150" value="' . $this->file . '" />
 			<div class="clear"></div>
 
-			<label for="name" title="This is the name that will appear when selecting a plugin">Display name:</label><br />
+			<label for="name" title="This is the class name in the above file">Class name:</label><br />
 			<input name="name" id="name" type="text" maxlength="150" value="' . $this->name . '" />
 			<div class="clear"></div>
 

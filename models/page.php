@@ -15,7 +15,7 @@ class page extends model
 	protected $templatePath = null;
 	protected $safeLink = null;
 	protected $metaData = null;
-	protected $hasBoard = null;
+	protected $flags = null;
 	protected $isHome = null;
 	protected $constr = false;
 
@@ -26,7 +26,7 @@ class page extends model
 	public function getTemplatePath() {return $this->templatePath;}
 	public function getSafeLink() {return $this->safeLink;}
 	public function getMetaData() {return $this->metaData;}
-	public function getHasBoard() {return $this->hasBoard;}
+	public function getFlags() {return explode(",", $this->flags);}
 	public function getIsHome() {return $this->isHome;}
 	public function getConstr() {return $this->constr;}
 
@@ -37,9 +37,16 @@ class page extends model
 	public function setTemplatePath($val) {$this->templatePath = $val;}
 	public function setSafeLink($val) {$this->safeLink = $val;}
 	public function setMetaData($val) {$this->metaData = $val;}
-	public function setHasBoard($val) {$this->hasBoard = $val;}
+	public function setFlags($arr=array()) {$this->flags = implode(",", $arr);}
 	public function setIsHome($val) {$this->isHome = $val;}
 	public function setConstr($val) {$this->constr = $val;}
+	
+	//Returns true if the flag exists or false if it doesnt
+	public function hasFlag($flag) {
+		$ret = in_array($flag, $this->flags);
+		
+		return $ret;
+	}
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -55,7 +62,7 @@ class page extends model
 		if(isset($params['template'])) $this->template = clean($this->conn, $params['template']);
 		if(isset($params['safelink'])) $this->safeLink = clean($this->conn, $params['safelink']);
 		if(isset($params['metadata'])) $this->metaData = clean($this->conn, $params['metadata']);
-		if(isset($params['board'])) $this->hasBoard = clean($this->conn, $params['board']);
+		if(isset($params['flags'])) $this->flags = clean($this->conn, $params['flags']);
 		if(isset($params['homepage'])) $this->isHome = (int) clean($this->conn, $params['homepage']);
 		$this->constr = true;
 	}
@@ -95,8 +102,8 @@ class page extends model
 					$homeResult = $this->conn->query($sql) OR DIE ("Could not update home page!");
 				}
 				
-				$sql = "INSERT INTO pages (page_template, page_safeLink, page_meta, page_title, page_hasBoard, page_isHome, page_created) VALUES";
-				$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', " . convertToBit($this->hasBoard) . ", " . convertToBit($this->isHome) . "," . time() . ")";
+				$sql = "INSERT INTO pages (page_template, page_safeLink, page_meta, page_title, page_flags, page_isHome, page_created) VALUES";
+				$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', '$this->flags', " . convertToBit($this->isHome) . "," . time() . ")";
 
 				$result = $this->conn->query($sql) OR DIE ("Could not create page!");
 				if($result) {
@@ -137,7 +144,7 @@ class page extends model
 				page_safeLink = '$this->safeLink', 
 				page_meta = '$this->metaData', 
 				page_title = '$this->title', 
-				page_hasBoard = " . convertToBit($this->hasBoard) . ", 
+				page_flags = '$this->flags', 
 				page_isHome = " . convertToBit($this->isHome) . "
 				WHERE id=" . $this->id . ";";
 
@@ -201,7 +208,7 @@ class page extends model
 				$this->template = $row['page_template'];
 				$this->safeLink = $row['page_safeLink'];
 				$this->metaData = $row['page_meta'];
-				$this->hasBoard = $row['page_hasBoard'];
+				$this->flags = $row['page_flags'];
 				$this->isHome = $row['page_isHome'];
 			}
 			
@@ -245,8 +252,8 @@ class page extends model
 			<div class="clear"></div>
 			<br />
 
-			<label for="board">has Board?:</label><br />
-			<input name="board" id="board" type="checkbox" value="1"'. ($this->hasBoard==1?"checked=checked":""). '/>
+			<label for="flags">Flags (separated by comma):</label><br />
+			<input name="flags" id="flags" type="text" value="' . $this->flags . '" />
 			<div class="clear"></div>
 			<br />
 
@@ -474,7 +481,7 @@ class page extends model
 		  `page_safeLink` varchar(32) DEFAULT NULL,
 		  `page_meta` text,
 		  `page_title` varchar(128) DEFAULT NULL,
-		  `page_hasBoard` tinyint(1) DEFAULT NULL,
+		  `page_flags` text,
 		  `page_isHome` tinyint(1) DEFAULT NULL,
 		  `page_created` varchar(128) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
