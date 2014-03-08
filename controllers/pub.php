@@ -19,7 +19,7 @@ class pub extends core {
 	 *
 	 */
 	public function load () {
-		$this->loadPlugins();
+		$this->loadPlugins($this);
 		
 		$this->_LINKFORMAT = get_linkFormat($this->_CONN);
 		

@@ -26,7 +26,6 @@ class plugin extends model
 	public function setFile($val) {$this->file = $val;}
 	public function setName($val) {$this->name = $val;}
 	
-	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -38,8 +37,7 @@ class plugin extends model
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
 		if(isset($params['path'])) $this->path = clean($this->conn, $params['path']);
 		if(isset($params['file'])) $this->file = clean($this->conn, $params['file']);
-		if(isset($params['name'])) $this->name = clean($this->conn, $params['name']);
-
+		$this->name = substr($this->file, 0, strpos($this->file, ".php"));
 		$this->constr = true;
 	}
 
@@ -49,8 +47,8 @@ class plugin extends model
 	public function insert() {
 		if($this->constr) {
 			
-			$sql = "INSERT INTO plugins (plugin_path, plugin_file, plugin_name, plugin_created) VALUES";
-			$sql .= "('$this->path', '$this->file', '$this->name','" . time() . "')";
+			$sql = "INSERT INTO plugins (plugin_path, plugin_file, plugin_created) VALUES";
+			$sql .= "('$this->path', '$this->file', '" . time() . "')";
 			
 			$result = $this->conn->query($sql) OR DIE ("Could not create plugin!");
 			if($result) {
@@ -72,8 +70,7 @@ class plugin extends model
 
 			$sql = "UPDATE plugins SET
 			plugin_path = '$this->path', 
-			plugin_file = '$this->file', 
-			plugin_name = '$this->name'
+			plugin_file = '$this->file'
 			WHERE id=" . $this->id . ";";
 			
 			$result = $this->conn->query($sql) OR DIE ("Could not update plugin!");
@@ -122,7 +119,7 @@ class plugin extends model
 				$this->id = $row['id'];
 				$this->path = $row['plugin_path'];
 				$this->file = $row['plugin_file'];
-				$this->name = $row['plugin_name'];
+				$this->name = substr($this->file, 0, strpos($this->file, ".php"));
 			}
 			
 			$this->constr = true;
@@ -150,10 +147,6 @@ class plugin extends model
 
 			<label for="file" title="This is the name of the plugin php file">Plugin filename:</label><br />
 			<input name="file" id="file" type="text" maxlength="150" value="' . $this->file . '" />
-			<div class="clear"></div>
-
-			<label for="name" title="This is the class name in the above file">Class name:</label><br />
-			<input name="name" id="name" type="text" maxlength="150" value="' . $this->name . '" />
 			<div class="clear"></div>
 
 			<div class="clear"></div>
@@ -226,7 +219,6 @@ class plugin extends model
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `plugin_path` varchar(128) DEFAULT NULL,
 		  `plugin_file` varchar(128) DEFAULT NULL,
-		  `plugin_name` varchar(64) DEFAULT NULL,
 		  `plugin_created` varchar(128) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";

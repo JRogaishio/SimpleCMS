@@ -16,6 +16,14 @@
 	<?php
 	
 	$this->getScope ( "page" )->display_posts ( 5, true );
+	
+	/*
+	//Plugin Loading Example
+	if($this->getScope("page")->hasFlag("board")) {
+		$this->getScope("board")->loadBoard();
+	}*/
+	
+	
 	?>
 	</div>
 </body>

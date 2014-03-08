@@ -330,10 +330,12 @@ class admin extends core {
 		if ($result !== false && mysqli_num_rows($result) > 0 ) {
 			while($row = mysqli_fetch_assoc($result) ) {
 	
-				$name = stripslashes($row['plugin_name']);
 				$file = stripslashes($row['plugin_file']);
 				$path = stripslashes($row['plugin_path']);
-	
+				$name = substr($file, 0, strpos($file, ".php"));
+				if($name == null)
+					$name = "ERROR WITH PLUGIN FILE NAME";
+				
 				echo "
 				<div class=\"plugin\">
 					<h2>

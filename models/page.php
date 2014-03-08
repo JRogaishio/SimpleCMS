@@ -43,7 +43,7 @@ class page extends model
 	
 	//Returns true if the flag exists or false if it doesnt
 	public function hasFlag($flag) {
-		$ret = in_array($flag, $this->flags);
+		$ret = in_array($flag, explode(",", $this->flags));
 		
 		return $ret;
 	}
