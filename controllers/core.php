@@ -75,6 +75,22 @@ class core {
 		return $this->_ACTION;
 	}
 	
+	public function get_FILTER() {
+		return $this->_FILTER;
+	}
+		
+	public function get_CONN() {
+		return $this->_CONN;
+	}
+	
+	public function _LINKFORMAT() {
+		return $this->_LINKFORMAT;
+	}
+	
+	public function get_LOG() {
+		return $this->_LOG;
+	}
+	
 	
 	/**
 	 * Gets the current scope index provided an object is defined
@@ -115,7 +131,7 @@ class core {
 				
 				//Include the plugin class, initiate it and add it to the scope
 				include_once(PLUGIN_PATH . "/" . $path . "/" . $file);
-				$pluginObj = new $className($this->_CONN, $this->_LOG, $context);
+				$pluginObj = new $className($context);
 				$this->addToScope($pluginObj);
 			}
 		}

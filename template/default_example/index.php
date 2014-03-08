@@ -23,6 +23,8 @@
 		$this->getScope("board")->loadBoard();
 	}*/
 	
+	$this->getScope("example")->load();
+	
 	
 	?>
 	</div>

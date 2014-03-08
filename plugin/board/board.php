@@ -12,15 +12,11 @@ I am using recursive functions to build an "indented" format of comments and not
 
 class board {
 
-	private $conn;
-	private $log;
 	private $controller;
 	
 	private $pageId;
 	
-	public function __construct($conn, $log, $controller) {
-		$this->conn = $conn;
-		$this->log = $log;
+	public function __construct($controller) {
 		$this->controller = $controller;
 		
 		$this->buildTable();
@@ -29,8 +25,9 @@ class board {
 	/*
 	Initializer function! Woo!
 	*/
-	public function loadBoard() {	
-		$this->pageId = lookupPageIdByLink($this->conn, $this->controller->get_PARENT());
+	public function load() {	
+		/*
+		 $this->pageId = lookupPageIdByLink($this->conn, $this->controller->get_PARENT());
 		
 		if(isset($_POST['type']) && isset($_POST['action'])) {
 			if($_POST['type'] == "board" && $_POST['action'] == "post") {
@@ -49,10 +46,11 @@ class board {
 		
 		//Load the board
 		$this->loadComments();
-		
+		*/
 	}
 
 	private function displayPostForm($replyToId) {
+		/*
 		echo "<form action='{$_SERVER['PHP_SELF']}?p=" . $this->controller->get_PARENT() . "' method='post'>
 				<input type='hidden' name='type' value='board' />
 				<input type='hidden' name='action' value='post' />
@@ -62,6 +60,7 @@ class board {
 				<input type='submit' name='board_submit' value='Submit post!' />
 		";
 		echo "</form>";
+		*/
 	
 	}
 	
@@ -70,6 +69,7 @@ class board {
 	function to load all subcomments
 	*/
 	private function loadComments() {
+		/*
 		$result = mysql_query("SELECT * FROM board WHERE board_postID=" . $this->pageId . " AND board_replyTo IS NULL;");
 	
 		if($result !== false && mysql_num_rows($result) > 0) {
@@ -83,6 +83,7 @@ class board {
 		} else {
 			echo "No posts found!";
 		}
+		*/
 	}
 	
 	/*
@@ -90,7 +91,7 @@ class board {
 	This function stops recursively running once all the comments have been loaded
 	*/
 	private function loadSubComments($parentID) {
-		$result = mysql_query("SELECT * FROM board WHERE board_postID=" . $this->pageId . " AND board_replyTo=" . $parentID . ";");
+		/*$result = mysql_query("SELECT * FROM board WHERE board_postID=" . $this->pageId . " AND board_replyTo=" . $parentID . ";");
 	
 		//Loop through all the row
 		while($row = mysql_fetch_array($result))
@@ -98,7 +99,7 @@ class board {
 			echo "<div class='comment_Sub'>";
 			$this->generateComment($row);
 			echo "</div>";
-		}
+		}*/
 	}
 	
 	/*
@@ -107,16 +108,16 @@ class board {
 	*/
 	private function generateComment($data) {
 		//Loop through all the row
-		echo $data['board_comment'] . " <br /> Posted By: " . $data['board_authorId'];
+		/*echo $data['board_comment'] . " <br /> Posted By: " . $data['board_authorId'];
 		echo "<br />";
-		$this->loadSubComments($data['id']);
+		$this->loadSubComments($data['id']);*/
 		
 	}
 	
 	
 	public function buildTable() {
 		/*Table structure for table `pages` */
-		$sql = "CREATE TABLE IF NOT EXISTS `pages` (
+		/*$sql = "CREATE TABLE IF NOT EXISTS `pages` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `board_postId` int(16) DEFAULT NULL,
 		  `board_authorId` int(16) DEFAULT NULL,
@@ -126,7 +127,7 @@ class board {
 		  `board_lastUpdated` datetime,
 		  PRIMARY KEY (`id`)
 		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"board\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"board\"");*/
 	}
 	
 	
