@@ -26,7 +26,6 @@ class plugin extends model
 	public function setFile($val) {$this->file = $val;}
 	public function setName($val) {$this->name = $val;}
 	
-	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -38,8 +37,7 @@ class plugin extends model
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
 		if(isset($params['path'])) $this->path = clean($this->conn, $params['path']);
 		if(isset($params['file'])) $this->file = clean($this->conn, $params['file']);
-		if(isset($params['name'])) $this->name = clean($this->conn, $params['name']);
-
+		$this->name = substr($this->file, 0, strpos($this->file, ".php"));
 		$this->constr = true;
 	}
 
@@ -49,12 +47,12 @@ class plugin extends model
 	public function insert() {
 		if($this->constr) {
 			
-			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES";
-			$sql .= "('$this->path', '$this->file', '$this->name','" . time() . "')";
-
-			$result = $this->conn->query($sql) OR DIE ("Could not create template!");
+			$sql = "INSERT INTO plugins (plugin_path, plugin_file, plugin_created) VALUES";
+			$sql .= "('$this->path', '$this->file', '" . time() . "')";
+			
+			$result = $this->conn->query($sql) OR DIE ("Could not create plugin!");
 			if($result) {
-				echo "<span class='update_notice'>Created template successfully!</span><br /><br />";
+				echo "<span class='update_notice'>Created plugin successfully!</span><br /><br />";
 			}
 		} else {
 			echo "Failed to load fornm data!";
@@ -70,15 +68,14 @@ class plugin extends model
 	
 		if($this->constr) {
 
-			$sql = "UPDATE templates SET
-			template_path = '$this->path', 
-			template_file = '$this->file', 
-			template_name = '$this->name'
+			$sql = "UPDATE plugins SET
+			plugin_path = '$this->path', 
+			plugin_file = '$this->file'
 			WHERE id=" . $this->id . ";";
 			
-			$result = $this->conn->query($sql) OR DIE ("Could not update template!");
+			$result = $this->conn->query($sql) OR DIE ("Could not update plugin!");
 			if($result) {
-				echo "<span class='update_notice'>Updated template successfully!</span><br /><br />";
+				echo "<span class='update_notice'>Updated plugin successfully!</span><br /><br />";
 			}
 
 		} else {
@@ -95,12 +92,12 @@ class plugin extends model
 	 * @return returns the database result on the delete query
 	 */
 	public function delete() {
-		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
+		echo "<span class='update_notice'>Plugin deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this plugin!</span><br /><br />";
 		
-		$templateSQL = "DELETE FROM templates WHERE id=" . $this->id;
-		$templateResult = $this->conn->query($templateSQL);
+		$sql = "DELETE FROM plugins WHERE id=" . $this->id;
+		$result = $this->conn->query($sql);
 		
-		return $templateResult;
+		return $result;
 	}
 	
 	/**
@@ -111,18 +108,18 @@ class plugin extends model
 	public function loadRecord($pluginId) {
 		if(isset($pluginId) && $pluginId != null) {
 			
-			$templateSQL = "SELECT * FROM templates WHERE id=$pluginId";
+			$sql = "SELECT * FROM plugins WHERE id=$pluginId";
 				
-			$templateResult = $this->conn->query($templateSQL);
+			$result = $this->conn->query($sql);
 
-			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
-				$row = mysqli_fetch_assoc($templateResult);
+			if ($result !== false && mysqli_num_rows($result) > 0 )
+				$row = mysqli_fetch_assoc($result);
 
 			if(isset($row)) {
 				$this->id = $row['id'];
-				$this->path = $row['template_path'];
-				$this->file = $row['template_file'];
-				$this->name = $row['template_name'];
+				$this->path = $row['plugin_path'];
+				$this->file = $row['plugin_file'];
+				$this->name = substr($this->file, 0, strpos($this->file, ".php"));
 			}
 			
 			$this->constr = true;
@@ -142,24 +139,20 @@ class plugin extends model
 
 		echo "<div id='main_content'>";
 		echo '
-			<form action="admin.php?type=template&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=plugin&action=update&p=' . $this->id . '" method="post">
 
-			<label for="path" title="This is the name in _template">Template folder name:</label><br />
+			<label for="path" title="This is the name in plugins">Plugin folder name:</label><br />
 			<input name="path" id="path" type="text" maxlength="150" value="' . $this->path . '" />
 			<div class="clear"></div>
 
-			<label for="file" title="This is the name of the template php file">Template filename:</label><br />
+			<label for="file" title="This is the name of the plugin php file">Plugin filename:</label><br />
 			<input name="file" id="file" type="text" maxlength="150" value="' . $this->file . '" />
-			<div class="clear"></div>
-
-			<label for="name" title="This is the name that will appear when selecting a template">Display name:</label><br />
-			<input name="name" id="name" type="text" maxlength="150" value="' . $this->name . '" />
 			<div class="clear"></div>
 
 			<div class="clear"></div>
 			<br />
-			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($pluginId) || $pluginId == null) ? "Create" : "Update") . ' This Template!" /><br /><br />
-			' . ((isset($pluginId) && $pluginId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
+			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($pluginId) || $pluginId == null) ? "Create" : "Update") . ' This Plugin!" /><br /><br />
+			' . ((isset($pluginId) && $pluginId != null) ? '<a href="admin.php?type=plugin&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Plugin!</a><br /><br />' : '') . '
 			</form>
 		';
 		echo "</div>";
@@ -196,7 +189,7 @@ class plugin extends model
 					} else {
 						$this->update($parent);
 						//Re-build the page creation form once we are done
-						$this->buildEditForm($templateId);
+						$this->buildEditForm($parent);
 						$this->log->trackChange("plugin", 'update',$user->getId(),$user->getLoginname(), $this->name . " added");
 					}
 				} else {
@@ -210,7 +203,7 @@ class plugin extends model
 				$this->log->trackChange("plugin", 'delete',$user->getId(),$user->getLoginname(), $this->name . " added");
 				break;
 			default:
-				echo "Error with template manager<br /><br />";
+				echo "Error with plugin manager<br /><br />";
 				$ret = true;
 		}
 		return $ret;
@@ -226,7 +219,7 @@ class plugin extends model
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `plugin_path` varchar(128) DEFAULT NULL,
 		  `plugin_file` varchar(128) DEFAULT NULL,
-		  `tplugin_name` varchar(64) DEFAULT NULL,
+		  `plugin_created` varchar(128) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
 		

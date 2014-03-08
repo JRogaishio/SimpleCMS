@@ -42,8 +42,14 @@ function lookupPageNameById($conn, $pageId) {
  * @return returns the page Id selected
  */
 function lookupPageIdByLink($conn, $pageLink) {
+	if($pageLink == null || $pageLink == "") {
+		$pageSQL = "SELECT * FROM pages WHERE page_safeLink='$pageLink'";
+	} else {
+		$pageSQL = "SELECT * FROM pages WHERE page_isHome=true";
+	}
+	
 	$pageLink = clean($conn, $pageLink);
-	$pageSQL = "SELECT * FROM pages WHERE page_safeLink='$pageLink'";
+	
 	$pageResult =  $conn->query($pageSQL);
 	$ret = null;
 	if(mysqli_num_rows($pageResult) > 0) {

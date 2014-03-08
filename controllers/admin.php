@@ -75,6 +75,17 @@ class admin extends core {
 				case "templateDisplay":
 					echo $this->cms_displayAdminTemplates();
 					break;
+				case "plugin":
+					$obj = new plugin($this->_CONN, $this->_LOG);
+					$result = $obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER);
+					parent::addToScope($obj);
+					if($result)
+						echo $this->cms_displayAdminPlugins();
+				
+					break;
+				case "pluginDisplay":
+					echo $this->cms_displayAdminPlugins();
+					break;	
 				case "post":
 					$obj = new post($this->_CONN, $this->_LOG);
 					$result = $obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER);
@@ -300,11 +311,48 @@ class admin extends core {
 		} else {
 			echo "
 			<p>
-				No pages found!
+				No templates found!
 			</p>";
 		}
 	
 	}
+	
+	/**
+	 * Display the list of all plugins
+	 *
+	 */
+	public function cms_displayAdminPlugins() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pluginDisplay">Plugin List</a><br /><br />';
+	
+		$sql = "SELECT * FROM plugins ORDER BY plugin_created DESC";
+		$result = $this->_CONN->query($sql);
+	
+		if ($result !== false && mysqli_num_rows($result) > 0 ) {
+			while($row = mysqli_fetch_assoc($result) ) {
+	
+				$file = stripslashes($row['plugin_file']);
+				$path = stripslashes($row['plugin_path']);
+				$name = substr($file, 0, strpos($file, ".php"));
+				if($name == null)
+					$name = "ERROR WITH PLUGIN FILE NAME";
+				
+				echo "
+				<div class=\"plugin\">
+					<h2>
+					<a href=\"admin.php?type=plugin&action=update&p=".$row['id']."\" title=\"Edit / Manage this plugin\" alt=\"Edit / Manage this plugin\" class=\"cms_pageEditLink\" >$name</a>
+						</h2>
+						<p>" . PLUGIN_PATH . "/" . $path . "/" . $file . "</p>
+				</div>";
+	
+			}
+		} else {
+			echo "
+			<p>
+				No plugins found!
+			</p>";
+		}
+	
+	}	
 	
 	/** 
 	 * Display the list of all posts and their respective pages
@@ -380,7 +428,7 @@ class admin extends core {
 		} else {
 			echo "
 			<p>
-				No pages found!
+				No users found!
 			</p>";
 		}
 	

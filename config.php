@@ -11,6 +11,7 @@ define( "CONTOLLER_PATH", "controllers" );
 define( "MODEL_PATH", "models" );
 define( "VIEW_PATH", "views" );
 define( "TEMPLATE_PATH", "template" );
+define( "PLUGIN_PATH", "plugin" );
 define( "ADMINFORM_PATH", "adminForm" );
 define( "LIBRARY_PATH", "lib" );
 define( "SITE_ROOT", "http://localhost/ferretCMS/" );

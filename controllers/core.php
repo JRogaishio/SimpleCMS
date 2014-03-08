@@ -43,6 +43,8 @@ class core {
 		$this->_PARENT = isset( $_GET['p'] ) ? clean($this->_CONN,$_GET['p']) : null;
 		$this->_CHILD = isset( $_GET['c'] ) ? clean($this->_CONN,$_GET['c']) : null;
 		$this->_FILTER = isset( $_GET['f'] ) ? clean($this->_CONN,$_GET['f']) : null;
+		
+		$this->addToScope($this);
 	}
 	
 	/**
@@ -65,6 +67,15 @@ class core {
 		return $this->_CHILD;
 	}
 	
+	public function get_TYPE() {
+		return $this->_TYPE;
+	}
+	
+	public function get_ACTION() {
+		return $this->_ACTION;
+	}
+	
+	
 	/**
 	 * Gets the current scope index provided an object is defined
 	 */
@@ -83,6 +94,39 @@ class core {
 		if (is_object ( $obj ))
 			$this->_SCOPE [get_class ( $obj )] = $obj;
 	}
+	
+	/**
+	 * Loads the plugin files
+	 * 
+	 * @param $context		The controller that called this function
+	 */
+	public function loadPlugins($context) {
+		
+		$sql = "SELECT * FROM plugins ORDER BY plugin_created DESC";
+		$result = $this->_CONN->query($sql);
+		
+		if ($result !== false && mysqli_num_rows($result) > 0 ) {
+			while($row = mysqli_fetch_assoc($result) ) {
+		
+				
+				$file = stripslashes($row['plugin_file']);
+				$path = stripslashes($row['plugin_path']);
+				$className = substr($file, 0, strpos($file, ".php"));
+				
+				//Include the plugin class, initiate it and add it to the scope
+				include_once(PLUGIN_PATH . "/" . $path . "/" . $file);
+				$pluginObj = new $className($this->_CONN, $this->_LOG, $context);
+				$this->addToScope($pluginObj);
+			}
+		}
+		
+		
+		
+	}
+	
+	
+	
+	
 	
 	/**
 	 * Renders a specific PHP file
