@@ -4,22 +4,22 @@ Options -Indexes
 <IfModule mod_rewrite.c>
 	Options +FollowSymLinks -MultiViews
 	RewriteEngine On
-	RewriteBase /ferretCMS/
+	RewriteBase /
 	
 	#400 REDIRECT
-	ErrorDocument 400 http://localhost/ferretCMS/index.php?p=SYS_400
+	ErrorDocument 400 http://ferretcms.localhost/index.php?p=SYS_400
 	
 	#401 REDIRECT
-	ErrorDocument 401 http://localhost/ferretCMS/index.php?p=SYS_401
+	ErrorDocument 401 http://ferretcms.localhost/index.php?p=SYS_401
 	
 	#403 REDIRECT
-	ErrorDocument 403 http://localhost/ferretCMS/index.php?p=SYS_403
+	ErrorDocument 403 http://ferretcms.localhost/index.php?p=SYS_403
 	
 	#404 REDIRECT
-	ErrorDocument 404 http://localhost/ferretCMS/index.php?p=SYS_404
+	ErrorDocument 404 http://ferretcms.localhost/index.php?p=SYS_404
 	
 	#500REDIRECT
-	ErrorDocument 500 http://localhost/ferretCMS/index.php?p=SYS_500
+	ErrorDocument 500 http://ferretcms.localhost/index.php?p=SYS_500
 
 	# Removes index.php from ExpressionEngine URLs
 	RewriteCond $1 !\.(gif|jpe?g|png)$ [NC]
