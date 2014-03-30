@@ -14,7 +14,7 @@ class pageService extends service
 	}
 	
 	/*
-	 @param postLimit	The max number of posts to display on a single page
+	@param postLimit	The max number of posts to display on a single page
 	@param showDate		True / False on whether to show the post date under the title
 	@param showPerma	True / False on whether to show the permanent link to the post
 	@param childId		The ID of the post to display. This is used for permalinking a swell as page scrolling using ~ and the next / back links
@@ -90,6 +90,28 @@ class pageService extends service
 			return null;
 		}
 
+	}
+	
+	public function display_post_nav($postLimit, $childId) {
+		if(strpos(clean($this->conn,$childId), "~") !== false) {
+			$temp = str_replace("~", "", (clean($this->conn,$childId))); //Grab the current page # we are on
+			if ($temp <= 0)
+				$temp = 0;
+	
+			$startPos = $temp;
+			//Calculate the number of the back limit
+			$backNum = $startPos - $postLimit;
+			if ($backNum <= 0)
+				$backNum = 0;
+				
+			//Calculate how far ahead we need to go
+			$nextNum = $startPos + $postLimit;
+	
+			echo "<a href='" . formatLink($this->model->getLinkFormat(), $this->model->getSafeLink(), "~" . $backNum) . "' class='cms_page_nav'>back</a> <a href='" . formatLink($this->model->getLinkFormat(), $this->model->getSafeLink(), "~" . $nextNum) . "' class='cms_page_nav'>next</a>";
+		} else {
+			echo "<a href='" . formatLink($this->model->getLinkFormat(), $this->model->getSafeLink(), "~0") . "' class='cms_page_nav'>back</a> <a href='" . formatLink($this->model->getLinkFormat(), $this->model->getSafeLink(), "~" . $postLimit) . "' class='cms_page_nav'>next</a>";
+		}
+	
 	}
 	
 }

@@ -4,8 +4,8 @@
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title><?php echo $page->getTitle(); ?></title>
-	<link rel="stylesheet" type="text/css" href="<?php echo SITE_ROOT . TEMPLATE_PATH . "/" . $page->getTemplatePath() . "/main.css";?>" />
+	<title><?php echo $this->getScope("pageService")->getPage()->getTitle(); ?></title>
+	<link rel="stylesheet" type="text/css" href="<?php echo SITE_ROOT . TEMPLATE_PATH . "/" . $this->getScope("pageService")->getPage()->getTemplatePath() . "/main.css";?>" />
 	
 </head>
 
@@ -13,11 +13,11 @@
 	<div id="main">
 	<?php $cms->load_navigation(array("home","blog","archive")); ?>
 	
-	<h1><?php echo $page->getTitle(); ?></h1>
+	<h1><?php echo $this->getScope("pageService")->getPage()->getTitle(); ?></h1>
 	<?php
 
 	
-	$page->display_posts(-1, true, false, true, $cms->get_CHILD(), "blog");
+	$this->getScope("pageService")->display_posts(-1, true, false, true, $cms->get_CHILD(), "blog");
 	
 	?>
 	</div>

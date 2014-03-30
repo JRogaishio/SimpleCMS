@@ -317,30 +317,6 @@ class page extends model
 		}
 	}
 	
-	
-	
-	public function display_post_nav($postLimit, $childId) {
-		if(strpos(clean($this->conn,$childId), "~") !== false) {
-			$temp = str_replace("~", "", (clean($this->conn,$childId))); //Grab the current page # we are on
-			if ($temp <= 0)
-				$temp = 0;
-				
-			$startPos = $temp;
-			//Calculate the number of the back limit
-			$backNum = $startPos - $postLimit;
-			if ($backNum <= 0)
-				$backNum = 0;
-			
-			//Calculate how far ahead we need to go
-			$nextNum = $startPos + $postLimit;
-				
-			echo "<a href='" . formatLink($this->linkFormat, $this->safeLink, "~" . $backNum) . "' class='cms_page_nav'>back</a> <a href='" . formatLink($this->linkFormat, $this->safeLink, "~" . $nextNum) . "' class='cms_page_nav'>next</a>";
-		} else {
-			echo "<a href='" . formatLink($this->linkFormat, $this->safeLink, "~0") . "' class='cms_page_nav'>back</a> <a href='" . formatLink($this->linkFormat, $this->safeLink, "~" . $postLimit) . "' class='cms_page_nav'>next</a>";
-		}
-		
-	}
-	
 	/**
 	 * Display the page management page
 	 *
