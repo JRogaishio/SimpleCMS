@@ -13,7 +13,7 @@
 	<div id="main">
 	<?php $cms->load_navigation(array("home","blog","archive")); ?>
 	
-	<h1><?php echo $page->getTitle(); ?></h1>
+	<h1><?php echo $this->getScope("pageService")->getPage()->getTitle(); ?></h1>
 	<?php
 	$this->getScope("pageService")->display_posts(5, true, true, true, $cms->get_CHILD());
 	
