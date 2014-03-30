@@ -42,7 +42,7 @@ class pub extends core {
 		global $cms; //Make the CMS variable a global so the pages can reference it
 	
 		$page = new Page($this->_CONN, $this->_LOG);
-		$this->addToScope($page);
+		$this->getScope('pageService')->setContext($page);
 		
 		//Load the page
 		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home" && strpos($pSafeLink,"SYS_") === false) {
