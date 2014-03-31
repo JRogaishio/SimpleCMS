@@ -4,16 +4,21 @@ include_once('lib/database.php');
 include_once('lib/encrypt.php');
 include_once('lib/management.php');
 
-include_once('models/model.php');
-include_once('models/site.php');
-include_once('models/user.php');
-include_once('models/page.php');
-include_once('models/post.php');
-include_once('models/plugin.php');
-include_once('models/template.php');
-include_once('models/updater.php');
-include_once('models/log.php');
-include_once('models/authenticate.php');
+include_once('models/entity/model.php');
+include_once('models/entity/site.php');
+include_once('models/entity/user.php');
+include_once('models/entity/page.php');
+include_once('models/entity/post.php');
+include_once('models/entity/plugin.php');
+include_once('models/entity/template.php');
+include_once('models/entity/updater.php');
+include_once('models/entity/log.php');
+include_once('models/entity/authenticate.php');
+
+include_once('models/service/service.php');
+include_once('models/service/pageService.php');
+include_once('models/service/postService.php');
+include_once('models/service/templateService.php');
 
 class core {
 	protected $_TYPE = null;
@@ -45,6 +50,16 @@ class core {
 		$this->_FILTER = isset( $_GET['f'] ) ? clean($this->_CONN,$_GET['f']) : null;
 		
 		$this->addToScope($this);
+		
+		//Initialize the services
+		$pageService = new pageService($this->_CONN, $this->_LOG);
+		$postService = new postService($this->_CONN, $this->_LOG);
+		$templateService = new templateService($this->_CONN, $this->_LOG);
+		
+		//Add services to scope
+		$this->addToScope($pageService);
+		$this->addToScope($postService);
+		$this->addToScope($templateService);
 	}
 	
 	/**
@@ -109,7 +124,7 @@ class core {
 	public function addToScope($obj) {
 		if (is_object ( $obj ))
 			$this->_SCOPE [get_class ( $obj )] = $obj;
-	}
+	}	
 	
 	/**
 	 * Loads the plugin files
