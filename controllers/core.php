@@ -18,6 +18,7 @@ include_once('models/entity/authenticate.php');
 include_once('models/service/service.php');
 include_once('models/service/pageService.php');
 include_once('models/service/postService.php');
+include_once('models/service/templateService.php');
 
 class core {
 	protected $_TYPE = null;
@@ -53,10 +54,12 @@ class core {
 		//Initialize the services
 		$pageService = new pageService($this->_CONN, $this->_LOG);
 		$postService = new postService($this->_CONN, $this->_LOG);
+		$templateService = new templateService($this->_CONN, $this->_LOG);
 		
 		//Add services to scope
 		$this->addToScope($pageService);
 		$this->addToScope($postService);
+		$this->addToScope($templateService);
 	}
 	
 	/**
@@ -121,13 +124,7 @@ class core {
 	public function addToScope($obj) {
 		if (is_object ( $obj ))
 			$this->_SCOPE [get_class ( $obj )] = $obj;
-	}
-
-	public function addToService($service, $obj) {
-		if (is_object ( $obj ))
-			$this->$service->setContext($obj);
-	}
-	
+	}	
 	
 	/**
 	 * Loads the plugin files

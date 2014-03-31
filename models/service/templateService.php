@@ -6,9 +6,9 @@
  * @author Jacob Rogaishio
  * 
  */
-class postService extends service
+class templateService extends service
 {
-	public function getPost() {
+	public function getTemplate() {
 		return $this->model;
 	}
 }

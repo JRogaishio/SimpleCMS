@@ -14,9 +14,6 @@
 	
 	<h1><?php echo $this->getScope("pageService")->getPage()->getTitle(); ?></h1>
 	<?php
-	echo "<pre>";
-	//print_r($this->getScope ( "pageService" ));
-	echo "</pre>";
 	$this->getScope("pageService")->display_posts ( 5, true );
 	
 	/*
