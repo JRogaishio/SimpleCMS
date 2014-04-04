@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class to handle page templates
+ * Class to handle page keys
  *
  * @author Jacob Rogaishio
  * 
@@ -20,7 +20,7 @@ class key extends model
 	
 	//Setters
 	public function setId($val) {$this->id = $val;}
-	public function setValue($val) {$this->key = $val;}
+	public function setKey($val) {$this->key = $val;}
 	public function setValue($val) {$this->value = $val;}
 	
 	/**
@@ -63,9 +63,9 @@ class key extends model
 			$error = $this->validate();
 			if($error == "") {
 			
-				$sql = "INSERT INTO keys (key_name, key_value, key_created) VALUES";
+				$sql = "INSERT INTO customkeys (key_name, key_value, key_created) VALUES";
 				$sql .= "('$this->key', '$this->value','" . time() . "')";
-	
+
 				$result = $this->conn->query($sql) OR DIE ("Could not create key!");
 				if($result) {
 					echo "<span class='update_notice'>Created key successfully!</span><br /><br />";
@@ -90,7 +90,7 @@ class key extends model
 	
 		if($this->constr) {
 
-			$sql = "UPDATE keys SET
+			$sql = "UPDATE customkeys SET
 			key_name = '$this->key', 
 			key_value = '$this->value', 
 			WHERE id=" . $this->id . ";";
@@ -113,21 +113,21 @@ class key extends model
 	public function delete() {
 		echo "<span class='update_notice'>Key deleted! Bye bye '$this->key', we will miss you.<br />Please be sure to update any pages that were using this key!</span><br /><br />";
 		
-		$templateSQL = "DELETE FROM keys WHERE id=" . $this->id;
-		$templateResult = $this->conn->query($templateSQL);
+		$keySQL = "DELETE FROM customkeys WHERE id=" . $this->id;
+		$keyResult = $this->conn->query($keySQL);
 		
-		return $templateResult;
+		return $keyResult;
 	}
 	
 	/**
-	 * Loads the template object members based off the template id in the database
+	 * Loads the key object members based off the key id in the database
 	 * 
-	 * @param $templateId	The template to be loaded
+	 * @param $keyId	The key to be loaded
 	 */
 	public function loadRecord($keyId) {
-		if(isset($templateId) && $templateId != null) {
+		if(isset($keyId) && $keyId != null) {
 			
-			$keySQL = "SELECT * FROM keys WHERE id=$keyId";
+			$keySQL = "SELECT * FROM customkeys WHERE id=$keyId";
 				
 			$keyResult = $this->conn->query($keySQL);
 
@@ -146,16 +146,16 @@ class key extends model
 	}
 	
 	/**
-	 * Builds the admin editor form to add / update templates
+	 * Builds the admin editor form to add / update key
 	 * 
-	 * @param $templateId	The template to be edited
+	 * @param $keyID	The key to be edited
 	 */
 	public function buildEditForm($keyId) {
 
 		//Load the page from an ID
 		$this->loadRecord($keyId);
 
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a> > <a href="admin.php?type=key&action=update&p=' . $keyId . '">Key</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=keyDisplay">Key List</a> > <a href="admin.php?type=key&action=update&p=' . $keyId . '">Key</a><br /><br />';
 
 		
 		echo '
@@ -181,7 +181,7 @@ class key extends model
 	}
 	
 	/**
-	 * Display the template management page
+	 * Display the key management page
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {
@@ -201,7 +201,7 @@ class key extends model
 						if(!$result) {
 							$this->buildEditForm($parent);
 						} else {
-							$this->buildEditForm(getLastField($this->conn,"keys", "id"));
+							$this->buildEditForm(getLastField($this->conn,"customkeys", "id"));
 							$this->log->trackChange("key", 'add',$user->getId(),$user->getLoginname(), $this->key . " added");
 						}
 					} else {
@@ -210,18 +210,18 @@ class key extends model
 						$this->buildEditForm($parent);
 	
 						if($result) {
-							$this->log->trackChange("key", 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
+							$this->log->trackChange("key", 'update',$user->getId(),$user->getLoginname(), $this->key . " updated");
 						}
 					}
 				} else {
-					// User has not posted the template edit form yet: display the form
+					// User has not posted the key edit form yet: display the form
 					$this->buildEditForm($parent);
 				}
 				break;
 			case "delete":
 				$this->delete($parent);
 				$ret = true;
-				$this->log->trackChange("key", 'delete',$user->getId(),$user->getLoginname(), $this->name . " deleted");
+				$this->log->trackChange("key", 'delete',$user->getId(),$user->getLoginname(), $this->key . " deleted");
 				break;
 			default:
 				echo "Error with key manager<br /><br />";
@@ -235,16 +235,16 @@ class key extends model
 	 *
 	 */
 	public function buildTable() {
-		/*Table structure for table `templates` */
-		$sql = "CREATE TABLE IF NOT EXISTS `keys` (
+		/*Table structure for table `key` */
+		$sql = "CREATE TABLE IF NOT EXISTS `customkeys` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `key_name` varchar(128) DEFAULT NULL,
-		  `key_value` varchar(128) DEFAULT NULL,
+		  `key_value` text,
 		  `key_created` varchar(128) DEFAULT NULL,
 		
 		  PRIMARY KEY (`id`)
 		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"keys\"");	
+		$this->conn->query($sql) OR DIE ("Could not build table \"customkeys\"");	
 	}
 	
 }

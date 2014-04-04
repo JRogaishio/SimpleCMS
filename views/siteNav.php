@@ -6,6 +6,8 @@
 			<ul>
 			<li class="cms_navItem"><a href="admin.php?type=siteDisplay" class="cms_navItemLink">Edit Site</a></li>
 			<li class="cms_navItem"><a href="admin.php?type=log" class="cms_navItemLink">View the log</a></li>	
+			<li class="cms_navItem"><a href="admin.php?type=keyDisplay" class="cms_navItemLink">Edit Keys</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=key&action=update&p=" class="cms_navItemLink">Add a Key</a></li>
 			<li class="cms_navItem"><a href="admin.php?type=updateDisplay" class="cms_navItemLink">Update CMS</a></li>					
 			</ul>
 		</div>

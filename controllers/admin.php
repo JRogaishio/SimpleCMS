@@ -75,6 +75,17 @@ class admin extends core {
 				case "templateDisplay":
 					echo $this->cms_displayAdminTemplates();
 					break;
+				case "key":
+					$obj = new key($this->_CONN, $this->_LOG);
+					$result = $obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER);
+					parent::addToScope($obj);
+					if($result)
+						echo $this->cms_displayAdminKeys();
+				
+					break;
+				case "keyDisplay":
+					echo $this->cms_displayAdminKeys();
+					break;
 				case "plugin":
 					$obj = new plugin($this->_CONN, $this->_LOG);
 					$result = $obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER);
@@ -318,6 +329,41 @@ class admin extends core {
 	}
 	
 	/**
+	 * Display the list of all templates
+	 *
+	 */
+	public function cms_displayAdminKeys() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=keyDisplay">Key List</a><br /><br />';
+	
+		$keySQL = "SELECT * FROM customkeys ORDER BY key_created DESC";
+		$keyResult = $this->_CONN->query($keySQL);
+	
+		if ($keyResult !== false && mysqli_num_rows($keyResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($keyResult) ) {
+	
+				$name = stripslashes($row['key_name']);
+				$value = stripslashes($row['key_value']);
+	
+				echo "
+				<div class=\"key\">
+					<h2>
+					<a href=\"admin.php?type=key&action=update&p=".$row['id']."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >$name</a>
+						</h2>
+						<p>" . $value . "</p>
+				</div>";
+	
+			}
+		} else {
+			echo "
+			<p>
+				No keys found!
+			</p>";
+		}
+	
+	}
+	
+	
+	/**
 	 * Display the list of all plugins
 	 *
 	 */
@@ -465,6 +511,15 @@ class admin extends core {
 			$resultNum += mysqli_num_rows($searchResult);
 			while($row = mysqli_fetch_assoc($searchResult))
 				$resultList .="<a href=\"admin.php?type=template&action=update&p=".$row['id']."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"cms_pageEditLink\" >" . $row['template_name'] . " - " . $row['template_path'] . "</a><br />";
+		}
+		
+		
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "customkeys", array('key_name', 'key_value'));
+		if ($searchResult !== false) {
+			$resultList .= "<br /><h3>Results in keys:</h3>";
+			$resultNum += mysqli_num_rows($searchResult);
+			while($row = mysqli_fetch_assoc($searchResult))
+				$resultList .="<a href=\"admin.php?type=key&action=update&p=".$row['id']."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >" . $row['key_name'] . " - " . $row['key_value'] . "</a><br />";
 		}
 		
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "users", array('user_login', 'user_email'));
