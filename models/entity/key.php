@@ -92,9 +92,9 @@ class key extends model
 
 			$sql = "UPDATE customkeys SET
 			key_name = '$this->key', 
-			key_value = '$this->value', 
+			key_value = '$this->value' 
 			WHERE id=" . $this->id . ";";
-
+			
 			$result = $this->conn->query($sql) OR DIE ("Could not update key!");
 			if($result) {
 				echo "<span class='update_notice'>Updated key successfully!</span><br /><br />";

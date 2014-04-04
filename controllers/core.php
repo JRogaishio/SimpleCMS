@@ -20,6 +20,7 @@ include_once('models/service/service.php');
 include_once('models/service/pageService.php');
 include_once('models/service/postService.php');
 include_once('models/service/templateService.php');
+include_once('models/service/keyService.php');
 
 class core {
 	protected $_TYPE = null;
@@ -56,11 +57,13 @@ class core {
 		$pageService = new pageService($this->_CONN, $this->_LOG);
 		$postService = new postService($this->_CONN, $this->_LOG);
 		$templateService = new templateService($this->_CONN, $this->_LOG);
+		$keyService = new keyService($this->_CONN, $this->_LOG);
 		
 		//Add services to scope
 		$this->addToScope($pageService);
 		$this->addToScope($postService);
 		$this->addToScope($templateService);
+		$this->addToScope($keyService);
 	}
 	
 	/**
