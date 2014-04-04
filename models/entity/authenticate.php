@@ -162,7 +162,7 @@ class authenticate extends model
 				$this->log->trackChange("user", 'log_in',null, clean($this->conn,(isset($post['login_username']) ? $post['login_username'] : null)), "FAILED LOGIN");
 					
 				//Log the failed authentications
-				$this->logAttempt($post['login_username']);
+				$this->logAttempt((isset($post['login_username']) ? $post['login_username'] : null));
 					
 				return null;
 			}
