@@ -171,7 +171,7 @@ class template extends model
 		//Load the page from an ID
 		$this->loadRecord($templateId);
 
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a> > <a href="admin.php?type=template&action=update&p=' . $templateId . '">Tenplate</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a> > <a href="admin.php?type=template&action=update&p=' . $templateId . '">Template</a><br /><br />';
 
 		
 		echo '

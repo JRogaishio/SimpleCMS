@@ -15,6 +15,10 @@
 	<h1><?php echo $this->getScope("pageService")->getPage()->getTitle(); ?></h1>
 	<?php
 	$this->getScope("pageService")->display_posts ( 5, true );
+
+
+	//Key exammple
+	//echo $this->getScope("keyService")->getValue('KeyName');
 	
 	/*
 	//Plugin Loading Example

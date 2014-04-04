@@ -11,6 +11,7 @@ include_once('models/entity/page.php');
 include_once('models/entity/post.php');
 include_once('models/entity/plugin.php');
 include_once('models/entity/template.php');
+include_once('models/entity/key.php');
 include_once('models/entity/updater.php');
 include_once('models/entity/log.php');
 include_once('models/entity/authenticate.php');
@@ -19,6 +20,7 @@ include_once('models/service/service.php');
 include_once('models/service/pageService.php');
 include_once('models/service/postService.php');
 include_once('models/service/templateService.php');
+include_once('models/service/keyService.php');
 
 class core {
 	protected $_TYPE = null;
@@ -55,11 +57,13 @@ class core {
 		$pageService = new pageService($this->_CONN, $this->_LOG);
 		$postService = new postService($this->_CONN, $this->_LOG);
 		$templateService = new templateService($this->_CONN, $this->_LOG);
+		$keyService = new keyService($this->_CONN, $this->_LOG);
 		
 		//Add services to scope
 		$this->addToScope($pageService);
 		$this->addToScope($postService);
 		$this->addToScope($templateService);
+		$this->addToScope($keyService);
 	}
 	
 	/**
@@ -150,14 +154,7 @@ class core {
 				$this->addToScope($pluginObj);
 			}
 		}
-		
-		
-		
 	}
-	
-	
-	
-	
 	
 	/**
 	 * Renders a specific PHP file
@@ -192,6 +189,9 @@ class core {
 	
 		$site = new site($this->_CONN, $this->_LOG);
 		$site->buildTable();
+		
+		$key = new key($this->_CONN, $this->_LOG);
+		$key->buildTable();
 	
 		$log = new log($this->_CONN, $this->_LOG);
 		$log->buildTable();
