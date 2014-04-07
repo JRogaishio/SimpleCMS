@@ -2,7 +2,7 @@
 include_once('controllers/core.php');
 
 /**
- * Ferret CMS Main class to create admin pages and live content pages
+ * Ferret CMS admin class to create admin management pages
  * 
  * FerretCMS is a simple lightweight content management system using PHP and MySQL.
  * This CMS class is written purely in PHP and JavaScript.
@@ -15,7 +15,6 @@ class admin extends core {
 	/** 
 	 * This function is called whenever the class is first initialized. This takes care of page routing
 	 * 
-	 *
 	 */
 	public function load () {
 		
@@ -488,7 +487,7 @@ class admin extends core {
 		$resultList = "";
 		$resultNum = 0;
 		echo "Searching <strong>\"" . $this->_ACTION . "\"</strong>...<br />";
-	
+		//Page search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "pages", array('page_safeLink', 'page_meta', 'page_title'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in pages:</h3>";
@@ -496,7 +495,7 @@ class admin extends core {
 			while($row = mysqli_fetch_assoc($searchResult))
 				$resultList .="<a href=\"admin.php?type=page&action=update&p=".$row['id']."\" title=\"Edit / Manage this page\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >" . $row['page_title'] . " - " . $row['page_safeLink'] . "</a><br />";
 		}
-		
+		//Post search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "posts", array('post_title', 'post_content'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in posts:</h3>";
@@ -504,7 +503,7 @@ class admin extends core {
 			while($row = mysqli_fetch_assoc($searchResult))
 				$resultList .="<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=". $row['id'] . "\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this post\" class=\"cms_pageEditLink\" >" . $row['post_title'] . "</a><br />";
 		}
-		
+		//Template search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "templates", array('template_path', 'template_file', 'template_name'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in templates:</h3>";
@@ -512,8 +511,7 @@ class admin extends core {
 			while($row = mysqli_fetch_assoc($searchResult))
 				$resultList .="<a href=\"admin.php?type=template&action=update&p=".$row['id']."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"cms_pageEditLink\" >" . $row['template_name'] . " - " . $row['template_path'] . "</a><br />";
 		}
-		
-		
+		//Key search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "customkeys", array('key_name', 'key_value'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in keys:</h3>";
@@ -521,7 +519,7 @@ class admin extends core {
 			while($row = mysqli_fetch_assoc($searchResult))
 				$resultList .="<a href=\"admin.php?type=key&action=update&p=".$row['id']."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >" . $row['key_name'] . " - " . $row['key_value'] . "</a><br />";
 		}
-		
+		//User search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "users", array('user_login', 'user_email'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in users:</h3>";
@@ -529,7 +527,7 @@ class admin extends core {
 			while($row = mysqli_fetch_assoc($searchResult))
 				$resultList .="<a href=\"admin.php?type=user&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >" . $row['user_login'] . " - " . $row['user_email'] . "</a><br />";
 		}
-		
+		//Log search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "log", array('log_info'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in log:</h3>";
@@ -638,11 +636,8 @@ class admin extends core {
 		
 		if (($pageResult == false || mysqli_num_rows($pageResult) == 0) && countRecords($this->_CONN,"users") != 0 && $this->_AUTH == true)
 			echo "<span class='cms_warning'>A homepage is missing! Please set a homepage!</span><br />";
-	
-	
+
 	}
-	
-	
 }
 
 ?>

@@ -2,7 +2,7 @@
 include_once('controllers/core.php');
 
 /**
- * Ferret CMS Main class to create admin pages and live content pages
+ * Ferret CMS public class to create live content pages
  * 
  * FerretCMS is a simple lightweight content management system using PHP and MySQL.
  * This CMS class is written purely in PHP and JavaScript.
@@ -90,7 +90,7 @@ class pub extends core {
 	/**
 	 * The navigation bar to show on the user page
 	 *
-	 * @param $data		 An array of all the safe links to display in the navigation. Ex home, blog, archive
+	 * @param $data		An array of all the safe links to display in the navigation. Ex home, blog, archive
 	 * 
 	 */
 	public function load_navigation($data=array()) {
@@ -110,8 +110,7 @@ class pub extends core {
 		}
 		
 		echo "</ul>";
-	}
-	
+	}	
 }
 
 ?>

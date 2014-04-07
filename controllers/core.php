@@ -1,4 +1,13 @@
 <?php
+/**
+ * Ferret CMS core class to manage scope and GET data
+ *
+ * FerretCMS is a simple lightweight content management system using PHP and MySQL.
+ * This CMS class is written purely in PHP and JavaScript.
+ *
+ * @author Jacob Rogaishio
+ *
+ */
 
 include_once('lib/database.php');
 include_once('lib/encrypt.php');
