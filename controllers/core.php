@@ -40,6 +40,8 @@ class core {
 	
 	/**
 	 * Core constructor
+	 * 
+	 * @param $connType	The connection type of admin or public used to determine if we want to build the DB
 	 */
 	public function __construct($connType) {
 		$this->connect($connType);
@@ -86,26 +88,62 @@ class core {
 		return $this->_CHILD;
 	}
 	
+	/**
+	 * Returns the 'type' get data in the URL
+	 *
+	 * @return Returns get type= data from the url
+	 *
+	 */
 	public function get_TYPE() {
 		return $this->_TYPE;
 	}
 	
+	/**
+	 * Returns the 'action' get data in the URL
+	 *
+	 * @return Returns get action= data from the url
+	 *
+	 */
 	public function get_ACTION() {
 		return $this->_ACTION;
 	}
 	
+	/**
+	 * Returns the 'f' get data in the URL
+	 *
+	 * @return Returns get f= data from the url
+	 *
+	 */
 	public function get_FILTER() {
 		return $this->_FILTER;
 	}
-		
+	
+	/**
+	 * Returns the MySQLi connection object
+	 *
+	 * @return Returns the MySQLi connection object
+	 *
+	 */
 	public function get_CONN() {
 		return $this->_CONN;
 	}
 	
+	/**
+	 * Returns the link format as defined in the database
+	 *
+	 * @return Returns the link format of either 'clean' or 'raw'
+	 *
+	 */
 	public function _LINKFORMAT() {
 		return $this->_LINKFORMAT;
 	}
 	
+	/**
+	 * Returns the log object
+	 *
+	 * @return Returns the log object
+	 *
+	 */
 	public function get_LOG() {
 		return $this->_LOG;
 	}
@@ -113,6 +151,15 @@ class core {
 	
 	/**
 	 * Gets the current scope index provided an object is defined
+	 */
+	
+	/**
+	 * Returns the current scope index provided an object is defined
+	 *
+	 * @param $i The associative array index of the scope to retrieve
+	 *
+	 * @return Returns the log object
+	 *
 	 */
 	public function getScope($i) {
 		$ret = null;
@@ -124,6 +171,9 @@ class core {
 	
 	/**
 	 * Adds an object to the scope
+	 *
+	 * @param $obj The object to add to the scope. The object name will be used as the array index name
+	 *
 	 */
 	public function addToScope($obj) {
 		if (is_object ( $obj ))
@@ -157,7 +207,9 @@ class core {
 	}
 	
 	/**
-	 * Renders a specific PHP file
+	 * Include's a specific PHP file
+	 * 
+	 * @param $name	The name of the PHP file in the views/folder excluding the .php
 	 */
 	public function render($name) {
 		if(isset($name) && $name != null && strpos($name, " ") == null) {
