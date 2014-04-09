@@ -41,7 +41,13 @@ class page extends model
 	public function setIsHome($val) {$this->isHome = $val;}
 	public function setConstr($val) {$this->constr = $val;}
 	
-	//Returns true if the flag exists or false if it doesnt
+	/**
+	 * Returns true if the flag exists or false if it doesnt
+	 * 
+	 * @param $flag	The flag to check if it exists
+	 * 
+	 * @return Returns true if exists or false if doesn't
+	 */
 	public function hasFlag($flag) {
 		$ret = in_array($flag, explode(",", $this->flags));
 		
@@ -90,6 +96,8 @@ class page extends model
 	
 	/**
 	* Inserts the current page object into the database, and sets its ID property.
+	* 
+	* @return Returns true on insert success
 	*/
 	public function insert() {
 		$ret = true;
@@ -123,9 +131,7 @@ class page extends model
 	/**
 	 * Updates the current page object in the database.
 	 * 
-	 * @param $pageId	The page Id to update
-	 * 
-	 * @return returns true if the insert was successful
+	 * @return returns true if the update was successful
 	 */
 	public function update() {
 		$ret = true;
@@ -169,10 +175,6 @@ class page extends model
 
 	/**
 	 * Deletes the current page object from the database.
-	 * 
-	 * @param $pageId	The page to be deleted
-	 * 
-	 * @return returns the database result on the delete query
 	 */
 	public function delete() {
 		echo "<span class='update_notice'>Page deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
@@ -186,8 +188,6 @@ class page extends model
 	
 	/**
 	 * Loads the page object members based off the page id in the database
-	 * 
-	 * @param $pageId	The page to be loaded
 	 */
 	public function loadRecord($pageId) {
 		if(isset($pageId) && $pageId != null) {
@@ -277,6 +277,11 @@ class page extends model
 
 	}
 
+	/**
+	 * Loads all posts related to a page Id
+	 *
+	 * @param $pageId	The pageId used in posts
+	 */
 	private function display_pagePosts($pageId) {
 		if($pageId != null) {
 			$postSQL = "SELECT * FROM posts WHERE page_id=$pageId ORDER BY post_created ASC";
@@ -308,9 +313,6 @@ class page extends model
 			}
 		
 			return $entry_display;
-		
-		
-		
 		}
 		else {
 			return null;
@@ -319,6 +321,14 @@ class page extends model
 	
 	/**
 	 * Display the page management page
+	 * 
+	 * @param $action	The action to be performed such as update or delete
+	 * @param $parent	The ID of the page object to be edited. This is the p GET Data
+	 * @param $child	This is the c GET Data
+	 * @param $user		The user making the change
+	 * @param $auth		A boolean value depending on if the user is logged in
+	 * 
+	 * @return Returns true on change success otherwise false
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {

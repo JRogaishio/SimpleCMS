@@ -20,6 +20,7 @@ function countRecords($conn, $table_name, $filters = "") {
 		return mysqli_num_rows($countResult);
 	}
 }
+
 /**
  * Sanitizes user input using the mysqli_real_escape_string method
  * 
@@ -32,7 +33,6 @@ function clean($conn, $str) {
 	$ret = mysqli_real_escape_string($conn, $str);
 	return $ret;
 }
-
 
 /**
  * Searches a set list of fields for a value in the SQL database

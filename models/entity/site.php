@@ -58,6 +58,8 @@ class site extends model
 	 * Updates the current site object in the database.
 	 * 
 	 * @param $siteId	The site Id to update
+	 * 
+	 * @return returns true if the update was successful
 	 */
 	public function update() {
 		$ret = true;
@@ -147,6 +149,14 @@ class site extends model
 	
 	/**
 	 * Display the site management page
+	 * 
+	 * @param $action	The action to be performed such as update or delete
+	 * @param $parent	The ID of the site object to be edited. This is the p GET Data
+	 * @param $child	This is the c GET Data
+	 * @param $user		The user making the change
+	 * @param $auth		A boolean value depending on if the user is logged in
+	 * 
+	 * @return Returns true on change success otherwise false
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {

@@ -109,6 +109,8 @@ class post extends model
 	 * Updates the current post object in the database.
 	 * 
 	 * @param $postId	The post Id to update
+	 * 
+	 * @return returns true if the update was successful
 	 */
 	public function update() {
 		$ret = true;
@@ -224,6 +226,14 @@ class post extends model
 
 	/**
 	 * Display the post management page
+	 * 
+	 * @param $action	The action to be performed such as update or delete
+	 * @param $parent	The ID of the page object to be edited. This is the p GET Data
+	 * @param $child	The ID of the post object to be edited. This is the c GET Data
+	 * @param $user		The user making the change
+	 * @param $auth		A boolean value depending on if the user is logged in
+	 * 
+	 * @return Returns true on change success otherwise false
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {

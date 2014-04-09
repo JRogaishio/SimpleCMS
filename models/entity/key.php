@@ -56,6 +56,9 @@ class key extends model
 	
 	/**
 	 * Inserts the current key object into the database
+	 * 
+	 * @return Returns true on validation success or false on failure
+	 * 
 	 */
 	public function insert() {
 		$ret = true;
@@ -182,6 +185,14 @@ class key extends model
 	
 	/**
 	 * Display the key management page
+	 * 
+	 * @param $action	The action to be performed such as update or delete
+	 * @param $parent	The ID of the key object to be edited. This is the p GET Data
+	 * @param $child	This is the c GET Data
+	 * @param $user		The user making the change
+	 * @param $auth		A boolean value depending on if the user is logged in
+	 * 
+	 * @return Returns true on change success otherwise false
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {

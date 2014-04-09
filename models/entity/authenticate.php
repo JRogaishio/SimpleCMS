@@ -55,18 +55,20 @@ class authenticate extends model
 		
 	}
 	
-	/*
+	/**
 	 * Logs the failed login attempt in the database
+	 * 
+	 * @param $userId	The user ID that tried to login
 	 */
-	public function logAttempt($user) {
+	public function logAttempt($userId) {
 		$sql = "INSERT INTO authenticate (auth_login, auth_time, auth_ip) VALUES";
-		$sql .= "('$user', '" . time() . "', '" . $_SERVER['REMOTE_ADDR'] . "')";
+		$sql .= "('$userId', '" . time() . "', '" . $_SERVER['REMOTE_ADDR'] . "')";
 		
 		$result = $this->conn->query($sql) OR DIE ("Could not insert into authentication table!");
 		
 	}
 	
-	/*
+	/**
 	 * Clears all the  failed login attempts in the database
 	*/
 	public function clearAttempts() {
@@ -92,14 +94,6 @@ class authenticate extends model
 		$this->conn->query($sql) OR DIE ("Could not build table \"authenticate\"");
 	
 	}
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	/**
 	 * Function to authenticate the user against the DB
@@ -168,9 +162,6 @@ class authenticate extends model
 			}
 		}//Token / Postdata set validation
 	}
-	
-	
 }
 
 ?>
-
