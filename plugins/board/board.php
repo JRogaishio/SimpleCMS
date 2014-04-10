@@ -1,13 +1,16 @@
 <?php
-/*
-Board class
-Author: Twitch2641
-Written: 2013-03-28
-
-Overview:
-This class takes 1 parameter (The post ID) when created.
-This class then builds all the comments to that particular post and all subcomments.
-I am using recursive functions to build an "indented" format of comments and not a simple list.
+/**
+ * 
+ * Board class
+ * Author: JRogaishio
+ * Written: 2013-03-28
+ * 
+ * Overview:
+ * This class takes 1 parameter (The post ID) when created.
+ * This class then builds all the comments to that particular post and all subcomments.
+ * I am using recursive functions to build an "indented" format of comments and not a simple list.
+ * 
+ * @author Jacob Rogaishio
 */
 
 class board {
