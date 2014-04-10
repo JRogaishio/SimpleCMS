@@ -10,7 +10,8 @@ class service {
 	/**
 	 * Stores the connection object in a local variable on construction
 	 *
-	 * @param dbConn The property values
+	 * @param $dbConn	The database conenction object
+	 * @param $dbLog	The database log object
 	 */
 	public function __construct($dbConn, $dbLog) {
 		$this->conn = $dbConn;
@@ -18,7 +19,11 @@ class service {
 		$this->linkFormat = get_linkFormat($dbConn);
 	}
 	
-	//Resets the model this service is referencing
+	/**
+	 * Resets the model this service is referencing
+	 * 
+	 * @param $obj The new object to set as the service context
+	 */
 	public function setContext($obj) {
 		$this->model = $obj;
 	}

@@ -8,18 +8,25 @@
  */
 class pageService extends service
 {
-	
+	/**
+	 * Get the oage object that is tied to this service
+	 * 
+	 * @return Returns the page object used by this service
+	 */
 	public function getPage() {
 		return $this->model;
 	}
 	
-	/*
-	@param postLimit	The max number of posts to display on a single page
-	@param showDate		True / False on whether to show the post date under the title
-	@param showPerma	True / False on whether to show the permanent link to the post
-	@param childId		The ID of the post to display. This is used for permalinking a swell as page scrolling using ~ and the next / back links
-	@param parentId		The salfe link of the parent page. This allows you to show posts of a different page
-	
+	/**
+	 * Display the posts related to this page for the front-end
+	 * 
+	 * @param postLimit	The max number of posts to display on a single page
+	 * @param showDate		True / False on whether to show the post date under the title
+	 * @param showPerma	True / False on whether to show the permanent link to the post
+	 * @param childId		The ID of the post to display. This is used for permalinking a swell as page scrolling using ~ and the next / back links
+	 * @param parentId		The salfe link of the parent page. This allows you to show posts of a different page
+	 * 
+	 * @return Returns null if no page was set
 	*/
 	public function display_posts($postLimit, $showDate=false, $showContect=true, $showPerma=false, $childId=null, $parentLink=null) {
 		if(isset($this->model) && $this->model->getId() != null) {
@@ -92,6 +99,12 @@ class pageService extends service
 
 	}
 	
+	/**
+	 * Displays a paganation for posts
+	 * 
+	 * @param $postLimit	An integer of the number of posts to page through
+	 * @param $childId		The current page # we are on
+	 */
 	public function display_post_nav($postLimit, $childId) {
 		if(strpos(clean($this->conn,$childId), "~") !== false) {
 			$temp = str_replace("~", "", (clean($this->conn,$childId))); //Grab the current page # we are on
