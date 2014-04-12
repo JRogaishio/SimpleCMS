@@ -1,7 +1,7 @@
 <?php
 /*
 example plugin class
-Author: Twitch2641
+Author: JRogaishio
 Written: 2014-03-08
 */
 
