@@ -15,7 +15,7 @@ class log extends model
 	 * @param $type		The type of changed performed. Ex. user, page
 	 * @param $action	The action performed on the change type. Ex. log_out, log_in, add, remove
 	 * @param $userId	The user Id who performed the change
-	 * @param $user	The The user name who performed the change
+	 * @param $user		The The user name who performed the change
 	 * @param $change	A more detailed description of the change made. Ex. "Page Blog added"
 	 *
 	 * @return returns the result of the mysql query
