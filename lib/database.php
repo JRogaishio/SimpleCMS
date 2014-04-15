@@ -65,6 +65,41 @@ function searchTable($conn, $search, $table, $col=array()) {
 }
 
 /**
+ * Retuns a record set
+ *
+ * @param $conn			A database connection object
+ * @param $table		The table to be retrieved
+ * @param $col			The columns to get
+ * @param $where		The where clause data
+ * @param $order		The sort order in the format of FIELD ASC|DESC
+ *
+ * @return returns the result set
+ */
+function getRecords($conn, $table, $col=array(), $where=null, $order=null) {
+
+	//Generate column list
+	$colList = "";
+	foreach($col as $column) {
+		if($colList == "")
+			$colList = $column;
+		else
+			$colList = "," . $column;
+	}
+	$whereClause = ($where != null ? "WHERE " . $where : "");
+	$orderClause = ($order != null ? "ORDER BY " . $order : "");
+
+	$sql = "SELECT " . $colList . " FROM $table $whereClause $orderClause;";
+
+	$result = $conn->query($sql);
+
+	if ($result !== false && mysqli_num_rows($result) > 0 ) {
+		return $result;
+	} else {
+		return false;
+	}
+}
+
+/**
  * Retuns a bit value from a string
  *
  * @param $str	A string to be converted
