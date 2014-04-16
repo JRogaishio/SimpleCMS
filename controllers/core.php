@@ -24,6 +24,7 @@ include_once('models/entity/key.php');
 include_once('models/entity/updater.php');
 include_once('models/entity/log.php');
 include_once('models/entity/authenticate.php');
+include_once('models/entity/uploader.php');
 
 include_once('models/service/service.php');
 include_once('models/service/pageService.php');
@@ -262,6 +263,9 @@ class core {
 		
 		$auth = new authenticate($this->_CONN, $this->_LOG);
 		$auth->buildTable();
+		
+		$uploader = new uploader($this->_CONN, $this->_LOG);
+		$uploader->buildTable();
 	}
 	
 	/**

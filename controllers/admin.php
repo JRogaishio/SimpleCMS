@@ -132,6 +132,12 @@ class admin extends core {
 					$obj = new updater($this->_CONN, $this->_LOG);
 					$obj->update($this->_USER);
 					break;
+				case "uploader":
+					$obj = new uploader($this->_CONN, $this->_LOG);
+					$obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_AUTH);
+					$this->cms_displayAdminUploads();
+				
+					break;
 				default:
 					$this->cms_displayMain();
 					break;
@@ -572,6 +578,47 @@ class admin extends core {
 			echo "No logs found?";
 		}
 	}
+	
+	/**
+	 * Display the system uploader
+	 *
+	 */
+	public function cms_displayAdminUploads() {
+		$fileData = getRecords($this->_CONN, "upload", array("*"));
+
+		echo "<div class=\"upload\">";
+	
+		if($fileData != false) {
+			echo "<table class='table table-bordered'>
+			<tr><th>Filename</th><th>Type</th><th>Size</th><th>Added</th><th>Link to file</th><th>Manage</th></tr>";
+			
+			while($row = mysqli_fetch_assoc($fileData) ) {
+				$id = stripslashes($row['id']);
+				$name = stripslashes($row['file_name']);
+				$type = stripslashes($row['file_type']);
+				$size = stripslashes($row['file_size']);
+				$date = stripslashes($row['file_date']);
+				
+				//Format size to MB
+				$size = round(($size / 1024 / 1024), 2);
+				
+				echo "
+				<tr>
+					<td>$name</td>
+					<td>$type</td>
+					<td>$size (MB)</td>
+					<td>$date</td>
+					<td><a href='" . SITE_ROOT . "custom/uploads/$name' target='_blank'>Link</a></td>
+					<td><form action='?type=uploader&action=delete&p=$id' method='post'><input type='submit' value='Delete'></form></td>
+				</tr>";
+			}
+			echo "</table>";
+		} else {
+			echo "No files uploaded yet...";
+		}
+		echo "</div>";
+	}
+		
 	
 	/** 
 	 * Display the admin homepage. Currently this is a list of all pages.
