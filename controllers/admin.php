@@ -590,7 +590,7 @@ class admin extends core {
 	
 		if($fileData != false) {
 			echo "<table class='table table-bordered'>
-			<tr><th>Filename</th><th>Type</th><th>Size</th><th>Added</th><th>Link to file</th><th>Manage</th></tr>";
+			<tr><th>Thumb</th><th>Filename</th><th>Type</th><th>Size</th><th>Added</th><th>Link to file</th><th>Manage</th></tr>";
 			
 			while($row = mysqli_fetch_assoc($fileData) ) {
 				$id = stripslashes($row['id']);
@@ -602,8 +602,12 @@ class admin extends core {
 				//Format size to MB
 				$size = round(($size / 1024 / 1024), 2);
 				
+				
+				
 				echo "
-				<tr>
+				<tr><td>";
+					echo (strpos($type, "image/") !== false ? "<img src='custom/uploads/$name' height='40' width='40' />" : "" );
+				echo "</td>
 					<td>$name</td>
 					<td>$type</td>
 					<td>$size (MB)</td>
