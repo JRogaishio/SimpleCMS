@@ -565,10 +565,10 @@ class admin extends core {
 			<h3>Results in log:</h3>
 			<br /><br />
 			<table class='table table-bordered'>
-			<tr><th>User</th><th>Details</th><th>Date</th><th>IP Address</th></tr>
+			<tr><th>User</th><th>Type</th><th>Details</th><th>Date</th><th>IP Address</th></tr>
 			";
 			while($row = mysqli_fetch_assoc($logResult))
-				$resultList .= "<tr><td>" . $row['log_user'] . "</td><td>" . $row['log_info'] . "</td><td>" . $row['log_date'] . "</td><td>". $row['log_remoteIp'] . "</td></tr>";
+				$resultList .= "<tr><td>" . $row['log_user'] . "</td><td>" . $row['log_type'] . "</td><td>" . $row['log_info'] . "</td><td>" . $row['log_date'] . "</td><td>". $row['log_remoteIp'] . "</td></tr>";
 			
 			$resultList .= "</table>";
 			
