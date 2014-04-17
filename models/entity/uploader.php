@@ -37,6 +37,7 @@ class uploader extends model {
 		    		$result = $this->conn->query($sql) OR DIE ("Could delete file!");
 
 		    		echo "File deleted successfully.<br /><br />";
+		    		$this->log->trackChange("uploader", 'delete',$user->getId(),$user->getLoginname(), "Deleted file: " . $data["file_name"]);
 	    		} else {
 	    			echo "Could not delete file. Reason: Could not find file in database with ID: $parent!<br /><br />";
 	    		}
@@ -62,7 +63,9 @@ class uploader extends model {
 		    			$sql = "INSERT INTO upload (file_name, file_type, file_size, file_date, file_created) VALUES";
 		    			$sql .= "('" . $name . "', '" . $_FILES["file"]["type"] . "', '" . $_FILES["file"]["size"] . "', '" . date('Y-m-d H:i:s') . "','" . time() . "')";
 		    			
-		    			$result = $this->conn->query($sql) OR DIE ("Could not write to file table!");    			
+		    			$result = $this->conn->query($sql) OR DIE ("Could not write to file table!");    
+
+		    			$this->log->trackChange("uploader", 'upload',$user->getId(),$user->getLoginname(), "Uploaded file: " . $name);
 			    	}
     			}
 		    	break;

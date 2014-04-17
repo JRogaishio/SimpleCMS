@@ -564,7 +564,7 @@ class admin extends core {
 			$resultList .= "
 			<h3>Results in log:</h3>
 			<br /><br />
-			<table border=1>
+			<table class='table table-bordered'>
 			<tr><th>User</th><th>Details</th><th>Date</th><th>IP Address</th></tr>
 			";
 			while($row = mysqli_fetch_assoc($logResult))
