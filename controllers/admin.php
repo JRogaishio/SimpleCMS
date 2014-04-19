@@ -205,7 +205,7 @@ class admin extends core {
 				$user = new User($this->_CONN, $this->_LOG);
 				
 				//Display the user management form
-				echo $user->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $log, $this->_AUTH);
+				echo $user->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_LOG, $this->_AUTH);
 				
 				//Check again if a user exists after running the user manager
 				if(countRecords($this->_CONN,"users") == 0) {

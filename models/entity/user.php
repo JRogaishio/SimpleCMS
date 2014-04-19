@@ -268,7 +268,7 @@ class user extends model
 							} else if($auth) {
 								//Re-build the main User after creation
 								$ret = true;
-								$this->log->trackChange("user", 'add',$user->getId(),$user->getLoginname(), $this->loginname . " added");
+								$this->log->trackChange("user", 'add',$this->getId(),$this->getLoginname(), $this->loginname . " added");
 							} else {
 								parent::render("siteLogin");
 							}
