@@ -26,7 +26,7 @@
 		$this->getScope("board")->loadBoard();
 	}*/
 	
-	$this->getScope("example")->load();
+	//$this->getScope("example")->load();
 	
 	
 	?>

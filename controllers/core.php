@@ -173,9 +173,10 @@ class core {
 	 */
 	public function getScope($i) {
 		$ret = null;
-		if (is_object ( $this->_SCOPE [$i] ))
-			$ret = $this->_SCOPE [$i];
-		
+		if(isset($this->_SCOPE [$i])) {
+			if (is_object ( $this->_SCOPE [$i] ))
+				$ret = $this->_SCOPE [$i];
+		}
 		return $ret;
 	}
 	
