@@ -25,6 +25,8 @@ include_once('models/entity/updater.php');
 include_once('models/entity/log.php');
 include_once('models/entity/authenticate.php');
 include_once('models/entity/uploader.php');
+include_once('models/entity/permission.php');
+include_once('models/entity/group.php');
 
 include_once('models/service/service.php');
 include_once('models/service/pageService.php');
@@ -267,6 +269,12 @@ class core {
 		
 		$uploader = new uploader($this->_CONN, $this->_LOG);
 		$uploader->buildTable();
+		
+		$group = new group($this->_CONN, $this->_LOG);
+		$group->buildTable();
+		
+		$permission = new permission($this->_CONN, $this->_LOG);
+		$permission->buildTable();
 	}
 	
 	/**

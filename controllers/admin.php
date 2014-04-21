@@ -28,7 +28,7 @@ class admin extends core {
 		
 		//user gets
 		$this->_USERPAGE = isset( $_GET['p'] ) ? clean($this->_CONN,$_GET['p']) : "home";
-				
+		
 		//Load the system based on the mode (admin / public)
 		if($this->_AUTH) {
 			parent::render("siteTop");
@@ -117,6 +117,14 @@ class admin extends core {
 					break;
 				case "userDisplay":
 					echo $this->cms_displayAdminUsers();
+					break;
+				case "permission":
+					$obj = new group($this->_CONN, $this->_LOG);
+					$result = $obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER);
+					parent::addToScope($obj);
+					if($result)
+						echo $this->cms_displayAdminTemplates();
+				
 					break;
 				case "search":
 					echo $this->cms_displaySearch();

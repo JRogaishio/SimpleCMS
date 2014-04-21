@@ -16,6 +16,7 @@ class user extends model
 	protected $salt = null;
 	protected $email = null;
 	protected $isRegistered = null;
+	protected $groupId = null;
 	
 	//Getters
 	public function getId() {return $this->id;}
@@ -25,6 +26,7 @@ class user extends model
 	public function getSalt() {return $this->salt;}
 	public function getEmail() {return $this->email;}
 	public function getIsRegistered() {return $this->isRegistered;}
+	public function getGroupId() {return $this->groupId;}
 	
 	//Setters
 	public function setId($val) {$this->id = $val;}
@@ -34,6 +36,7 @@ class user extends model
 	public function setSalt($val) {$this->salt = $val;}
 	public function setEmail($val) {$this->email = $val;}
 	public function setIsRegistered($val) {$this->isRegistered = $val;}
+	public function setGroupId($val) {$this->groupId = $val;}
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -185,11 +188,11 @@ class user extends model
 				$this->salt = $row['user_salt'];
 				$this->email = $row['user_email'];
 				$this->isRegistered = $row['user_isRegistered'];
+				$this->groupId = $row['user_groupId'];
 			}
 			
 			$this->constr = true;
 		}
-	
 	}
 	
 	/**
@@ -324,10 +327,35 @@ class user extends model
 		  `user_email` varchar(128) DEFAULT NULL,
 		  `user_created` varchar(100) DEFAULT NULL,
 		  `user_isRegistered` tinyint(1) DEFAULT NULL,
+		  `user_groupId` int(16) DEFAULT NULL,
+				
 		  PRIMARY KEY (`id`)
 		)";
 		$this->conn->query($sql) OR DIE ("Could not build table \"users\"");
 	
+	}
+	
+	public function checkPermission($model, $change) {
+		$ret = false;
+		$permissions = getRecords($this->conn, "permissions", array("*"), "permission_model='$model' AND permission_groupId=" . $this->groupId, $order=null);
+		
+		if($permissions != false) {
+			$data = mysqli_fetch_assoc($permissions);
+
+			switch($change) {
+				case "insert":
+					$ret = ($data['permission_insert'] == 1 ? true : false);
+					break;
+				case "update":
+					$ret = ($data['permission_update'] == 1 ? true : false);
+					break;
+				case "delete":
+					$ret = ($data['permission_delete'] == 1 ? true : false);
+					break;
+			}
+		}
+		
+		return $ret;
 	}
 	
 }
