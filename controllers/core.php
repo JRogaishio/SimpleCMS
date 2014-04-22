@@ -195,7 +195,7 @@ class core {
 	 */
 	public function loadPlugins($context) {
 		
-		$sql = "SELECT * FROM plugins ORDER BY plugin_created DESC";
+		$sql = "SELECT * FROM plugin ORDER BY plugin_created DESC";
 		$result = $this->_CONN->query($sql);
 		
 		if ($result !== false && mysqli_num_rows($result) > 0 ) {

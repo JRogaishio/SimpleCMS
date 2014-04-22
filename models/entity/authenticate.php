@@ -106,9 +106,8 @@ class authenticate extends model
 	 */
 	public function authUser($post, $token) {
 		//Check to see if any login info was posted or if a token exists
-		if((($token!=null) || (isset($post['login_username']) && isset($post['login_password']))) && countRecords($this->conn,"users") > 0) {
+		if((($token!=null) || (isset($post['login_username']) && isset($post['login_password']))) && countRecords($this->conn,"account") > 0) {
 			if(isset($post['login_username']) && isset($post['login_password'])) {
-					
 				$secPass = encrypt(clean($this->conn,$post['login_password']), get_userSalt($this->conn, clean($this->conn, $post['login_username'])));
 
 				$userSQL = "SELECT * FROM account WHERE account_login='" . clean($this->conn,$post['login_username']) . "' AND account_pass='$secPass';";
@@ -122,7 +121,7 @@ class authenticate extends model
 			if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 				$userData = mysqli_fetch_assoc($userResult);
 
-				$user = new User($this->conn, $this->log);
+				$user = new account($this->conn, $this->log);
 
 				//Set the user data
 				$user->loadRecord($userData['id']);
@@ -132,8 +131,8 @@ class authenticate extends model
 					
 				$newToken = hash('sha256', (unique_salt() . $user->getLoginname()));
 
-				$tokenSQL = "UPDATE users SET account_token = '$newToken' WHERE id=" . $user->getId() . ";";
-				$tokenResult = $this->conn->query($tokenSQL) OR DIE ("Could not update user!");
+				$tokenSQL = "UPDATE account SET account_token = '$newToken' WHERE id=" . $user->getId() . ";";
+				$tokenResult = $this->conn->query($tokenSQL) OR DIE ("Could not update account!");
 				if(!$tokenResult) {
 					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";
 				}
@@ -143,7 +142,7 @@ class authenticate extends model
 					
 				//Log that a user logged in. POST data is only set on the initial login
 				if(isset($post['login_username']) && isset($post['login_password'])) {
-					$this->log->trackChange("user", 'log_in',$user->getId(),$user->getLoginname(), "logged in");
+					$this->log->trackChange("account", 'log_in',$user->getId(),$user->getLoginname(), "logged in");
 				}
 					
 				//Clear out the failed authentications
@@ -153,7 +152,7 @@ class authenticate extends model
 					
 			} else {
 					
-				$this->log->trackChange("user", 'log_in',null, clean($this->conn,(isset($post['login_username']) ? $post['login_username'] : null)), "FAILED LOGIN");
+				$this->log->trackChange("account", 'log_in',null, clean($this->conn,(isset($post['login_username']) ? $post['login_username'] : null)), "FAILED LOGIN");
 					
 				//Log the failed authentications
 				$this->logAttempt((isset($post['login_username']) ? $post['login_username'] : null));

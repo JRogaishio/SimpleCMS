@@ -7,7 +7,7 @@
  * @return returns page select query results
  */
 function getPages($conn) {
-	$pageSQL = "SELECT * FROM pages ORDER BY page_created DESC";
+	$pageSQL = "SELECT * FROM page ORDER BY page_created DESC";
 	$pageResult = $conn->query($pageSQL);
 	
 	return $pageResult;
@@ -22,7 +22,7 @@ function getPages($conn) {
  * @return returns the page name selected
  */
 function lookupPageNameById($conn, $pageId) {
-	$pageSQL = "SELECT * FROM pages WHERE id=$pageId";
+	$pageSQL = "SELECT * FROM page WHERE id=$pageId";
 	$pageResult =  $conn->query($pageSQL);
 	$name = null;
 	if(mysqli_num_rows($pageResult) > 0) {
@@ -43,9 +43,9 @@ function lookupPageNameById($conn, $pageId) {
  */
 function lookupPageIdByLink($conn, $pageLink) {
 	if($pageLink != null && $pageLink != "") {
-		$pageSQL = "SELECT * FROM pages WHERE page_safeLink='$pageLink'";
+		$pageSQL = "SELECT * FROM page WHERE page_safeLink='$pageLink'";
 	} else {
-		$pageSQL = "SELECT * FROM pages WHERE page_isHome=true";
+		$pageSQL = "SELECT * FROM page WHERE page_isHome=true";
 	}
 	
 	$pageLink = clean($conn, $pageLink);
@@ -72,7 +72,7 @@ function lookupPageIdByLink($conn, $pageLink) {
  */
 function getFormattedPages($conn, $format, $eleName, $defaultVal) {
 
-	$pageSQL = "SELECT * FROM pages ORDER BY page_created DESC";
+	$pageSQL = "SELECT * FROM page ORDER BY page_created DESC";
 	$pageResult =  $conn->query($pageSQL);
 	$formattedData = "";
 	if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 ) {
@@ -108,7 +108,7 @@ function getFormattedPages($conn, $format, $eleName, $defaultVal) {
  */
 function lookupTemplateNameById($conn, $templateId) {
 
-	$templateSQL = "SELECT * FROM templates WHERE id=$templateId";
+	$templateSQL = "SELECT * FROM template WHERE id=$templateId";
 	$templateResult =  $conn->query($templateSQL);
 	$name = null;
 	
@@ -132,7 +132,7 @@ function lookupTemplateNameById($conn, $templateId) {
  */
 function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
 
-	$templateSQL = "SELECT * FROM templates ORDER BY template_created DESC";
+	$templateSQL = "SELECT * FROM template ORDER BY template_created DESC";
 	$templateResult =  $conn->query($templateSQL);
 	$formattedData = "";
 
@@ -164,19 +164,19 @@ function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
 /**
  * Looks up a users password salt in the database
  * 
- * @param $conn		A database connection object
- * @param $username	A users name in the database
+ * @param $conn			A database connection object
+ * @param $username		A users name in the database
  * 
  * @return returns the users salt if they exist or false if the user does not exist
  */
 function get_userSalt($conn, $username) {
 
-	$userSQL = "SELECT * FROM users WHERE user_login='$username';";
+	$userSQL = "SELECT * FROM account WHERE account_login='$username';";
 	$userResult =  $conn->query($userSQL);
 
 	if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 		$userData = mysqli_fetch_assoc($userResult);
-		return $userData['user_salt'];
+		return $userData['account_salt'];
 	} else {
 		return false;
 	}
@@ -192,7 +192,7 @@ function get_userSalt($conn, $username) {
  */
 function get_linkFormat($conn) {
 
-	$siteSQL = "SELECT * FROM sites;";
+	$siteSQL = "SELECT * FROM site;";
 	$siteResult =  $conn->query($siteSQL);
 
 	if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {

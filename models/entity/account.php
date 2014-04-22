@@ -302,7 +302,7 @@ class account extends model
 					if(countRecords($this->conn,$this->table) == 0) {
 						$this->buildEditForm(null);
 					} else {
-						echo "Error with user manager<br /><br />";
+						echo "Error with account manager<br /><br />";
 					}
 			}
 		} else {

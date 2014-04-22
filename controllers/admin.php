@@ -167,11 +167,11 @@ class admin extends core {
 					
 					//Grab the username from the token for logging. We don't have the login set yet before we havent authenticated
 					if(isset($_COOKIE['token'])) {
-						$userSQL = "SELECT * FROM user WHERE user_token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
+						$userSQL = "SELECT * FROM account WHERE account_token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
 						$userResult = $this->_CONN->query($userSQL);
 						if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 							$userData = mysqli_fetch_assoc($userResult);
-							$this->_LOG->trackChange("user", 'log_out',$userData['id'], $userData['user_login'], "logged out");
+							$this->_LOG->trackChange("account", 'log_out',$userData['id'], $userData['account_login'], "logged out");
 						}					
 					}
 
@@ -209,14 +209,14 @@ class admin extends core {
 		}
 		else {
 			//Build the first user startup form
-			if(countRecords($this->_CONN,"users") == 0) {
-				$user = new User($this->_CONN, $this->_LOG);
+			if(countRecords($this->_CONN,"account") == 0) {
+				$user = new account($this->_CONN, $this->_LOG);
 				
 				//Display the user management form
 				echo $user->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_LOG, $this->_AUTH);
 				
 				//Check again if a user exists after running the user manager
-				if(countRecords($this->_CONN,"users") == 0) {
+				if(countRecords($this->_CONN,"account") == 0) {
 					echo "<p><strong>Hello</strong> there! I see that you have no users setup.<br />
 					Use the above form to create a user account to get started!<br />
 					Once you have created your user, you will be sent to the login form. Use your new account to access all the awesomeness!</p><br />";
@@ -466,14 +466,14 @@ class admin extends core {
 	public function cms_displayAdminUsers() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a><br /><br />';
 		
-		$userSQL = "SELECT * FROM user ORDER BY user_created DESC";
+		$userSQL = "SELECT * FROM account ORDER BY account_created DESC";
 		$userResult = $this->_CONN->query($userSQL);
 	
 		if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 			while($row = mysqli_fetch_assoc($userResult) ) {
 				
-				$username = stripslashes($row['user_login']);
-				$email = stripslashes($row['user_email']);
+				$username = stripslashes($row['account_login']);
+				$email = stripslashes($row['account_email']);
 				
 				echo "
 				<div class=\"user\">
@@ -534,12 +534,12 @@ class admin extends core {
 				$resultList .="<a href=\"admin.php?type=key&action=update&p=".$row['id']."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >" . $row['key_name'] . " - " . $row['key_value'] . "</a><br />";
 		}
 		//User search
-		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "users", array('user_login', 'user_email'));
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "users", array('account_login', 'account_email'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in users:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
 			while($row = mysqli_fetch_assoc($searchResult))
-				$resultList .="<a href=\"admin.php?type=user&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >" . $row['user_login'] . " - " . $row['user_email'] . "</a><br />";
+				$resultList .="<a href=\"admin.php?type=user&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >" . $row['account_login'] . " - " . $row['account_email'] . "</a><br />";
 		}
 		//Log search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "log", array('log_info'));
