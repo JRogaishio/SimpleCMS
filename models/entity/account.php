@@ -6,9 +6,10 @@
  * @author Jacob Rogaishio
  * 
  */
-class user extends model
+class account extends model
 {
 	// Properties
+	protected $table = "account";
 	protected $id = null;
 	protected $loginname = null;
 	protected $password = null;
@@ -91,7 +92,7 @@ class user extends model
 				$secPass = hash('sha256',$this->password);
 				$secPass = hash('sha256',($secPass . $salt));
 				
-				$sql = "INSERT INTO users (user_login, user_pass, user_salt, user_email,user_created, user_isRegistered) VALUES";
+				$sql = "INSERT INTO user (user_login, user_pass, user_salt, user_email,user_created, user_isRegistered) VALUES";
 				$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1)";
 				
 				$result = $this->conn->query($sql) OR DIE ("Could not create user!");
@@ -127,7 +128,7 @@ class user extends model
 				$secPass = hash('sha256',$this->password);
 				$secPass = hash('sha256',($secPass . get_userSalt($this->conn, $this->loginname)));
 				
-				$sql = "UPDATE users SET
+				$sql = "UPDATE user SET
 				user_login = '$this->loginname', 
 				user_pass = '$secPass', 
 				user_email = '$this->email'
@@ -160,7 +161,7 @@ class user extends model
 	public function delete() {
 		echo "<span class='update_notice'>User deleted! Bye bye '$this->loginname', we will miss you.</span><br /><br />";
 		
-		$userSQL = "DELETE FROM users WHERE id=" . $this->id;
+		$userSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
 		$userResult = $this->conn->query($userSQL);
 		
 		return $userResult;
@@ -174,7 +175,7 @@ class user extends model
 	public function loadRecord($userId) {
 		if(isset($userId) && $userId != null) {
 			
-			$userSQL = "SELECT * FROM users WHERE id=$userId";
+			$userSQL = "SELECT * FROM " . $this->table . " WHERE id=$userId";
 				
 			$userResult = $this->conn->query($userSQL);
 
@@ -252,7 +253,7 @@ class user extends model
 		$this->loadRecord($parent);
 		$ret = false;
 		//Allow access to the user editor if you are authenticated or there are no users
-		if($auth || countRecords($this->conn,"users") == 0) {
+		if($auth || countRecords($this->conn,$this->table) == 0) {
 			switch($action) {
 				case "update":
 					//Determine if the form has been submitted
@@ -271,7 +272,7 @@ class user extends model
 							} else if($auth) {
 								//Re-build the main User after creation
 								$ret = true;
-								$this->log->trackChange("user", 'add',$this->getId(),$this->getLoginname(), $this->loginname . " added");
+								$this->log->trackChange($this->table, 'add',$this->getId(),$this->getLoginname(), $this->loginname . " added");
 							} else {
 								parent::render("siteLogin");
 							}
@@ -284,7 +285,7 @@ class user extends model
 							} else {
 								//Re-build the User creation form once we are done
 								$this->buildEditForm($parent);
-								$this->log->trackChange("user", 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
+								$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
 							}
 						}
 					} else {
@@ -295,10 +296,10 @@ class user extends model
 				case "delete":
 					$this->delete($parent);
 					$ret = true;
-					$this->log->trackChange("user", 'delete',$user->getId(),$user->getLoginname(), $this->loginname . " deleted");
+					$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->loginname . " deleted");
 					break;
 				default:
-					if(countRecords($this->conn,"users") == 0) {
+					if(countRecords($this->conn,$this->table) == 0) {
 						$this->buildEditForm(null);
 					} else {
 						echo "Error with user manager<br /><br />";
@@ -318,7 +319,7 @@ class user extends model
 	 */
 	public function buildTable() {
 		/*Table structure for table `users` */
-		$sql = "CREATE TABLE IF NOT EXISTS `users` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `user_login` varchar(64) DEFAULT NULL,
 		  `user_pass` varchar(64) DEFAULT NULL,
@@ -331,7 +332,7 @@ class user extends model
 				
 		  PRIMARY KEY (`id`)
 		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"users\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 	
 	}
 	

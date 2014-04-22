@@ -9,6 +9,7 @@
 class page extends model
 {
 	// Properties
+	protected $table = "page";
 	protected $id = null;
 	protected $title = null;
 	protected $template = null;
@@ -106,11 +107,11 @@ class page extends model
 			if($error == "") {
 				//Ensure you are not submitting a system page
 				if($this->isHome == 1){
-					$sql = "UPDATE pages SET page_isHome=0";
+					$sql = "UPDATE " . $this->table . " SET page_isHome=0";
 					$homeResult = $this->conn->query($sql) OR DIE ("Could not update home page!");
 				}
 				
-				$sql = "INSERT INTO pages (page_template, page_safeLink, page_meta, page_title, page_flags, page_isHome, page_created) VALUES";
+				$sql = "INSERT INTO " . $this->table . " (page_template, page_safeLink, page_meta, page_title, page_flags, page_isHome, page_created) VALUES";
 				$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', '$this->flags', " . convertToBit($this->isHome) . "," . time() . ")";
 
 				$result = $this->conn->query($sql) OR DIE ("Could not create page!");
@@ -140,12 +141,12 @@ class page extends model
 			if($error == "") {
 				//Reset all home pages since we are setting a new one
 				if($this->isHome == true) {
-					$sql = "UPDATE pages SET page_isHome = false;";
+					$sql = "UPDATE " . $this->table . " SET page_isHome = false;";
 					$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
 				}
 			
 				//Update the page SQL
-				$sql = "UPDATE pages SET
+				$sql = "UPDATE " . $this->table . " SET
 				page_template = '$this->template', 
 				page_safeLink = '$this->safeLink', 
 				page_meta = '$this->metaData', 
@@ -179,10 +180,10 @@ class page extends model
 	public function delete() {
 		echo "<span class='update_notice'>Page deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
 		
-		$pageSQL = "DELETE FROM pages WHERE id=" . $this->id;
+		$pageSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
 		$pageResult = $this->conn->query($pageSQL);
 		
-		$postSQL = "DELETE FROM posts WHERE page_id=" . $this->id;
+		$postSQL = "DELETE FROM post WHERE page_id=" . $this->id;
 		$postResult = $this->conn->query($postSQL);
 	}
 	
@@ -193,9 +194,9 @@ class page extends model
 		if(isset($pageId) && $pageId != null) {
 			
 			if($pageId == "home")
-				$pageSQL = "SELECT * FROM pages WHERE page_isHome=true";
+				$pageSQL = "SELECT * FROM " . $this->table . " WHERE page_isHome=true";
 			else
-				$pageSQL = "SELECT * FROM pages WHERE id=$pageId";
+				$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=$pageId";
 				
 			$pageResult = $this->conn->query($pageSQL);
 
@@ -349,7 +350,7 @@ class page extends model
 							$this->buildEditForm($parent);
 						} else {
 							//Re-build the main page after creation
-							$this->log->trackChange("page", 'add',$user->getId(),$user->getLoginname(), $this->title . " added");
+							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->title . " added");
 							$ret = true;
 						}
 					} else {
@@ -358,7 +359,7 @@ class page extends model
 						$this->buildEditForm($parent);
 	
 						if($result) {
-							$this->log->trackChange("page", 'update',$user->getId(),$user->getLoginname(), $this->title . " updated");
+							$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->title . " updated");
 						}
 					}
 				} else {
@@ -368,7 +369,7 @@ class page extends model
 				break;
 			case "delete":
 				$this->delete();
-				$this->log->trackChange("page", 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
+				$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
 				$ret = true;
 				break;
 			default:
@@ -384,7 +385,7 @@ class page extends model
 	 */
 	public function buildTable() {
 		/*Table structure for table `pages` */
-		$sql = "CREATE TABLE IF NOT EXISTS `pages` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `page_template` int(16) DEFAULT NULL,
 		  `page_safeLink` varchar(32) DEFAULT NULL,
@@ -395,7 +396,7 @@ class page extends model
 		  `page_created` varchar(128) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"pages\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 	}
 }
 

@@ -9,6 +9,7 @@
 class post extends model
 {
 	// Properties
+	protected $table = "post";
 	protected $id = null;
 	protected $pageId = null;
 	protected $authorId = 1;
@@ -87,7 +88,7 @@ class post extends model
 		if($this->constr) {
 			$error = $this->validate();
 			if($error == "") {
-				$sql = "INSERT INTO posts (page_id, post_authorId, post_date, post_title, post_content, post_lastModified, post_created) VALUES";
+				$sql = "INSERT INTO " . $this->table . " (page_id, post_authorId, post_date, post_title, post_content, post_lastModified, post_created) VALUES";
 				$sql .= "($this->pageId, $this->authorId, '" . date('Y-m-d H:i:s') . "', '$this->title', '$this->content', " . time() . "," . time() . ")";
 				
 				$result = $this->conn->query($sql) OR DIE ("Could not create post!");
@@ -117,7 +118,7 @@ class post extends model
 		if($this->constr) {
 			$error = $this->validate();
 			if($error == "") {
-				$sql = "UPDATE posts SET
+				$sql = "UPDATE " . $this->table . " SET
 				page_id = '$this->pageId', 
 				post_authorId = '$this->authorId', 
 				post_title = '$this->title', 
@@ -153,7 +154,7 @@ class post extends model
 	public function delete() {	
 		echo "<span class='update_notice'>Post deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
 		
-		$postSQL = "DELETE FROM posts WHERE page_id=" . $this->pageId . " AND id=" . $this->id;
+		$postSQL = "DELETE FROM " . $this->table . " WHERE page_id=" . $this->pageId . " AND id=" . $this->id;
 
 		$postResult = $this->conn->query($postSQL);
 		
@@ -167,7 +168,7 @@ class post extends model
 	 */
 	public function loadRecord($postId) {
 		if(isset($postId) && $postId != null) {
-			$pageSQL = "SELECT * FROM posts WHERE id=$postId";
+			$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=$postId";
 			$pageResult = $this->conn->query($pageSQL);
 
 			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
@@ -251,8 +252,8 @@ class post extends model
 							//Re-build the post creation form once we are done
 							$this->buildEditForm($parent, $child, $user);
 						} else {
-							$this->buildEditForm($parent,getLastField($this->conn,"posts", "id"), $user);
-							$this->log->trackChange("post", 'add',$user->getId(),$user->getLoginname(), $this->title . " added");
+							$this->buildEditForm($parent,getLastField($this->conn,$this->table, "id"), $user);
+							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->title . " added");
 						}
 					}
 					else {
@@ -261,7 +262,7 @@ class post extends model
 						$this->buildEditForm($parent, $child, $user);
 	
 						if($result) {
-							$this->log->trackChange("post", 'update',$user->getId(),$user->getLoginname(), $this->title . " updated");
+							$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->title . " updated");
 						}
 	
 					}
@@ -275,7 +276,7 @@ class post extends model
 			case "delete":
 				//Delete the post
 				$this->delete();
-				$this->log->trackChange("post", 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
+				$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
 	
 				//Display the page form
 				$ret = true;
@@ -294,7 +295,7 @@ class post extends model
 	 */
 	public function buildTable() {
 		/*Table structure for table `posts` */
-		$sql = "CREATE TABLE IF NOT EXISTS `posts` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 			  `id` int(16) NOT NULL AUTO_INCREMENT,
 			  `page_id` int(16) DEFAULT NULL,
 			  `post_authorId` int(16) DEFAULT NULL,
@@ -305,7 +306,7 @@ class post extends model
 			  `post_created` VARCHAR(128) DEFAULT NULL,
 			  PRIMARY KEY (`id`)
 			)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"posts\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 	}
 }
 

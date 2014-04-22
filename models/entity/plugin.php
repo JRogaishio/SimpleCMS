@@ -9,6 +9,7 @@
 class plugin extends model
 {
 	// Properties
+	protected $table = "plugin";
 	protected $id = null;
 	protected $path = null;
 	protected $file = null;
@@ -47,7 +48,7 @@ class plugin extends model
 	public function insert() {
 		if($this->constr) {
 			
-			$sql = "INSERT INTO plugins (plugin_path, plugin_file, plugin_created) VALUES";
+			$sql = "INSERT INTO " . $this->table . " (plugin_path, plugin_file, plugin_created) VALUES";
 			$sql .= "('$this->path', '$this->file', '" . time() . "')";
 			
 			$result = $this->conn->query($sql) OR DIE ("Could not create plugin!");
@@ -68,7 +69,7 @@ class plugin extends model
 	
 		if($this->constr) {
 
-			$sql = "UPDATE plugins SET
+			$sql = "UPDATE " . $this->table . " SET
 			plugin_path = '$this->path', 
 			plugin_file = '$this->file'
 			WHERE id=" . $this->id . ";";
@@ -94,7 +95,7 @@ class plugin extends model
 	public function delete() {
 		echo "<span class='update_notice'>Plugin deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this plugin!</span><br /><br />";
 		
-		$sql = "DELETE FROM plugins WHERE id=" . $this->id;
+		$sql = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
 		$result = $this->conn->query($sql);
 		
 		return $result;
@@ -108,7 +109,7 @@ class plugin extends model
 	public function loadRecord($pluginId) {
 		if(isset($pluginId) && $pluginId != null) {
 			
-			$sql = "SELECT * FROM plugins WHERE id=$pluginId";
+			$sql = "SELECT * FROM " . $this->table . " WHERE id=$pluginId";
 				
 			$result = $this->conn->query($sql);
 
@@ -193,12 +194,12 @@ class plugin extends model
 						$this->insert();
 						//Re-build the main page after creation
 						$ret = true;
-						$this->log->trackChange("plugin", 'add',$user->getId(),$user->getLoginname(), $this->name . " added");
+						$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->name . " added");
 					} else {
 						$this->update($parent);
 						//Re-build the page creation form once we are done
 						$this->buildEditForm($parent);
-						$this->log->trackChange("plugin", 'update',$user->getId(),$user->getLoginname(), $this->name . " added");
+						$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->name . " added");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
@@ -208,7 +209,7 @@ class plugin extends model
 			case "delete":
 				$this->delete($parent);
 				$ret = true;
-				$this->log->trackChange("plugin", 'delete',$user->getId(),$user->getLoginname(), $this->name . " added");
+				$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->name . " added");
 				break;
 			default:
 				echo "Error with plugin manager<br /><br />";
@@ -223,7 +224,7 @@ class plugin extends model
 	 */
 	public function buildTable() {
 		/*Table structure for table `plugins` */
-		$sql = "CREATE TABLE IF NOT EXISTS `plugins` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `plugin_path` varchar(128) DEFAULT NULL,
 		  `plugin_file` varchar(128) DEFAULT NULL,
@@ -231,7 +232,7 @@ class plugin extends model
 		  PRIMARY KEY (`id`)
 		)";
 		
-		$this->conn->query($sql) OR DIE ("Could not build table \"plugins\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 		
 	}
 }

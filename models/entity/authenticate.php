@@ -111,9 +111,9 @@ class authenticate extends model
 					
 				$secPass = encrypt(clean($this->conn,$post['login_password']), get_userSalt($this->conn, clean($this->conn, $post['login_username'])));
 
-				$userSQL = "SELECT * FROM users WHERE user_login='" . clean($this->conn,$post['login_username']) . "' AND user_pass='$secPass';";
+				$userSQL = "SELECT * FROM user WHERE user_login='" . clean($this->conn,$post['login_username']) . "' AND user_pass='$secPass';";
 			} else {
-				$userSQL = "SELECT * FROM users WHERE user_token='$token';";
+				$userSQL = "SELECT * FROM user WHERE user_token='$token';";
 			}
 
 			$userResult = $this->conn->query($userSQL);

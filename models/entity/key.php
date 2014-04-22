@@ -9,6 +9,7 @@
 class key extends model
 {
 	// Properties
+	protected $table = "key";
 	protected $id = null;
 	protected $key = null;
 	protected $value = null;
@@ -66,7 +67,7 @@ class key extends model
 			$error = $this->validate();
 			if($error == "") {
 			
-				$sql = "INSERT INTO customkeys (key_name, key_value, key_created) VALUES";
+				$sql = "INSERT INTO " . $this->table . " (key_name, key_value, key_created) VALUES";
 				$sql .= "('$this->key', '$this->value','" . time() . "')";
 
 				$result = $this->conn->query($sql) OR DIE ("Could not create key!");
@@ -93,7 +94,7 @@ class key extends model
 	
 		if($this->constr) {
 
-			$sql = "UPDATE customkeys SET
+			$sql = "UPDATE " . $this->table . " SET
 			key_name = '$this->key', 
 			key_value = '$this->value' 
 			WHERE id=" . $this->id . ";";
@@ -116,7 +117,7 @@ class key extends model
 	public function delete() {
 		echo "<span class='update_notice'>Key deleted! Bye bye '$this->key', we will miss you.<br />Please be sure to update any pages that were using this key!</span><br /><br />";
 		
-		$keySQL = "DELETE FROM customkeys WHERE id=" . $this->id;
+		$keySQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
 		$keyResult = $this->conn->query($keySQL);
 		
 		return $keyResult;
@@ -130,7 +131,7 @@ class key extends model
 	public function loadRecord($keyId) {
 		if(isset($keyId) && $keyId != null) {
 			
-			$keySQL = "SELECT * FROM customkeys WHERE id=$keyId";
+			$keySQL = "SELECT * FROM " . $this->table . " WHERE id=$keyId";
 				
 			$keyResult = $this->conn->query($keySQL);
 
@@ -178,9 +179,6 @@ class key extends model
 			' . ((isset($keyId) && $keyId != null) ? '<a href="admin.php?type=key&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Key!</a><br /><br />' : '') . '
 			</form>
 		';
-
-		
-		
 	}
 	
 	/**
@@ -212,8 +210,8 @@ class key extends model
 						if(!$result) {
 							$this->buildEditForm($parent);
 						} else {
-							$this->buildEditForm(getLastField($this->conn,"customkeys", "id"));
-							$this->log->trackChange("key", 'add',$user->getId(),$user->getLoginname(), $this->key . " added");
+							$this->buildEditForm(getLastField($this->conn,$this->table, "id"));
+							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->key . " added");
 						}
 					} else {
 						$result = $this->update($parent);
@@ -221,7 +219,7 @@ class key extends model
 						$this->buildEditForm($parent);
 	
 						if($result) {
-							$this->log->trackChange("key", 'update',$user->getId(),$user->getLoginname(), $this->key . " updated");
+							$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->key . " updated");
 						}
 					}
 				} else {
@@ -232,7 +230,7 @@ class key extends model
 			case "delete":
 				$this->delete($parent);
 				$ret = true;
-				$this->log->trackChange("key", 'delete',$user->getId(),$user->getLoginname(), $this->key . " deleted");
+				$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->key . " deleted");
 				break;
 			default:
 				echo "Error with key manager<br /><br />";
@@ -247,7 +245,7 @@ class key extends model
 	 */
 	public function buildTable() {
 		/*Table structure for table `key` */
-		$sql = "CREATE TABLE IF NOT EXISTS `customkeys` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `key_name` varchar(128) DEFAULT NULL,
 		  `key_value` text,
@@ -255,7 +253,7 @@ class key extends model
 		
 		  PRIMARY KEY (`id`)
 		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"customkeys\"");	
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");	
 	}
 	
 }

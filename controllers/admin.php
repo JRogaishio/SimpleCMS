@@ -167,7 +167,7 @@ class admin extends core {
 					
 					//Grab the username from the token for logging. We don't have the login set yet before we havent authenticated
 					if(isset($_COOKIE['token'])) {
-						$userSQL = "SELECT * FROM users WHERE user_token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
+						$userSQL = "SELECT * FROM user WHERE user_token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
 						$userResult = $this->_CONN->query($userSQL);
 						if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 							$userData = mysqli_fetch_assoc($userResult);
@@ -251,7 +251,7 @@ class admin extends core {
 	public function cms_displayAdminSite() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=siteDisplay">Site</a><br /><br />';
 		
-		$siteSQL = "SELECT * FROM sites ORDER BY id DESC";
+		$siteSQL = "SELECT * FROM site ORDER BY id DESC";
 		$siteResult = $this->_CONN->query($siteSQL);
 	
 		if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {
@@ -281,7 +281,7 @@ class admin extends core {
 	public function cms_displayAdminPages() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a><br /><br />';
 		
-		$pageSQL = "SELECT * FROM pages ORDER BY page_created DESC";
+		$pageSQL = "SELECT * FROM page ORDER BY page_created DESC";
 		$pageResult = $this->_CONN->query($pageSQL);
 	
 		if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 ) {
@@ -313,7 +313,7 @@ class admin extends core {
 	public function cms_displayAdminTemplates() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a><br /><br />';
 		
-		$templateSQL = "SELECT * FROM templates ORDER BY template_created DESC";
+		$templateSQL = "SELECT * FROM template ORDER BY template_created DESC";
 		$templateResult = $this->_CONN->query($templateSQL);
 	
 		if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 ) {
@@ -348,7 +348,7 @@ class admin extends core {
 	public function cms_displayAdminKeys() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=keyDisplay">Key List</a><br /><br />';
 	
-		$keySQL = "SELECT * FROM customkeys ORDER BY key_created DESC";
+		$keySQL = "SELECT * FROM key ORDER BY key_created DESC";
 		$keyResult = $this->_CONN->query($keySQL);
 	
 		if ($keyResult !== false && mysqli_num_rows($keyResult) > 0 ) {
@@ -383,7 +383,7 @@ class admin extends core {
 	public function cms_displayAdminPlugins() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pluginDisplay">Plugin List</a><br /><br />';
 	
-		$sql = "SELECT * FROM plugins ORDER BY plugin_created DESC";
+		$sql = "SELECT * FROM plugin ORDER BY plugin_created DESC";
 		$result = $this->_CONN->query($sql);
 	
 		if ($result !== false && mysqli_num_rows($result) > 0 ) {
@@ -420,7 +420,7 @@ class admin extends core {
 	public function cms_displayAdminPosts() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=postDisplay">Post List</a><br /><br />';
 	
-		$postSQL = "SELECT * FROM posts ORDER BY page_id ASC";
+		$postSQL = "SELECT * FROM post ORDER BY page_id ASC";
 		$postResult = $this->_CONN->query($postSQL);
 		$lastPageName = "";
 		
@@ -466,7 +466,7 @@ class admin extends core {
 	public function cms_displayAdminUsers() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a><br /><br />';
 		
-		$userSQL = "SELECT * FROM users ORDER BY user_created DESC";
+		$userSQL = "SELECT * FROM user ORDER BY user_created DESC";
 		$userResult = $this->_CONN->query($userSQL);
 	
 		if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
@@ -690,7 +690,7 @@ class admin extends core {
 	 */
 	public function cms_displayWarnings() {
 		//Make sure a homepage is set
-		$pageSQL = "SELECT * FROM pages WHERE page_isHome=1;";
+		$pageSQL = "SELECT * FROM page WHERE page_isHome=1;";
 		$pageResult = $this->_CONN->query($pageSQL);
 		
 		if (($pageResult == false || mysqli_num_rows($pageResult) == 0) && countRecords($this->_CONN,"users") != 0 && $this->_AUTH == true)

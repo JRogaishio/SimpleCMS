@@ -160,11 +160,6 @@ class core {
 		return $this->_LOG;
 	}
 	
-	
-	/**
-	 * Gets the current scope index provided an object is defined
-	 */
-	
 	/**
 	 * Returns the current scope index provided an object is defined
 	 *

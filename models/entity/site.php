@@ -9,6 +9,7 @@
 class site extends model
 {
 	// Properties
+	protected $table = "site";
 	protected $id = null;
 	protected $name = null;
 	protected $linkFormat = null;
@@ -66,7 +67,7 @@ class site extends model
 		if($this->constr) {
 			$error = $this->validate();
 			if($error == "") {
-				$sql = "UPDATE sites SET
+				$sql = "UPDATE " . $this->table . " SET
 				site_name = '$this->name', 
 				site_linkFormat = '$this->linkFormat'
 				WHERE id=" . $this->id . ";";
@@ -95,7 +96,7 @@ class site extends model
 	public function loadRecord($siteId) {
 		if(isset($siteId) && $siteId != null) {
 			
-			$siteSQL = "SELECT * FROM sites WHERE id=$siteId";
+			$siteSQL = "SELECT * FROM " . $this->table . " WHERE id=$siteId";
 				
 			$siteResult = $this->conn->query($siteSQL);
 
@@ -173,7 +174,7 @@ class site extends model
 					//Re-build the site creation form once we are done
 					$this->buildEditForm($parent);
 					if($result) {
-						$this->log->trackChange("site", 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
+						$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
 					}
 				} else {
 					// User has not posted the site edit form yet: display the form
@@ -193,18 +194,18 @@ class site extends model
 	 */
 	public function buildTable() {
 		/*Table structure for table `site` */
-		$sql = "CREATE TABLE IF NOT EXISTS `sites` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `site_name` varchar(64) DEFAULT NULL,
 		  `site_linkFormat` varchar(64) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"site\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 		
 		
 		/*Insert site data for `site` if we dont have one already*/
-		if(countRecords($this->conn, "sites") == 0) {
-			$sql = "INSERT INTO sites (site_name, site_linkFormat) VALUES('My FerretCMS Website', 'clean')";
+		if(countRecords($this->conn, $this->table) == 0) {
+			$sql = "INSERT INTO " . $this->table . " (site_name, site_linkFormat) VALUES('My FerretCMS Website', 'clean')";
 			$this->conn->query($sql) OR DIE ("Could not insert default data into \"site\"");
 		}
 	
