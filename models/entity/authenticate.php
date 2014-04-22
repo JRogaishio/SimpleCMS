@@ -83,7 +83,7 @@ class authenticate extends model
 	 *
 	 */
 	public function buildTable() {
-		/*Table structure for table `users` */
+		/*Table structure for table `authenticate` */
 		$sql = "CREATE TABLE IF NOT EXISTS `authenticate` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `auth_login` varchar(64) DEFAULT NULL,
@@ -111,9 +111,9 @@ class authenticate extends model
 					
 				$secPass = encrypt(clean($this->conn,$post['login_password']), get_userSalt($this->conn, clean($this->conn, $post['login_username'])));
 
-				$userSQL = "SELECT * FROM user WHERE user_login='" . clean($this->conn,$post['login_username']) . "' AND user_pass='$secPass';";
+				$userSQL = "SELECT * FROM account WHERE account_login='" . clean($this->conn,$post['login_username']) . "' AND account_pass='$secPass';";
 			} else {
-				$userSQL = "SELECT * FROM user WHERE user_token='$token';";
+				$userSQL = "SELECT * FROM account WHERE account_token='$token';";
 			}
 
 			$userResult = $this->conn->query($userSQL);
@@ -132,7 +132,7 @@ class authenticate extends model
 					
 				$newToken = hash('sha256', (unique_salt() . $user->getLoginname()));
 
-				$tokenSQL = "UPDATE users SET user_token = '$newToken' WHERE id=" . $user->getId() . ";";
+				$tokenSQL = "UPDATE users SET account_token = '$newToken' WHERE id=" . $user->getId() . ";";
 				$tokenResult = $this->conn->query($tokenSQL) OR DIE ("Could not update user!");
 				if(!$tokenResult) {
 					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";

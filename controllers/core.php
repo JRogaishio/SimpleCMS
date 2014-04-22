@@ -15,7 +15,7 @@ include_once('lib/management.php');
 
 include_once('models/entity/model.php');
 include_once('models/entity/site.php');
-include_once('models/entity/user.php');
+include_once('models/entity/account.php');
 include_once('models/entity/page.php');
 include_once('models/entity/post.php');
 include_once('models/entity/plugin.php');
@@ -244,8 +244,8 @@ class core {
 		$template = new template($this->_CONN, $this->_LOG);
 		$template->buildTable();
 	
-		$user = new user($this->_CONN, $this->_LOG);
-		$user->buildTable();
+		$account = new account($this->_CONN, $this->_LOG);
+		$account->buildTable();
 	
 		$site = new site($this->_CONN, $this->_LOG);
 		$site->buildTable();

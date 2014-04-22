@@ -92,7 +92,7 @@ class account extends model
 				$secPass = hash('sha256',$this->password);
 				$secPass = hash('sha256',($secPass . $salt));
 				
-				$sql = "INSERT INTO user (user_login, user_pass, user_salt, user_email,user_created, user_isRegistered) VALUES";
+				$sql = "INSERT INTO " . $this->table . " (account_login, account_pass, account_salt, account_email,account_created, account_isRegistered) VALUES";
 				$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1)";
 				
 				$result = $this->conn->query($sql) OR DIE ("Could not create user!");
@@ -129,9 +129,9 @@ class account extends model
 				$secPass = hash('sha256',($secPass . get_userSalt($this->conn, $this->loginname)));
 				
 				$sql = "UPDATE user SET
-				user_login = '$this->loginname', 
-				user_pass = '$secPass', 
-				user_email = '$this->email'
+				account_login = '$this->loginname', 
+				account_pass = '$secPass', 
+				account_email = '$this->email'
 				WHERE id=" . $this->id . ";";
 	
 				$result = $this->conn->query($sql) OR DIE ("Could not update user!");
@@ -184,12 +184,12 @@ class account extends model
 
 			if(isset($row)) {
 				$this->id = $row['id'];
-				$this->loginname = $row['user_login'];
-				$this->password = $row['user_pass'];
-				$this->salt = $row['user_salt'];
-				$this->email = $row['user_email'];
-				$this->isRegistered = $row['user_isRegistered'];
-				$this->groupId = $row['user_groupId'];
+				$this->loginname = $row['account_login'];
+				$this->password = $row['account_pass'];
+				$this->salt = $row['account_salt'];
+				$this->email = $row['account_email'];
+				$this->isRegistered = $row['account_isRegistered'];
+				$this->groupId = $row['account_groupId'];
 			}
 			
 			$this->constr = true;
@@ -321,14 +321,14 @@ class account extends model
 		/*Table structure for table `users` */
 		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `user_login` varchar(64) DEFAULT NULL,
-		  `user_pass` varchar(64) DEFAULT NULL,
-		  `user_salt` varchar(64) DEFAULT NULL,
-		  `user_token` varchar(64) DEFAULT NULL,
-		  `user_email` varchar(128) DEFAULT NULL,
-		  `user_created` varchar(100) DEFAULT NULL,
-		  `user_isRegistered` tinyint(1) DEFAULT NULL,
-		  `user_groupId` int(16) DEFAULT NULL,
+		  `account_login` varchar(64) DEFAULT NULL,
+		  `account_pass` varchar(64) DEFAULT NULL,
+		  `account_salt` varchar(64) DEFAULT NULL,
+		  `account_token` varchar(64) DEFAULT NULL,
+		  `account_email` varchar(128) DEFAULT NULL,
+		  `account_created` varchar(100) DEFAULT NULL,
+		  `account_isRegistered` tinyint(1) DEFAULT NULL,
+		  `account_groupId` int(16) DEFAULT NULL,
 				
 		  PRIMARY KEY (`id`)
 		)";
