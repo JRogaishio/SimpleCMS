@@ -7,7 +7,7 @@
 			<li class="cms_navItem"><a href="admin.php?type=siteDisplay" class="cms_navItemLink">Edit Site</a></li>
 			<li class="cms_navItem"><a href="admin.php?type=log" class="cms_navItemLink">View the log</a></li>	
 			<li class="cms_navItem"><a href="admin.php?type=keyDisplay" class="cms_navItemLink">Edit Keys</a></li>
-			<li class="cms_navItem"><a href="admin.php?type=key&action=update&p=" class="cms_navItemLink">Add a Key</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=key&action=insert&p=" class="cms_navItemLink">Add a Key</a></li>
 			<li class="cms_navItem"><a href="admin.php?type=uploader" class="cms_navItemLink">Upload a file</a></li>		
 			<li class="cms_navItem"><a href="admin.php?type=updateDisplay" class="cms_navItemLink">Update CMS</a></li>					
 			</ul>
@@ -19,7 +19,7 @@
 		<div class="cms_navItemList" id="cms_navItemList_page">
 			<ul>
 			<li class="cms_navItem"><a href="admin.php?type=pageDisplay" class="cms_navItemLink">Edit Pages</a></li>
-			<li class="cms_navItem"><a href="admin.php?type=page&action=update&p=" class="cms_navItemLink">Add a Page</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=page&action=insert&p=" class="cms_navItemLink">Add a Page</a></li>
 			</ul>
 		</div>
 	</div>
@@ -27,7 +27,7 @@
 		<div class="cms_navItemList" id="cms_navItemList_post">
 			<ul>
 			<li class="cms_navItem"><a href="admin.php?type=postDisplay" class="cms_navItemLink">Edit Posts</a></li>
-			<li class="cms_navItem"><a href="admin.php?type=post&action=update&p=&c=" class="cms_navItemLink">Add a Post</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=post&action=insert&p=&c=" class="cms_navItemLink">Add a Post</a></li>
 			</ul>
 		</div>	
 	</div>
@@ -36,16 +36,16 @@
 		<div class="cms_navItemList" id="cms_navItemList_user">
 			<ul>
 			<li class="cms_navItem"><a href="admin.php?type=userDisplay" class="cms_navItemLink">Edit Users</a></li>
-			<li class="cms_navItem"><a href="admin.php?type=user&action=update&p=" class="cms_navItemLink">Add a User</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=user&action=insert&p=" class="cms_navItemLink">Add a User</a></li>
 			</ul>
-		</div>	
+		</div>
 	</div>	
 	
 	<div><div class="cms_navItemTitle"><div id="cms_template" class="icon-tasks icon-white cms_icon"></div>Template Manager</div>
 		<div class="cms_navItemList" id="cms_navItemList_template">
 			<ul>
 			<li class="cms_navItem"><a href="admin.php?type=templateDisplay" class="cms_navItemLink">Edit Templates</a></li>
-			<li class="cms_navItem"><a href="admin.php?type=template&action=update&p=" class="cms_navItemLink">Add a Template</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=template&action=insert&p=" class="cms_navItemLink">Add a Template</a></li>
 			</ul>
 		</div>	
 	</div>	
@@ -54,7 +54,7 @@
 		<div class="cms_navItemList" id="cms_navItemList_plug">
 			<ul>
 			<li class="cms_navItem"><a href="admin.php?type=pluginDisplay" class="cms_navItemLink">Edit Plugins</a></li>
-			<li class="cms_navItem"><a href="admin.php?type=plugin&action=update&p=" class="cms_navItemLink">Add a Plugin</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=plugin&action=insert&p=" class="cms_navItemLink">Add a Plugin</a></li>
 			</ul>
 		</div>	
 	</div>

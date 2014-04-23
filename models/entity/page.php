@@ -321,65 +321,6 @@ class page extends model
 	}
 	
 	/**
-	 * Display the page management page
-	 * 
-	 * @param $action	The action to be performed such as update or delete
-	 * @param $parent	The ID of the page object to be edited. This is the p GET Data
-	 * @param $child	This is the c GET Data
-	 * @param $user		The user making the change
-	 * @param $auth		A boolean value depending on if the user is logged in
-	 * 
-	 * @return Returns true on change success otherwise false
-	 *
-	 */
-	public function displayManager($action, $parent, $child, $user, $auth=null) {
-		$this->loadRecord($parent);
-		$ret = false;
-		switch($action) {
-			case "update":
-				//Determine if the form has been submitted
-				if(isset($_POST['saveChanges'])) {
-					// User has posted the article edit form: save the new article
-						
-					$this->storeFormValues($_POST);
-						
-					if($parent == null) {
-						$result = $this->insert();
-						if(!$result) {
-							//Re-build the page creation form since the submission failed
-							$this->buildEditForm($parent);
-						} else {
-							//Re-build the main page after creation
-							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->title . " added");
-							$ret = true;
-						}
-					} else {
-						$result = $this->update();
-						//Re-build the page creation form once we are done
-						$this->buildEditForm($parent);
-	
-						if($result) {
-							$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->title . " updated");
-						}
-					}
-				} else {
-					// User has not posted the article edit form yet: display the form
-					$this->buildEditForm($parent);
-				}
-				break;
-			case "delete":
-				$this->delete();
-				$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
-				$ret = true;
-				break;
-			default:
-				echo "Error with page manager<br /><br />";
-				$ret = true;
-		}
-		return $ret;
-	}
-	
-	/**
 	 * Builds the necessary tables for this object
 	 *
 	 */

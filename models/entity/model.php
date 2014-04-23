@@ -30,34 +30,45 @@ class model {
 	 * @return Returns true on change success otherwise false
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $auth=null) {
+public function displayManager($action, $parent, $child, $user, $auth=null) {
 		$this->loadRecord($parent);
 		$ret = false;
 		switch($action) {
+			case "insert":
+				//Determine if the form has been submitted
+				if(isset($_POST['saveChanges'])) {
+					// User has posted the article edit form: save the new article
+					
+					$this->storeFormValues($_POST);
+					
+					if($parent == null) {
+						$result = $this->insert();
+					
+						if(!$result) {
+							$this->buildEditForm($parent);
+						} else {
+							$this->buildEditForm(getLastField($this->conn,$this->table, "id"));
+							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->name . " added");
+						}
+					}
+				} else {
+					// User has not posted the template edit form yet: display the form
+					$this->buildEditForm($parent);
+				}
+				break;
 			case "update":
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
 					// User has posted the article edit form: save the new article
-	
+						
 					$this->storeFormValues($_POST);
-	
-					if($parent == null) {
-						$result = $this->insert();
-	
-						if(!$result) {
-							$this->buildEditForm($parent);
-						} else {
-							$this->buildEditForm(getLastField($this->conn,get_class($this), "id"));
-							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->name . " added");
-						}
-					} else {
-						$result = $this->update($parent);
-						//Re-build the page creation form once we are done
-						$this->buildEditForm($parent);
-	
-						if($result) {
-							$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
-						}
+					
+					$result = $this->update($parent);
+					//Re-build the page creation form once we are done
+					$this->buildEditForm($parent);
+
+					if($result) {
+						$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form

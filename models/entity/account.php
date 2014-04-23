@@ -236,7 +236,6 @@ class account extends model
 		';
 	}
 	
-
 	/**
 	 * Display the user management page
 	 * 
@@ -311,7 +310,6 @@ class account extends model
 		}
 		return $ret;
 	}
-	
 	
 	/**
 	 * Builds the necessary tables for this object
