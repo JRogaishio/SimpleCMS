@@ -25,8 +25,6 @@ include_once('models/entity/updater.php');
 include_once('models/entity/log.php');
 include_once('models/entity/authenticate.php');
 include_once('models/entity/uploader.php');
-include_once('models/entity/permission.php');
-include_once('models/entity/group.php');
 
 include_once('models/service/service.php');
 include_once('models/service/pageService.php');
@@ -160,6 +158,11 @@ class core {
 		return $this->_LOG;
 	}
 	
+	
+	/**
+	 * Gets the current scope index provided an object is defined
+	 */
+	
 	/**
 	 * Returns the current scope index provided an object is defined
 	 *
@@ -195,7 +198,7 @@ class core {
 	 */
 	public function loadPlugins($context) {
 		
-		$sql = "SELECT * FROM plugin ORDER BY plugin_created DESC";
+		$sql = "SELECT * FROM plugins ORDER BY plugin_created DESC";
 		$result = $this->_CONN->query($sql);
 		
 		if ($result !== false && mysqli_num_rows($result) > 0 ) {
@@ -244,8 +247,8 @@ class core {
 		$template = new template($this->_CONN, $this->_LOG);
 		$template->buildTable();
 	
-		$account = new account($this->_CONN, $this->_LOG);
-		$account->buildTable();
+		$user = new account($this->_CONN, $this->_LOG);
+		$user->buildTable();
 	
 		$site = new site($this->_CONN, $this->_LOG);
 		$site->buildTable();
@@ -264,12 +267,6 @@ class core {
 		
 		$uploader = new uploader($this->_CONN, $this->_LOG);
 		$uploader->buildTable();
-		
-		$group = new group($this->_CONN, $this->_LOG);
-		$group->buildTable();
-		
-		$permission = new permission($this->_CONN, $this->_LOG);
-		$permission->buildTable();
 	}
 	
 	/**

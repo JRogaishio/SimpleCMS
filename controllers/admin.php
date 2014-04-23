@@ -108,9 +108,10 @@ class admin extends core {
 					echo $this->cms_displayAdminPosts();
 					break;
 				case "user":
-					$obj = new user($this->_CONN, $this->_LOG);
+					$obj = new account($this->_CONN, $this->_LOG);
 					$result = $obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_AUTH);
 					parent::addToScope($obj);
+					
 					if($result)
 						echo $this->cms_displayAdminUsers();
 
@@ -213,7 +214,7 @@ class admin extends core {
 				$user = new account($this->_CONN, $this->_LOG);
 				
 				//Display the user management form
-				echo $user->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_LOG, $this->_AUTH);
+				$result = $user->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_LOG, $this->_AUTH);
 				
 				//Check again if a user exists after running the user manager
 				if(countRecords($this->_CONN,"account") == 0) {
@@ -374,7 +375,6 @@ class admin extends core {
 		}
 	
 	}
-	
 	
 	/**
 	 * Display the list of all plugins
@@ -631,7 +631,6 @@ class admin extends core {
 		echo "</div>";
 	}
 		
-	
 	/** 
 	 * Display the admin homepage. Currently this is a list of all pages.
 	 *

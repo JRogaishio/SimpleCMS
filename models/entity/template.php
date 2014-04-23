@@ -219,7 +219,7 @@ class template extends model
 		
 		/*Insert default data for `templates` if we dont have one already*/
 		if(countRecords($this->conn, $this->table) == 0) {
-			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES('default_example', 'index.php', 'Default Example Template', '" . time() . "')";
+			$sql = "INSERT INTO " . $this->table . " (template_path, template_file, template_name, template_created) VALUES('default_example', 'index.php', 'Default Example Template', '" . time() . "')";
 			$this->conn->query($sql) OR DIE ("Could not insert default example data into \"templates\"");
 		}
 		
