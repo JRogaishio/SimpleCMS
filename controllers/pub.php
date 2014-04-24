@@ -41,12 +41,12 @@ class pub extends core {
 	public function load_page($pSafeLink) {
 		global $cms; //Make the CMS variable a global so the pages can reference it
 	
-		$page = new Page($this->_CONN, $this->_LOG);
+		$page = new page($this->_CONN, $this->_LOG);
 		$this->getScope('pageService')->setContext($page);
 		
 		//Load the page
 		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home" && strpos($pSafeLink,"SYS_") === false) {
-			$pageSQL = "SELECT * FROM pages WHERE page_safeLink='$pSafeLink'";
+			$pageSQL = "SELECT * FROM page WHERE page_safeLink='$pSafeLink'";
 			$pageResult = $this->_CONN->query($pageSQL);
 
 			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
@@ -62,7 +62,7 @@ class pub extends core {
 		
 		//Load the page
 		if($page->getTemplate() != "" && $page->getTemplate() != null && $page->getConstr() == true && strpos($pSafeLink,"SYS_") === false) {
-			$templateSQL = "SELECT * FROM templates WHERE id=" . $page->getTemplate();
+			$templateSQL = "SELECT * FROM template WHERE id=" . $page->getTemplate();
 			$templateResult = $this->_CONN->query($templateSQL);
 			
 			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
@@ -76,7 +76,7 @@ class pub extends core {
 			}
 		} else {
 			//Check to see if the CMS has already been setup
-			if(countRecords($this->_CONN,"users") == 0) {
+			if(countRecords($this->_CONN,"account") == 0) {
 				echo "<p style='font-family:arial;text-align:center;'><strong>Hello</strong> there! I see that you have no users setup.<br />
 				<a href='admin.php'>Click here to redirect to the admin page to setup your CMS.</a>
 				</p><br />";
@@ -98,7 +98,7 @@ class pub extends core {
 		echo "<ul class='cms_ul_nav'>";
 		
 		for($i=0;$i<count($data);$i++) {
-			$pageSQL = "SELECT * FROM pages WHERE page_safelink='$data[$i]'";
+			$pageSQL = "SELECT * FROM page WHERE page_safelink='$data[$i]'";
 			$pageResult = $this->_CONN->query($pageSQL);
 
 			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )

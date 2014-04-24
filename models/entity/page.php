@@ -288,7 +288,7 @@ class page extends model
 	 */
 	private function display_pagePosts($pageId) {
 		if($pageId != null) {
-			$postSQL = "SELECT * FROM posts WHERE page_id=$pageId ORDER BY post_created ASC";
+			$postSQL = "SELECT * FROM post WHERE page_id=$pageId ORDER BY post_created ASC";
 			$postResult = $this->conn->query($postSQL);
 			$entry_display = "";
 			
