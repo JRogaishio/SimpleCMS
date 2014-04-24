@@ -460,17 +460,17 @@ class admin extends core {
 	}	
 	
 	/** 
-	 * Display the list of all users
+	 * Display the list of all accounts
 	 *
 	 */
 	public function cms_displayAdminUsers() {
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=accountDisplay">Account List</a><br /><br />';
 		
-		$userSQL = "SELECT * FROM account ORDER BY account_created DESC";
-		$userResult = $this->_CONN->query($userSQL);
+		$accountSQL = "SELECT * FROM account ORDER BY account_created DESC";
+		$accountResult = $this->_CONN->query($accountSQL);
 	
-		if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
-			while($row = mysqli_fetch_assoc($userResult) ) {
+		if ($accountResult !== false && mysqli_num_rows($accountResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($accountResult) ) {
 				
 				$username = stripslashes($row['account_login']);
 				$email = stripslashes($row['account_email']);
