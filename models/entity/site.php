@@ -118,7 +118,7 @@ class site extends model
 	 * 
 	 * @param $siteId	The site to be edited
 	 */
-	public function buildEditForm($siteId) {
+	public function buildEditForm($siteId, $child=null, $user=null) {
 
 		//Load the site from an ID
 		$this->loadRecord($siteId);

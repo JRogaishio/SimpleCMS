@@ -154,7 +154,7 @@ class customkey extends model
 	 * 
 	 * @param $keyID	The key to be edited
 	 */
-	public function buildEditForm($keyId) {
+	public function buildEditForm($keyId, $child=null, $user=null) {
 
 		//Load the page from an ID
 		$this->loadRecord($keyId);

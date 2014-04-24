@@ -41,19 +41,17 @@ public function displayManager($action, $parent, $child, $user, $auth=null) {
 					
 					$this->storeFormValues($_POST);
 					
-					if($parent == null) {
-						$result = $this->insert();
-					
-						if(!$result) {
-							$this->buildEditForm($parent);
-						} else {
-							$this->buildEditForm(getLastField($this->conn,$this->table, "id"));
-							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->id . " added");
-						}
+					$result = $this->insert();
+				
+					if(!$result) {
+						$this->buildEditForm($parent, $child, $user);
+					} else {
+						$this->buildEditForm(getLastField($this->conn,$this->table, "id"), $child, $user);
+						$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->id . " added");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
-					$this->buildEditForm($parent);
+					$this->buildEditForm($parent, $child, $user);
 				}
 				break;
 			case "update":
@@ -65,14 +63,14 @@ public function displayManager($action, $parent, $child, $user, $auth=null) {
 					
 					$result = $this->update($parent);
 					//Re-build the page creation form once we are done
-					$this->buildEditForm($parent);
+					$this->buildEditForm($parent, $child, $user);
 
 					if($result) {
 						$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
-					$this->buildEditForm($parent);
+					$this->buildEditForm($parent, $child, $user);
 				}
 				break;
 			case "delete":

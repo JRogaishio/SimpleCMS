@@ -83,7 +83,7 @@ class post extends model
 	 * 
 	 * @param $pageId	The page this post is tied to
 	 */
-	public function insert($pageId) {
+	public function insert() {
 		$ret = true;
 		if($this->constr) {
 			$error = $this->validate();

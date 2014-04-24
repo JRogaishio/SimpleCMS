@@ -223,7 +223,7 @@ class page extends model
 	 * 
 	 * @param $pageId	The page to be edited
 	 */
-	public function buildEditForm($pageId) {
+	public function buildEditForm($pageId, $child=null, $user=null) {
 
 		//Load the page from an ID
 		$this->loadRecord($pageId);

@@ -167,7 +167,7 @@ class template extends model
 	 * 
 	 * @param $templateId	The template to be edited
 	 */
-	public function buildEditForm($templateId) {
+	public function buildEditForm($templateId, $child=null, $user=null) {
 
 		//Load the page from an ID
 		$this->loadRecord($templateId);

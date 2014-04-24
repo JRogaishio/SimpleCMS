@@ -133,7 +133,7 @@ class plugin extends model
 	 * 
 	 * @param $pluginId	The plugin to be edited
 	 */
-	public function buildEditForm($pluginId) {
+	public function buildEditForm($pluginId, $child=null, $user=null) {
 
 		//Load the page from an ID
 		$this->loadRecord($pluginId);
@@ -157,14 +157,6 @@ class plugin extends model
 			</form>
 		';
 		echo "</div>";
-		
-		echo "<div id='main_tools'>";
-		echo "<h2>Admin Actions</h2><br /><br />";
-		
-		echo '<a href="admin.php" class="actionLink">Back to Home</a><br /><br />';
-		echo "</div><div class='clear'></div>";
-		
-		
 	}
 	
 	/**

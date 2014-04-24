@@ -201,7 +201,7 @@ class account extends model
 	 * 
 	 * @param $userId	The user to be edited
 	 */
-	public function buildEditForm($userId) {
+	public function buildEditForm($userId, $child=null, $user=null) {
 
 		//Load the page from an ID
 		$this->loadRecord($userId);
@@ -209,7 +209,7 @@ class account extends model
 			echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a> > <a href="admin.php?type=user&action=update&p=' . $userId . '">User</a><br /><br />';
 
 		echo '
-			<form action="admin.php?type=user&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=user&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="username">Username:</label><br />
 			<input name="username" id="username" class="cms_username"type="text" maxlength="150" value="' . $this->loginname . '" ' . ($this->loginname != null ? "readonly=readonly" : "") . ' />

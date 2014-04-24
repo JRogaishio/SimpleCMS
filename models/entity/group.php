@@ -155,7 +155,7 @@ class group extends model
 	 * 
 	 * @param $templateId	The template to be edited
 	 */
-	public function buildEditForm($groupId) {
+	public function buildEditForm($groupId, $child=null, $user=null) {
 
 		//Load the page from an ID
 		$this->loadRecord($groupId);
