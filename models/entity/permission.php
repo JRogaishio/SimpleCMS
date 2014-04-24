@@ -147,6 +147,9 @@ class permission extends model
 	 * @param $templateId	The template to be loaded
 	 */
 	public function loadRecord($templateId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->id;
+		
 		if(isset($templateId) && $templateId != null) {
 			
 			$templateSQL = "SELECT * FROM " . $this->table . " WHERE id=$templateId";

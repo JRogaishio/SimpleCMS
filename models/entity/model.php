@@ -5,6 +5,7 @@ class model {
 	protected $conn = null; //Database connection object
 	protected $log = null;
 	protected $linkFormat = null;
+	protected $logField = null;
 	
 	/**
 	 * Stores the connection object in a local variable on construction
@@ -16,6 +17,7 @@ class model {
 		$this->conn = $dbConn;
 		$this->log = $dbLog;
 		$this->linkFormat = get_linkFormat($dbConn);
+		$this->logField = &$this->id; //Default to the Id
 	}
 	
 	/**
@@ -47,7 +49,7 @@ public function displayManager($action, $parent, $child, $user, $auth=null) {
 						$this->buildEditForm($parent, $child, $user);
 					} else {
 						$this->buildEditForm(getLastField($this->conn,$this->table, "id"), $child, $user);
-						$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->id . " added");
+						$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->logField . " added");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
@@ -66,7 +68,7 @@ public function displayManager($action, $parent, $child, $user, $auth=null) {
 					$this->buildEditForm($parent, $child, $user);
 
 					if($result) {
-						$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
+						$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->logField . " updated");
 					}
 				} else {
 					// User has not posted the template edit form yet: display the form
@@ -76,7 +78,7 @@ public function displayManager($action, $parent, $child, $user, $auth=null) {
 			case "delete":
 				$this->delete($parent);
 				$ret = true;
-				$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->name . " deleted");
+				$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->logField . " deleted");
 				break;
 			default:
 				echo "Error with " . $this->table . " manager<br /><br />";

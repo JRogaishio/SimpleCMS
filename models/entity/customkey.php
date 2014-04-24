@@ -129,6 +129,9 @@ class customkey extends model
 	 * @param $keyId	The key to be loaded
 	 */
 	public function loadRecord($keyId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->key;
+		
 		if(isset($keyId) && $keyId != null) {
 			
 			$keySQL = "SELECT * FROM " . $this->table . " WHERE id=$keyId";

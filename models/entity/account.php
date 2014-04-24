@@ -173,6 +173,9 @@ class account extends model
 	 * @param $userId	The user to be loaded
 	 */
 	public function loadRecord($userId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->loginname;
+		
 		if(isset($userId) && $userId != null) {
 			
 			$userSQL = "SELECT * FROM " . $this->table . " WHERE id=$userId";

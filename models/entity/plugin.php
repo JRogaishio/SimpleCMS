@@ -107,6 +107,9 @@ class plugin extends model
 	 * @param $pluginId	The plugin to be loaded
 	 */
 	public function loadRecord($pluginId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->name;
+		
 		if(isset($pluginId) && $pluginId != null) {
 			
 			$sql = "SELECT * FROM " . $this->table . " WHERE id=$pluginId";

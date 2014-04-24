@@ -191,6 +191,9 @@ class page extends model
 	 * Loads the page object members based off the page id in the database
 	 */
 	public function loadRecord($pageId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->title;
+		
 		if(isset($pageId) && $pageId != null) {
 			
 			if($pageId == "home")

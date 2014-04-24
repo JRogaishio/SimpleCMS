@@ -13,7 +13,6 @@ class site extends model
 	protected $id = null;
 	protected $name = null;
 	protected $linkFormat = null;
-	
 
 	//Getters
 	public function getId() {return $this->id;}
@@ -94,6 +93,9 @@ class site extends model
 	 * @param $siteId	The site to be loaded
 	 */
 	public function loadRecord($siteId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->name;
+		
 		if(isset($siteId) && $siteId != null) {
 			
 			$siteSQL = "SELECT * FROM " . $this->table . " WHERE id=$siteId";

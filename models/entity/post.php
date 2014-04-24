@@ -167,6 +167,9 @@ class post extends model
 	 * @param $postId	The post to be loaded
 	 */
 	public function loadRecord($postId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->title;
+		
 		if(isset($postId) && $postId != null) {
 			$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=$postId";
 			$pageResult = $this->conn->query($pageSQL);
