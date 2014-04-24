@@ -48,7 +48,7 @@ public function displayManager($action, $parent, $child, $user, $auth=null) {
 							$this->buildEditForm($parent);
 						} else {
 							$this->buildEditForm(getLastField($this->conn,$this->table, "id"));
-							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->name . " added");
+							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->id . " added");
 						}
 					}
 				} else {

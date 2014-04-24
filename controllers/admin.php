@@ -75,7 +75,7 @@ class admin extends core {
 					echo $this->cms_displayAdminTemplates();
 					break;
 				case "key":
-					$obj = new key($this->_CONN, $this->_LOG);
+					$obj = new customkey($this->_CONN, $this->_LOG);
 					$result = $obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER);
 					parent::addToScope($obj);
 					if($result)
@@ -349,7 +349,7 @@ class admin extends core {
 	public function cms_displayAdminKeys() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=keyDisplay">Key List</a><br /><br />';
 	
-		$keySQL = "SELECT * FROM key ORDER BY key_created DESC";
+		$keySQL = "SELECT * FROM customkey ORDER BY key_created DESC";
 		$keyResult = $this->_CONN->query($keySQL);
 	
 		if ($keyResult !== false && mysqli_num_rows($keyResult) > 0 ) {
@@ -502,7 +502,7 @@ class admin extends core {
 		$resultNum = 0;
 		echo "Searching <strong>\"" . $this->_ACTION . "\"</strong>...<br />";
 		//Page search
-		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "pages", array('page_safeLink', 'page_meta', 'page_title'));
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "page", array('page_safeLink', 'page_meta', 'page_title'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in pages:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
@@ -510,7 +510,7 @@ class admin extends core {
 				$resultList .="<a href=\"admin.php?type=page&action=update&p=".$row['id']."\" title=\"Edit / Manage this page\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >" . $row['page_title'] . " - " . $row['page_safeLink'] . "</a><br />";
 		}
 		//Post search
-		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "posts", array('post_title', 'post_content'));
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "post", array('post_title', 'post_content'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in posts:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
@@ -518,7 +518,7 @@ class admin extends core {
 				$resultList .="<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=". $row['id'] . "\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this post\" class=\"cms_pageEditLink\" >" . $row['post_title'] . "</a><br />";
 		}
 		//Template search
-		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "templates", array('template_path', 'template_file', 'template_name'));
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "template", array('template_path', 'template_file', 'template_name'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in templates:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
@@ -526,7 +526,7 @@ class admin extends core {
 				$resultList .="<a href=\"admin.php?type=template&action=update&p=".$row['id']."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"cms_pageEditLink\" >" . $row['template_name'] . " - " . $row['template_path'] . "</a><br />";
 		}
 		//Key search
-		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "customkeys", array('key_name', 'key_value'));
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "customkey", array('key_name', 'key_value'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in keys:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
@@ -534,7 +534,7 @@ class admin extends core {
 				$resultList .="<a href=\"admin.php?type=key&action=update&p=".$row['id']."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >" . $row['key_name'] . " - " . $row['key_value'] . "</a><br />";
 		}
 		//User search
-		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "users", array('account_login', 'account_email'));
+		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "account", array('account_login', 'account_email'));
 		if ($searchResult !== false) {
 			$resultList .= "<br /><h3>Results in users:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);

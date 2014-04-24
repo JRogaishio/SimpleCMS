@@ -140,7 +140,7 @@ class plugin extends model
 
 		echo "<div id='main_content'>";
 		echo '
-			<form action="admin.php?type=plugin&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=plugin&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="path" title="This is the name in plugins">Plugin folder name:</label><br />
 			<input name="path" id="path" type="text" maxlength="150" value="' . $this->path . '" />

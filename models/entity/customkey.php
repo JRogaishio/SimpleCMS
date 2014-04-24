@@ -6,10 +6,10 @@
  * @author Jacob Rogaishio
  * 
  */
-class key extends model
+class customkey extends model
 {
 	// Properties
-	protected $table = "key";
+	protected $table = "customkey";
 	protected $id = null;
 	protected $key = null;
 	protected $value = null;
@@ -163,7 +163,7 @@ class key extends model
 
 		
 		echo '
-			<form action="admin.php?type=key&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=key&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="key" title="This is the key name">Key name:</label><br />
 			<input name="key" id="key" type="text" maxlength="150" value="' . $this->key . '" />

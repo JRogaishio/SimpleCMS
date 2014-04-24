@@ -199,7 +199,7 @@ class post extends model
 		$this->loadRecord($postId);
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $pageId . '">Page</a> > <a href="admin.php?type=post&action=update&p=' . $pageId . '&c=' . $postId . '">Post</a><br /><br />';
 		
-		echo '<form action="admin.php?type=post&action=update&p=' . $pageId . '&c=' . $postId . '" method="post">
+		echo '<form action="admin.php?type=post&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $pageId . '&c=' . $postId . '" method="post">
 		<label for="pageId">Page:</label><br />';
 		echo getFormattedPages($this->conn, "dropdown", "pageId",$pageId);
 		echo '

@@ -126,7 +126,7 @@ class site extends model
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=siteDisplay">Site List</a> > <a href="admin.php?type=site&action=update&p=' . $siteId . '">Site</a><br /><br />';
 
 		echo '
-			<form action="admin.php?type=site&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=site&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="name" title="This is ...">Site name:</label><br />
 			<input name="name" id="name" type="text" maxlength="150" value="' . $this->name . '" />

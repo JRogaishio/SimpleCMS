@@ -231,7 +231,7 @@ class page extends model
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $this->id . '">Page</a><br /><br />';
 
 		echo '
-			<form action="admin.php?type=page&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=page&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="title">Title:</label><br />
 			<input name="title" id="title" type="text" class="cms_pageTextHeader" maxlength="150" value="' . $this->title . '" />

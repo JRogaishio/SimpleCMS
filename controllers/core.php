@@ -20,7 +20,7 @@ include_once('models/entity/page.php');
 include_once('models/entity/post.php');
 include_once('models/entity/plugin.php');
 include_once('models/entity/template.php');
-include_once('models/entity/key.php');
+include_once('models/entity/customkey.php');
 include_once('models/entity/updater.php');
 include_once('models/entity/log.php');
 include_once('models/entity/authenticate.php');
@@ -253,8 +253,8 @@ class core {
 		$site = new site($this->_CONN, $this->_LOG);
 		$site->buildTable();
 		
-		$key = new key($this->_CONN, $this->_LOG);
-		$key->buildTable();
+		$customkey = new customkey($this->_CONN, $this->_LOG);
+		$customkey->buildTable();
 	
 		$log = new log($this->_CONN, $this->_LOG);
 		$log->buildTable();

@@ -182,7 +182,7 @@ class permission extends model
 
 		
 		echo '
-			<form action="admin.php?type=template&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=template&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="path" title="This is the name in _template">Template folder name:</label><br />
 			<input name="path" id="path" type="text" maxlength="150" value="' . $this->path . '" />

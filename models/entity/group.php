@@ -164,7 +164,7 @@ class group extends model
 
 		
 		echo '
-			<form action="admin.php?type=permission&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=permission&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="name" title="This is the group name">Group name:</label><br />
 			<input name="name" id="path" type="text" maxlength="150" value="' . $this->name . '" />

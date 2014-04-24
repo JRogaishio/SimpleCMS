@@ -254,12 +254,13 @@ class account extends model
 		//Allow access to the user editor if you are authenticated or there are no users
 		if($auth || countRecords($this->conn,$this->table) == 0) {
 			switch($action) {
-				case "update":
+				case "insert":
 					//Determine if the form has been submitted
 					if(isset($_POST['saveChanges'])) {
 						// User has posted the article edit form: save the new article
+							
 						$this->storeFormValues($_POST);
-	
+							
 						if($parent == null) {
 							$result = $this->insert();
 								
@@ -275,18 +276,29 @@ class account extends model
 							} else {
 								parent::render("siteLogin");
 							}
-								
-						} else {
-							$result = $this->update($parent);
-								
-							if(!$result) {
-								$this->buildEditForm($parent);
-							} else {
-								//Re-build the User creation form once we are done
-								$this->buildEditForm($parent);
-								$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
-							}
 						}
+					} else {
+						// User has not posted the template edit form yet: display the form
+						$this->buildEditForm($parent);
+					}
+					break;
+				
+				case "update":
+					//Determine if the form has been submitted
+					if(isset($_POST['saveChanges'])) {
+						// User has posted the article edit form: save the new article
+						$this->storeFormValues($_POST);
+	
+						$result = $this->update($parent);
+							
+						if(!$result) {
+							$this->buildEditForm($parent);
+						} else {
+							//Re-build the User creation form once we are done
+							$this->buildEditForm($parent);
+							$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
+						}
+						
 					} else {
 						// User has not posted the article edit form yet: display the form
 						$this->buildEditForm($parent);
