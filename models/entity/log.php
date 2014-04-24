@@ -23,7 +23,7 @@ class log extends model
 	 */
 	function trackChange($type, $action, $userId, $user, $change) {
 	
-		$sql = "INSERT INTO " . $this->table . " (log_type, log_action, log_userId, log_user, log_info, log_date, log_created, log_remoteIp) VALUES";
+		$sql = "INSERT INTO " . $this->table . " (log_type, log_action, log_accountId, log_user, log_info, log_date, log_created, log_remoteIp) VALUES";
 		$sql .= "('$type', '$action', '$userId', '$user', '$change', '" . date('Y-m-d H:i:s') . "','" . time() . "','" . $_SERVER['REMOTE_ADDR'] . "')";
 	
 		$result = $this->conn->query($sql) OR DIE ("Could not write to log!");
@@ -41,7 +41,7 @@ class log extends model
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `log_type` varchar(64) DEFAULT NULL,
 		  `log_action` varchar(64) DEFAULT NULL,
-		  `log_userId` varchar(64) DEFAULT NULL,
+		  `log_accountId` varchar(64) DEFAULT NULL,
 		  `log_user` varchar(64) DEFAULT NULL,
 		  `log_info` text,
 		  `log_date` datetime DEFAULT NULL,
