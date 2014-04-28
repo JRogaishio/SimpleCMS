@@ -43,25 +43,13 @@ class permission extends model
 	 */
 	public function storeFormValues ($params) {	
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
+		if(isset($params['id'])) $this->id = clean($this->conn, $params['id']);
 		if(isset($params['groupId'])) $this->groupId = clean($this->conn, $params['groupId']);
 		if(isset($params['model'])) $this->model = clean($this->conn, $params['model']);
 		(isset($params['view'])) ? $this->view = clean($this->conn, $params['view']) : $this->view = 0;
 		(isset($params['insert'])) ? $this->insert = clean($this->conn, $params['insert']) : $this->insert = 0;
 		(isset($params['update'])) ? $this->update = clean($this->conn, $params['update']) : $this->update = 0;
 		(isset($params['delete'])) ? $this->delete = clean($this->conn, $params['delete']) : $this->delete = 0;
-
-		/*echo "<pre>";
-		echo "!!" . $params['view'] . "!!";
-		echo "</pre>";
-		
-		echo "GroupId: " . getLastField($this->conn, 'permissiongroup', 'id') . "<br />";
-		echo "Model:   " . $this->model . "<br />";
-		echo "View:    " . $this->view . "<br />";
-		echo "Insert:  " . $this->insert . "<br />";
-		echo "Update:  " . $this->update . "<br />";
-		echo "Delete:  " . $this->delete . "<br />";
-		echo "##" . convertToBit($params['view']) . "##<br />";
-		echo "############";*/
 		
 		$this->constr = true;
 	}
@@ -107,15 +95,13 @@ class permission extends model
 		if($this->constr) {
 
 			$sql = "UPDATE " . $this->table . " SET
-			template_path = '$this->path', 
-			template_file = '$this->file', 
-			template_name = '$this->name'
+			permission_view = $this->view, 
+			permission_insert = $this->insert,
+			permission_update = $this->update, 
+			permission_delete = $this->delete
 			WHERE id=" . $this->id . ";";
 
 			$result = $this->conn->query($sql) OR DIE ("Could not update " . $this->table . "!");
-			if($result) {
-				echo "<span class='update_notice'>Updated " . $this->table . " successfully!</span><br /><br />";
-			}
 
 		} else {
 			echo "Failed to load form data!";
@@ -130,12 +116,11 @@ class permission extends model
 	 * @return returns the database result on the delete query
 	 */
 	public function delete() {
-		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
+		$permissionSQL = "DELETE FROM " . $this->table . " WHERE permission_groupId=" . $this->groupId;
+
+		$permissionResult = $this->conn->query($permissionSQL);
 		
-		$templateSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
-		$templateResult = $this->conn->query($templateSQL);
-		
-		return $templateResult;
+		return $permissionResult;
 	}
 	
 	/**
@@ -143,13 +128,13 @@ class permission extends model
 	 * 
 	 * @param $templateId	The template to be loaded
 	 */
-	public function loadRecord($groupId, $model) {
+	public function loadRecord($groupId) {
 		//Set a field to use by the logger
 		$this->logField = &$this->id;
 		
-		if(isset($groupId) && $groupId != null && isset($model) && $model != null) {
+		if(isset($groupId) && $groupId != null && isset($this->model) && $this->model != null) {
 			
-			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE permission_groupId=$groupId AND permission_model='$model'";
+			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE permission_groupId=$groupId AND permission_model='$this->model'";
 				
 			$permissionResult = $this->conn->query($permissionSQL);
 
@@ -177,34 +162,7 @@ class permission extends model
 	 * @param $templateId	The template to be edited
 	 */
 	public function buildEditForm($groupId, $child=null, $user=null) {
-
-		//Load the page from an ID
-		$this->loadRecord($templateId);
-
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a> > <a href="admin.php?type=template&action=update&p=' . $templateId . '">Template</a><br /><br />';
-
-		
-		echo '
-			<form action="admin.php?type=template&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
-
-			<label for="path" title="This is the name in _template">Template folder name:</label><br />
-			<input name="path" id="path" type="text" maxlength="150" value="' . $this->path . '" />
-			<div class="clear"></div>
-
-			<label for="file" title="This is the name of the template php file">Template filename:</label><br />
-			<input name="file" id="file" type="text" maxlength="150" value="' . $this->file . '" />
-			<div class="clear"></div>
-
-			<label for="name" title="This is the name that will appear when selecting a template">Display name:</label><br />
-			<input name="name" id="name" type="text" maxlength="150" value="' . $this->name . '" />
-			<div class="clear"></div>
-
-			<div class="clear"></div>
-			<br />
-			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($templateId) || $templateId == null) ? "Create" : "Update") . ' This Template!" /><br /><br />
-			' . ((isset($templateId) && $templateId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
-			</form>
-		';	
+		//Uses buildPermissionForm() in permissiongroup instead		
 	}
 		
 	/**

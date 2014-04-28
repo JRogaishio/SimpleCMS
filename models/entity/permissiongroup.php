@@ -43,8 +43,9 @@ class permissiongroup extends model
 			$permission = new permission($this->conn, $this->log);
 			
 			//Load permission data from the form
-			$values = array('groupId'=>$this->id, 'model'=>$modelName, 'view'=>null, 'insert'=>null, 'update'=>null, 'delete'=>null);
+			$values = array('id'=>'', 'groupId'=>$this->id, 'model'=>$modelName, 'view'=>null, 'insert'=>null, 'update'=>null, 'delete'=>null);
 			
+			if(isset($params[$modelName . '_id'])) $values['id'] = clean($this->conn, $params[$modelName . '_id']);
 			if(isset($params[$modelName . '_view'])) $values['view'] = clean($this->conn, $params[$modelName . '_view']);
 			if(isset($params[$modelName . '_insert'])) $values['insert'] = clean($this->conn, $params[$modelName . '_insert']);
 			if(isset($params[$modelName . '_update'])) $values['update'] = clean($this->conn, $params[$modelName . '_update']);
@@ -114,14 +115,12 @@ class permissiongroup extends model
 		if($this->constr) {
 
 			$sql = "UPDATE " . $this->table . " SET
-			template_path = '$this->path', 
-			template_file = '$this->file', 
-			template_name = '$this->name'
+			permissiongroup_name = '$this->name' 
 			WHERE id=" . $this->id . ";";
 
 			$result = $this->conn->query($sql) OR DIE ("Could not update " . $this->table . "!");
 			if($result) {
-				echo "<span class='update_notice'>Updated template successfully!</span><br /><br />";
+				echo "<span class='update_notice'>Updated group successfully!</span><br /><br />";
 			}
 
 		} else {
@@ -137,12 +136,12 @@ class permissiongroup extends model
 	 * @return returns the database result on the delete query
 	 */
 	public function delete() {
-		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
+		echo "<span class='update_notice'>Group deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any users that were using this group!</span><br /><br />";
 		
-		$templateSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
-		$templateResult = $this->conn->query($templateSQL);
+		$groupSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
+		$groupResult = $this->conn->query($groupSQL);
 		
-		return $templateResult;
+		return $groupResult;
 	}
 	
 	/**
@@ -215,10 +214,11 @@ class permissiongroup extends model
 				<tr><th>Item</th><th>View</th><th>Insert</th><th>Update</th><th>Delete</th></tr>";
 		foreach($this->availModels as $modelName) {
 			$obj = new permission($this->conn, $this->log);
-			$obj->loadRecord($this->id, $modelName);
+			$obj->setModel($modelName);
+			$obj->loadRecord($this->id);
 			echo '
 				<tr>
-					<td>' . ucfirst($modelName) . '</td>
+					<td>' . ucfirst($modelName) . '<input type="hidden" name="' . $modelName . '_id" value="' . $obj->getId() . '" /></td>
 					<td><input name="' . $modelName . '_view" id="' . $modelName . '_view" type="checkbox" value="1" '. ($obj->getView()==1?"checked=checked":"") . ' ' . ($this->edit == 0 ? "disabled" : "") . ' /></td>
 					<td><input name="' . $modelName . '_insert" id="' . $modelName . '_insert" type="checkbox" value="1" '. ($obj->getInsert()==1?"checked=checked":"") . ' ' . ($this->edit == 0 ? "disabled" : "") . ' /></td>
 					<td><input name="' . $modelName . '_update" id="' . $modelName . '_update" type="checkbox" value="1" '. ($obj->getUpdate()==1?"checked=checked":"") . ' ' . ($this->edit == 0 ? "disabled" : "") . ' /></td>
@@ -279,6 +279,12 @@ class permissiongroup extends model
 					$this->storeFormValues($_POST);
 						
 					$result = $this->update($parent);
+					
+					//Save all the permission options
+					foreach($this->permissions as $permission) {
+						$permission->update();
+					}
+					
 					//Re-build the page creation form once we are done
 					$this->buildEditForm($parent, $child, $user);
 	
@@ -291,6 +297,13 @@ class permissiongroup extends model
 				}
 				break;
 			case "delete":
+				$this->storeFormValues($_POST);
+				
+				//Save all the permission options
+				foreach($this->permissions as $permission) {
+					$permission->delete();
+				}
+				
 				$this->delete($parent);
 				$ret = true;
 				$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->logField . " deleted");
