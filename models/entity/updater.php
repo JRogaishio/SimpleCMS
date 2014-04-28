@@ -2,7 +2,7 @@
 
 class updater extends model {
 
-    public function displayManager() {
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
         echo "<br />
             <table>
                 <tr><td>Current Version: </td><td><strong>" . SYSTEM_VERSION . "</strong></td></tr>

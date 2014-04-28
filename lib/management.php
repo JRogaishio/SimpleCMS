@@ -34,6 +34,26 @@ function lookupPageNameById($conn, $pageId) {
 }
 
 /**
+ * Looks up the group name in the database by the group database Id
+ *
+ * @param $conn		A database connection object
+ * @param $groupId	The permission group Id to lookup
+ *
+ * @return returns the page name selected
+ */
+function lookupGroupNameById($conn, $groupId) {
+	$groupSQL = "SELECT permissiongroup_name FROM permissionGroup WHERE id=$groupId";
+	$groupResult =  $conn->query($groupSQL);
+	$name = null;
+	if(mysqli_num_rows($groupResult) > 0) {
+		$row = mysqli_fetch_assoc($groupResult);
+		$name = $row['permissiongroup_name'];
+	}
+
+	return $name;
+}
+
+/**
  * Looks up the page Id in the database by the page safe link
  * 
  * @param $conn		A database connection object
@@ -91,6 +111,45 @@ function getFormattedPages($conn, $format, $eleName, $defaultVal) {
 				break;
 		} //End switch
 		
+		//Return the formated data
+		return $formattedData;
+	} else {
+		return false;
+	}
+}
+
+
+/**
+ * Generate a list of all the groups in a certain format
+ *
+ * @param $conn			A database connection object
+ * @param $format		The particular format you want to export in. "dropdown" is the only supported format currently
+ * @param $eleName		The HTML element name
+ * @param $defaultVal	The HTML default value
+ *
+ * @return returns a formatted HTML page list
+ */
+function getFormattedGroups($conn, $format, $eleName, $defaultVal) {
+
+	$groupSQL = "SELECT * FROM permissiongroup ORDER BY permissiongroup_created DESC";
+	$groupResult =  $conn->query($groupSQL);
+	$formattedData = "";
+	if ($groupResult !== false && mysqli_num_rows($groupResult) > 0 ) {
+		switch ($format) {
+			case "dropdown":
+				$formattedData = "<select name='" . $eleName . "'>";
+
+				if($defaultVal != null && $defaultVal != "new")
+					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupGroupNameById($conn, $defaultVal) . "--</option>";
+
+				while($row = mysqli_fetch_assoc($groupResult) ) {
+					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['permissiongroup_name']) . "</option>";
+				}
+				$formattedData .= "</select>";
+
+				break;
+		} //End switch
+
 		//Return the formated data
 		return $formattedData;
 	} else {

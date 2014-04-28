@@ -32,7 +32,7 @@ class model {
 	 * @return Returns true on change success otherwise false
 	 *
 	 */
-public function displayManager($action, $parent, $child, $user, $auth=null) {
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
 		$this->loadRecord($parent);
 		$ret = false;
 		switch($action) {

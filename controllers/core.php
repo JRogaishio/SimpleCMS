@@ -16,6 +16,8 @@ include_once('lib/management.php');
 include_once('models/entity/model.php');
 include_once('models/entity/site.php');
 include_once('models/entity/account.php');
+include_once('models/entity/permissiongroup.php');
+include_once('models/entity/permission.php');
 include_once('models/entity/page.php');
 include_once('models/entity/post.php');
 include_once('models/entity/plugin.php');
@@ -249,7 +251,13 @@ class core {
 	
 		$user = new account($this->_CONN, $this->_LOG);
 		$user->buildTable();
-	
+		
+		$permissiongroup = new permissiongroup($this->_CONN, $this->_LOG);
+		$permissiongroup->buildTable();
+		
+		$permission = new permission($this->_CONN, $this->_LOG);
+		$permission->buildTable();
+		
 		$site = new site($this->_CONN, $this->_LOG);
 		$site->buildTable();
 		

@@ -37,6 +37,8 @@
 			<ul>
 			<li class="cms_navItem"><a href="admin.php?type=userDisplay" class="cms_navItemLink">Edit Users</a></li>
 			<li class="cms_navItem"><a href="admin.php?type=user&action=insert&p=" class="cms_navItemLink">Add a User</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=permissionDisplay" class="cms_navItemLink">Edit Permissions</a></li>
+			<li class="cms_navItem"><a href="admin.php?type=permission&action=insert&p=" class="cms_navItemLink">Add a Permission Group</a></li>
 			</ul>
 		</div>
 	</div>	

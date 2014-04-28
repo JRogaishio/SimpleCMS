@@ -120,12 +120,15 @@ class admin extends core {
 					echo $this->cms_displayAdminUsers();
 					break;
 				case "permission":
-					$obj = new group($this->_CONN, $this->_LOG);
+					$obj = new permissiongroup($this->_CONN, $this->_LOG);
 					$result = $obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER);
 					parent::addToScope($obj);
 					if($result)
-						echo $this->cms_displayAdminTemplates();
+						echo $this->cms_displayAdminPermissions();
 				
+					break;
+				case "permissionDisplay":
+					echo $this->cms_displayAdminPermissions();
 					break;
 				case "search":
 					echo $this->cms_displaySearch();
@@ -135,7 +138,7 @@ class admin extends core {
 					break;
 				case "updateDisplay":
 					$obj = new updater($this->_CONN, $this->_LOG);
-					$obj->displayManager();
+					$obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_AUTH);
 					break;
 				case "update":
 					$obj = new updater($this->_CONN, $this->_LOG);
@@ -488,6 +491,37 @@ class admin extends core {
 			echo "
 			<p>
 				No users found!
+			</p>";
+		}
+	
+	}
+	
+	/**
+	 * Display the list of all permission groups
+	 *
+	 */
+	public function cms_displayAdminPermissions() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=permissionDisplay">Permission Group List</a><br /><br />';
+	
+		$groupSQL = "SELECT * FROM permissiongroup ORDER BY permissiongroup_created DESC";
+		$groupResult = $this->_CONN->query($groupSQL);
+	
+		if ($groupResult !== false && mysqli_num_rows($groupResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($groupResult) ) {
+	
+				$name = stripslashes($row['permissiongroup_name']);
+	
+				echo "
+				<div class=\"user\">
+					<h2>
+						<a href=\"admin.php?type=permission&action=update&p=".$row['id']."\" title=\"Edit / Manage this permission group\" alt=\"Edit / Manage this permission group\" class=\"cms_pageEditLink\" >$name</a>
+					</h2>
+				</div>";
+			}
+		} else {
+			echo "
+			<p>
+				No permission groups found!
 			</p>";
 		}
 	

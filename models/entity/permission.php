@@ -13,6 +13,7 @@ class permission extends model
 	protected $id = null;
 	protected $groupId = null;
 	protected $model = null;
+	protected $view = null;
 	protected $insert = null;
 	protected $update = null;
 	protected $delete = null;
@@ -21,6 +22,7 @@ class permission extends model
 	public function getId() {return $this->id;}
 	public function getGroupId() {return $this->groupId;}
 	public function getModel() {return $this->model;}
+	public function getView() {return $this->view;}
 	public function getInsert() {return $this->insert;}
 	public function getUpdate() {return $this->update;}
 	public function getDelete() {return $this->delete;}
@@ -29,6 +31,7 @@ class permission extends model
 	public function setId($val) {$this->id = $val;}
 	public function setGroupId($val) {$this->groupId = $val;}
 	public function setModel($val) {$this->model = $val;}
+	public function setView($val) {$this->view = $val;}
 	public function setInsert($val) {$this->insert = $val;}
 	public function setUpdate($val) {$this->update = $val;}
 	public function setDelete($val) {$this->delete = $val;}
@@ -38,14 +41,28 @@ class permission extends model
 	 *
 	 * @param params The form post values
 	 */
-	public function storeFormValues ($params) {
-		//Set the data to variables if the post data is set
-
+	public function storeFormValues ($params) {	
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['path'])) $this->path = clean($this->conn, $params['path']);
-		if(isset($params['file'])) $this->file = clean($this->conn, $params['file']);
-		if(isset($params['name'])) $this->name = clean($this->conn, $params['name']);
+		if(isset($params['groupId'])) $this->groupId = clean($this->conn, $params['groupId']);
+		if(isset($params['model'])) $this->model = clean($this->conn, $params['model']);
+		(isset($params['view'])) ? $this->view = clean($this->conn, $params['view']) : $this->view = 0;
+		(isset($params['insert'])) ? $this->insert = clean($this->conn, $params['insert']) : $this->insert = 0;
+		(isset($params['update'])) ? $this->update = clean($this->conn, $params['update']) : $this->update = 0;
+		(isset($params['delete'])) ? $this->delete = clean($this->conn, $params['delete']) : $this->delete = 0;
 
+		/*echo "<pre>";
+		echo "!!" . $params['view'] . "!!";
+		echo "</pre>";
+		
+		echo "GroupId: " . getLastField($this->conn, 'permissiongroup', 'id') . "<br />";
+		echo "Model:   " . $this->model . "<br />";
+		echo "View:    " . $this->view . "<br />";
+		echo "Insert:  " . $this->insert . "<br />";
+		echo "Update:  " . $this->update . "<br />";
+		echo "Delete:  " . $this->delete . "<br />";
+		echo "##" . convertToBit($params['view']) . "##<br />";
+		echo "############";*/
+		
 		$this->constr = true;
 	}
 
@@ -57,18 +74,6 @@ class permission extends model
 	private function validate() {
 		$ret = "";
 		
-		if($this->path == "") {
-			$ret = "Please enter a folder name in _template/.";
-		} else if(strpos($this->path, " ") !== false) {
-			$ret = "The path cannot contain any spaces.";
-		} else if($this->file == "") {
-			$ret = "Please enter a file to load in template folder (ex. index.php).";
-		} else if(strpos($this->file, " ") !== false) {
-			$ret = "The file cannot contain any spaces.";
-		} else if($this->name == "") {
-			$ret = "Please enter a title.";
-		}
-	
 		return $ret;
 	}
 	
@@ -78,20 +83,12 @@ class permission extends model
 	public function insert() {
 		$ret = true;
 		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {
+			if( $this->groupId == null ||  $this->groupId == '') {$this->groupId = getLastField($this->conn, 'permissiongroup', 'id');}
 			
-				$sql = "INSERT INTO " . $this->table . " (template_path, template_file, template_name, template_created) VALUES";
-				$sql .= "('$this->path', '$this->file', '$this->name','" . time() . "')";
-	
-				$result = $this->conn->query($sql) OR DIE ("Could not create " . $this->table . "!");
-				if($result) {
-					echo "<span class='update_notice'>Created " . $this->table . " successfully!</span><br /><br />";
-				}
-			} else {
-				$ret = false;
-				echo "<p class='cms_warning'>" . $error . "</p><br />";
-			}
+			$sql = "INSERT INTO " . $this->table . " (permission_groupId, permission_model, permission_view, permission_insert, permission_update, permission_delete, permission_created) VALUES";
+			$sql .= "('$this->groupId', '$this->model', $this->view, $this->insert, $this->update, $this->delete, '" . time() . "')";
+
+			$result = $this->conn->query($sql) OR DIE ("Could not create " . $this->table . "!");
 
 		} else {
 			$ret = false;
@@ -146,24 +143,27 @@ class permission extends model
 	 * 
 	 * @param $templateId	The template to be loaded
 	 */
-	public function loadRecord($templateId) {
+	public function loadRecord($groupId, $model) {
 		//Set a field to use by the logger
 		$this->logField = &$this->id;
 		
-		if(isset($templateId) && $templateId != null) {
+		if(isset($groupId) && $groupId != null && isset($model) && $model != null) {
 			
-			$templateSQL = "SELECT * FROM " . $this->table . " WHERE id=$templateId";
+			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE permission_groupId=$groupId AND permission_model='$model'";
 				
-			$templateResult = $this->conn->query($templateSQL);
+			$permissionResult = $this->conn->query($permissionSQL);
 
-			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
-				$row = mysqli_fetch_assoc($templateResult);
+			if ($permissionResult !== false && mysqli_num_rows($permissionResult) > 0 )
+				$row = mysqli_fetch_assoc($permissionResult);
 
 			if(isset($row)) {
 				$this->id = $row['id'];
-				$this->path = $row['template_path'];
-				$this->file = $row['template_file'];
-				$this->name = $row['template_name'];
+				$this->groupId = $row['permission_groupId'];
+				$this->model = $row['permission_model'];
+				$this->view = $row['permission_view'];
+				$this->insert = $row['permission_insert'];
+				$this->update = $row['permission_update'];
+				$this->delete = $row['permission_delete'];
 			}
 			
 			$this->constr = true;
@@ -176,7 +176,7 @@ class permission extends model
 	 * 
 	 * @param $templateId	The template to be edited
 	 */
-	public function buildEditForm($templateId, $child=null, $user=null) {
+	public function buildEditForm($groupId, $child=null, $user=null) {
 
 		//Load the page from an ID
 		$this->loadRecord($templateId);
@@ -204,10 +204,7 @@ class permission extends model
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($templateId) || $templateId == null) ? "Create" : "Update") . ' This Template!" /><br /><br />
 			' . ((isset($templateId) && $templateId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
 			</form>
-		';
-
-		
-		
+		';	
 	}
 		
 	/**
@@ -220,20 +217,15 @@ class permission extends model
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `permission_groupId` int(16) DEFAULT NULL,
 		  `permission_model` varchar(128) DEFAULT NULL,
+		  `permission_view` tinyint(1) DEFAULT NULL,
 		  `permission_insert` tinyint(1) DEFAULT NULL,
 		  `permission_update` tinyint(1) DEFAULT NULL,
 		  `permission_delete` tinyint(1) DEFAULT NULL,
-		
+		  `permission_created` varchar(128) DEFAULT NULL,
+				
 		  PRIMARY KEY (`id`)
 		)";
 		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
-		
-		/*Insert default data for `templates` if we dont have one already*/
-		/*if(countRecords($this->conn, "templates") == 0) {
-			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES('default_example', 'index.php', 'Default Example Template', '" . time() . "')";
-			$this->conn->query($sql) OR DIE ("Could not insert default example data into \"templates\"");
-		}*/
-		
 	}
 	
 }

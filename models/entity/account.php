@@ -51,6 +51,7 @@ class account extends model
 		if(isset($params['password'])) $this->password = clean($this->conn, $params['password']);
 		if(isset($params['password2'])) $this->password2 = clean($this->conn, $params['password2']);
 		if(isset($params['email'])) $this->email = clean($this->conn, $params['email']);
+		if(isset($params['groupId'])) $this->groupId = clean($this->conn, $params['groupId']);
 
 		$this->constr = true;
 	}
@@ -92,8 +93,8 @@ class account extends model
 				$secPass = hash('sha256',$this->password);
 				$secPass = hash('sha256',($secPass . $salt));
 				
-				$sql = "INSERT INTO " . $this->table . " (account_login, account_pass, account_salt, account_email,account_created, account_isRegistered) VALUES";
-				$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1)";
+				$sql = "INSERT INTO " . $this->table . " (account_login, account_pass, account_salt, account_email,account_created, account_isRegistered, account_groupId) VALUES";
+				$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1, " . $this->groupId . ")";
 				
 				$result = $this->conn->query($sql) OR DIE ("Could not create user!");
 				if($result) {
@@ -232,6 +233,14 @@ class account extends model
 			<label for="email">Email Address:</label><br />
 			<input name="email" id="email" type="text" maxlength="150" value="' . $this->email . '" />
 			<div class="clear"></div>
+											
+			<label for="groupId">Permission Group:</label><br />';
+			echo getFormattedGroups($this->conn, "dropdown", "groupId", $this->groupId);
+			echo '
+			<div class="clear"></div>
+			<br />
+
+				
 			<br />
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($userId) || $userId == null) ? "Create" : "Update") . ' This User!" /><br /><br />
 			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=user&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
@@ -251,7 +260,7 @@ class account extends model
 	 * @return Returns true on change success otherwise false
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $auth) {
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
 		$this->loadRecord($parent);
 		$ret = false;
 		//Allow access to the user editor if you are authenticated or there are no users
