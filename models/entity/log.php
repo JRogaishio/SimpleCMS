@@ -32,6 +32,72 @@ class log extends model
 	}
 
 	/**
+	 * Display the template management page
+	 *
+	 * @param $action	The action to be performed such as update or delete
+	 * @param $parent	The ID of the template object to be edited. This is the p GET Data
+	 * @param $child	This is the c GET Data
+	 * @param $user		The user making the change
+	 * @param $auth		A boolean value depending on if the user is logged in
+	 *
+	 * @return Returns true on change success otherwise false
+	 *
+	 */
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
+		$ret = false;
+		switch($action) {
+			case "read":
+				if($user->checkPermission($this->table, 'read', false)) {
+					$this->displayModelList();
+				} else {
+					echo "You do not have permissions to '<strong>read</strong>' records for " . $this->table . ".<br />";
+				}
+				break;
+			case "insert":
+				//Nothing to do here
+				break;
+			case "update":
+				//Nothing to do here
+				break;
+			case "delete":
+				//Nothing to do here
+				break;
+			default:
+				echo "Error with " . $this->table . " manager<br /><br />";
+		}
+		return $ret;
+	}
+	
+	
+	/**
+	 * Display the system log
+	 *
+	 */
+	public function displayModelList() {
+		$resultList = "";
+		$logSQL = "SELECT * FROM " . $this->table . " ORDER BY log_created DESC;";
+		$logResult = $this->conn->query($logSQL);
+	
+		if ($logResult !== false && mysqli_num_rows($logResult) > 0 ) {
+			$resultList .= "
+			<h3>Results in log:</h3>
+			<br /><br />
+			<table class='table table-bordered'>
+			<tr><th>User</th><th>Type</th><th>Details</th><th>Date</th><th>IP Address</th></tr>
+			";
+			while($row = mysqli_fetch_assoc($logResult))
+				$resultList .= "<tr><td>" . $row['log_user'] . "</td><td>" . $row['log_type'] . "</td><td>" . $row['log_info'] . "</td><td>" . $row['log_date'] . "</td><td>". $row['log_remoteIp'] . "</td></tr>";
+				
+			$resultList .= "</table>";
+				
+			echo $resultList;
+				
+		} else {
+			echo "No logs found?";
+		}
+	}
+	
+	/**
 	 * Builds the necessary tables for this object
 	 *
 	 */

@@ -37,14 +37,14 @@ class model {
 		$ret = false;
 		switch($action) {
 			case "read":
-				if($user->checkPermission($this->table, 'read', false)) {
+				if($user->checkPermission($this->table, 'read')) {
 					$this->displayModelList();		
 				} else {
 					echo "You do not have permissions to '<strong>read</strong>' records for " . $this->table . ".<br />";
 				}		
 				break;
 			case "insert":
-				if($user->checkPermission($this->table, 'view', false)) {
+				if($user->checkPermission($this->table, 'insert')) {
 					//Determine if the form has been submitted
 					if(isset($_POST['saveChanges'])) {
 						// User has posted the article edit form: save the new article
@@ -68,7 +68,7 @@ class model {
 				}
 				break;
 			case "update":
-				if($user->checkPermission($this->table, 'update', false)) {
+				if($user->checkPermission($this->table, 'update')) {
 					//Determine if the form has been submitted
 					if(isset($_POST['saveChanges'])) {
 						// User has posted the article edit form: save the new article
@@ -91,7 +91,7 @@ class model {
 				}
 				break;
 			case "delete":
-				if($user->checkPermission($this->table, 'delete', false)) {
+				if($user->checkPermission($this->table, 'delete')) {
 					$this->delete($parent);
 					$ret = true;
 					$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->logField . " deleted");
@@ -101,7 +101,6 @@ class model {
 				break;
 			default:
 				echo "Error with " . $this->table . " manager<br /><br />";
-				$ret = true;
 		}
 		return $ret;
 	}

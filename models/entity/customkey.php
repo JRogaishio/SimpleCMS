@@ -162,11 +162,11 @@ class customkey extends model
 		//Load the page from an ID
 		$this->loadRecord($keyId);
 
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=keyDisplay">Key List</a> > <a href="admin.php?type=key&action=update&p=' . $keyId . '">Key</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=customkey&action=read">Key List</a> > <a href="admin.php?type=customkey&action=update&p=' . $keyId . '">Key</a><br /><br />';
 
 		
 		echo '
-			<form action="admin.php?type=key&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=customkey&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="key" title="This is the key name">Key name:</label><br />
 			<input name="key" id="key" type="text" maxlength="150" value="' . $this->key . '" />
@@ -179,7 +179,7 @@ class customkey extends model
 			<div class="clear"></div>
 			<br />
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($keyId) || $keyId == null) ? "Create" : "Update") . ' This Key!" /><br /><br />
-			' . ((isset($keyId) && $keyId != null) ? '<a href="admin.php?type=key&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Key!</a><br /><br />' : '') . '
+			' . ((isset($keyId) && $keyId != null) ? '<a href="admin.php?type=customkey&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Key!</a><br /><br />' : '') . '
 			</form>
 		';
 	}
@@ -203,7 +203,7 @@ class customkey extends model
 				echo "
 				<div class=\"key\">
 					<h2>
-					<a href=\"admin.php?type=key&action=update&p=".$row['id']."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >$name</a>
+					<a href=\"admin.php?type=customkey&action=update&p=".$row['id']."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >$name</a>
 						</h2>
 						<p>" . $value . "</p>
 				</div>";

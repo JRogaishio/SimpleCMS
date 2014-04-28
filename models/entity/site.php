@@ -125,7 +125,7 @@ class site extends model
 		//Load the site from an ID
 		$this->loadRecord($siteId);
 
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=siteDisplay">Site List</a> > <a href="admin.php?type=site&action=update&p=' . $siteId . '">Site</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=site&action=read">Site List</a> > <a href="admin.php?type=site&action=update&p=' . $siteId . '">Site</a><br /><br />';
 
 		echo '
 			<form action="admin.php?type=site&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">

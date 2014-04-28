@@ -183,11 +183,11 @@ class permissiongroup extends model
 		//Load the page from an ID
 		$this->loadRecord($groupId);
 
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=permissionDisplay">Permission Group List</a> > <a href="admin.php?type=permission&action=update&p=' . $groupId . '">Permission Group</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=permissiongroup&action=read">Permission Group List</a> > <a href="admin.php?type=permissiongroup&action=update&p=' . $groupId . '">Permission Group</a><br /><br />';
 
 		
 		echo '
-			<form action="admin.php?type=permission&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=permissiongroup&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="name" title="This is the group name">Group name:</label><br />
 			<input name="name" id="path" type="text" maxlength="150" value="' . $this->name . '" ' . ($this->edit == 0 ? "disabled" : "") . ' />
@@ -200,7 +200,7 @@ class permissiongroup extends model
 			<div class="clear"></div>
 			<br />
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($groupId) || $groupId == null) ? "Create" : "Update") . ' This Group!" /><br /><br />
-			' . ((isset($groupId) && $groupId != null) ? '<a href="admin.php?type=permission&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Group!</a><br /><br />' : '') . '
+			' . ((isset($groupId) && $groupId != null) ? '<a href="admin.php?type=permissiongroup&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Group!</a><br /><br />' : '') . '
 			</form>
 		';
 	}
@@ -247,77 +247,88 @@ class permissiongroup extends model
 		$ret = false;
 		switch($action) {
 			case "read":
-				if($user->checkPermission($this->table, 'read', false)) {
+				if($user->checkPermission($this->table, 'read')) {
 					$this->displayModelList();
 				} else {
 					echo "You do not have permissions to '<strong>read</strong>' records for " . $this->table . ".<br />";
 				}
 				break;
 			case "insert":
-				//Determine if the form has been submitted
-				if(isset($_POST['saveChanges'])) {
-					// User has posted the article edit form: save the new article
+				if($user->checkPermission($this->table, 'insert')) {
+					//Determine if the form has been submitted
+					if(isset($_POST['saveChanges'])) {
+						// User has posted the article edit form: save the new article
+							
+						$this->storeFormValues($_POST);
+							
+						$result = $this->insert();
+		
+						//Save all the permission options
+						foreach($this->permissions as $permission) {
+							$permission->insert();
+						}
 						
-					$this->storeFormValues($_POST);
-						
-					$result = $this->insert();
-	
-					//Save all the permission options
-					foreach($this->permissions as $permission) {
-						$permission->insert();
-					}
-					
-					if(!$result) {
-						$this->buildEditForm($parent, $child, $user);
+						if(!$result) {
+							$this->buildEditForm($parent, $child, $user);
+						} else {
+							$this->buildEditForm(getLastField($this->conn,$this->table, "id"), $child, $user);
+							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->logField . " added");
+						}
 					} else {
-						$this->buildEditForm(getLastField($this->conn,$this->table, "id"), $child, $user);
-						$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->logField . " added");
+						// User has not posted the template edit form yet: display the form
+						$this->buildEditForm($parent, $child, $user);
 					}
 				} else {
-					// User has not posted the template edit form yet: display the form
-					$this->buildEditForm($parent, $child, $user);
+					echo "You do not have permissions to '<strong>insert</strong>' records for " . $this->table . ".<br />";
 				}
 				break;
 			case "update":
-				//Determine if the form has been submitted
-				if(isset($_POST['saveChanges'])) {
-					// User has posted the article edit form: save the new article
-	
-					$this->storeFormValues($_POST);
+				if($user->checkPermission($this->table, 'update')) {
+					//Determine if the form has been submitted
+					if(isset($_POST['saveChanges'])) {
+						// User has posted the article edit form: save the new article
+		
+						$this->storeFormValues($_POST);
+							
+						$result = $this->update($parent);
 						
-					$result = $this->update($parent);
-					
-					//Save all the permission options
-					foreach($this->permissions as $permission) {
-						$permission->update();
-					}
-					
-					//Re-build the page creation form once we are done
-					$this->buildEditForm($parent, $child, $user);
-	
-					if($result) {
-						$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->logField . " updated");
+						//Save all the permission options
+						foreach($this->permissions as $permission) {
+							$permission->update();
+						}
+						
+						//Re-build the page creation form once we are done
+						$this->buildEditForm($parent, $child, $user);
+		
+						if($result) {
+							$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->logField . " updated");
+						}
+					} else {
+						// User has not posted the template edit form yet: display the form
+						$this->buildEditForm($parent, $child, $user);
 					}
 				} else {
-					// User has not posted the template edit form yet: display the form
-					$this->buildEditForm($parent, $child, $user);
+					echo "You do not have permissions to '<strong>update</strong>' records for " . $this->table . ".<br />";
 				}
 				break;
 			case "delete":
-				$this->storeFormValues($_POST);
-				
-				//Save all the permission options
-				foreach($this->permissions as $permission) {
-					$permission->delete();
+				if($user->checkPermission($this->table, 'delete')) {
+					$this->storeFormValues($_POST);
+					
+					//Save all the permission options
+					foreach($this->permissions as $permission) {
+						$permission->delete();
+					}
+					
+					$this->delete($parent);
+					$ret = true;
+					$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->logField . " deleted");
+				} else {
+					echo "You do not have permissions to '<strong>delete</strong>' records for " . $this->table . ".<br />";
 				}
-				
-				$this->delete($parent);
-				$ret = true;
-				$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->logField . " deleted");
 				break;
 			default:
 				echo "Error with " . $this->table . " manager<br /><br />";
-				$ret = true;
 		}
 		return $ret;
 	}
@@ -340,7 +351,7 @@ class permissiongroup extends model
 				echo "
 				<div class=\"user\">
 					<h2>
-						<a href=\"admin.php?type=permission&action=update&p=".$row['id']."\" title=\"Edit / Manage this permission group\" alt=\"Edit / Manage this permission group\" class=\"cms_pageEditLink\" >$name</a>
+						<a href=\"admin.php?type=permissiongroup&action=update&p=".$row['id']."\" title=\"Edit / Manage this permission group\" alt=\"Edit / Manage this permission group\" class=\"cms_pageEditLink\" >$name</a>
 							</h2>
 							</div>";
 			}

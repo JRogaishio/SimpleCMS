@@ -46,20 +46,17 @@ class admin extends core {
 				case "customkey":
 				case "plugin":
 				case "post":
-				case "user":
+				case "account":
 				case "permissiongroup":
+				case "log":
 					$obj = new $this->_TYPE($this->_CONN, $this->_LOG);
-					$result = $obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER);
+					$result = $obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_AUTH);
 					parent::addToScope($obj);
 					if($result)
 						echo $obj->displayModelList();
-					
 					break;
 				case "search":
 					echo $this->cms_displaySearch();
-					break;
-				case "log":
-					echo $this->cms_displayLog();
 					break;
 				case "updateDisplay":
 					$obj = new updater($this->_CONN, $this->_LOG);
@@ -186,7 +183,7 @@ class admin extends core {
 		echo "Searching <strong>\"" . $this->_ACTION . "\"</strong>...<br />";
 		//Page search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "page", array('page_safeLink', 'page_meta', 'page_title'));
-		if ($searchResult !== false) {
+		if ($searchResult !== false && $this->_USER->checkPermission('page', 'read')) {
 			$resultList .= "<br /><h3>Results in pages:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
 			while($row = mysqli_fetch_assoc($searchResult))
@@ -194,7 +191,7 @@ class admin extends core {
 		}
 		//Post search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "post", array('post_title', 'post_content'));
-		if ($searchResult !== false) {
+		if ($searchResult !== false && $this->_USER->checkPermission('post', 'read')) {
 			$resultList .= "<br /><h3>Results in posts:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
 			while($row = mysqli_fetch_assoc($searchResult))
@@ -202,7 +199,7 @@ class admin extends core {
 		}
 		//Template search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "template", array('template_path', 'template_file', 'template_name'));
-		if ($searchResult !== false) {
+		if ($searchResult !== false && $this->_USER->checkPermission('template', 'read')) {
 			$resultList .= "<br /><h3>Results in templates:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
 			while($row = mysqli_fetch_assoc($searchResult))
@@ -210,7 +207,7 @@ class admin extends core {
 		}
 		//Key search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "customkey", array('key_name', 'key_value'));
-		if ($searchResult !== false) {
+		if ($searchResult !== false && $this->_USER->checkPermission('customkey', 'read')) {
 			$resultList .= "<br /><h3>Results in keys:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
 			while($row = mysqli_fetch_assoc($searchResult))
@@ -218,15 +215,15 @@ class admin extends core {
 		}
 		//User search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "account", array('account_login', 'account_email'));
-		if ($searchResult !== false) {
+		if ($searchResult !== false && $this->_USER->checkPermission('account', 'read')) {
 			$resultList .= "<br /><h3>Results in users:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
 			while($row = mysqli_fetch_assoc($searchResult))
-				$resultList .="<a href=\"admin.php?type=user&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >" . $row['account_login'] . " - " . $row['account_email'] . "</a><br />";
+				$resultList .="<a href=\"admin.php?type=account&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >" . $row['account_login'] . " - " . $row['account_email'] . "</a><br />";
 		}
 		//Log search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "log", array('log_info'));
-		if ($searchResult !== false) {
+		if ($searchResult !== false && $this->_USER->checkPermission('log', 'read')) {
 			$resultList .= "<br /><h3>Results in log:</h3>";
 			$resultNum += mysqli_num_rows($searchResult);
 			while($row = mysqli_fetch_assoc($searchResult))
@@ -242,33 +239,6 @@ class admin extends core {
 	
 	}
 	
-	/** 
-	 * Display the system log
-	 *
-	 */
-	public function cms_displayLog() {
-		$resultList = "";
-		$logSQL = "SELECT * FROM log ORDER BY log_created DESC;";
-		$logResult = $this->_CONN->query($logSQL);
-		
-		if ($logResult !== false && mysqli_num_rows($logResult) > 0 ) {
-			$resultList .= "
-			<h3>Results in log:</h3>
-			<br /><br />
-			<table class='table table-bordered'>
-			<tr><th>User</th><th>Type</th><th>Details</th><th>Date</th><th>IP Address</th></tr>
-			";
-			while($row = mysqli_fetch_assoc($logResult))
-				$resultList .= "<tr><td>" . $row['log_user'] . "</td><td>" . $row['log_type'] . "</td><td>" . $row['log_info'] . "</td><td>" . $row['log_date'] . "</td><td>". $row['log_remoteIp'] . "</td></tr>";
-			
-			$resultList .= "</table>";
-			
-			echo $resultList;
-			
-		} else {
-			echo "No logs found?";
-		}
-	}
 			
 	/** 
 	 * Display the admin homepage. Currently this is a list of all pages.

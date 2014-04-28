@@ -210,10 +210,10 @@ class account extends model
 		//Load the page from an ID
 		$this->loadRecord($userId);
 		if($userId != null)
-			echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a> > <a href="admin.php?type=user&action=update&p=' . $userId . '">User</a><br /><br />';
+			echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">User List</a> > <a href="admin.php?type=account&action=update&p=' . $userId . '">User</a><br /><br />';
 
 		echo '
-			<form action="admin.php?type=user&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=account&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="username">Username:</label><br />
 			<input name="username" id="username" class="cms_username"type="text" maxlength="150" value="' . $this->loginname . '" ' . ($this->loginname != null ? "readonly=readonly" : "") . ' />
@@ -243,7 +243,7 @@ class account extends model
 				
 			<br />
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($userId) || $userId == null) ? "Create" : "Update") . ' This User!" /><br /><br />
-			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=user&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
+			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=account&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
 			</form>
 		';
 	}
@@ -266,60 +266,78 @@ class account extends model
 		//Allow access to the user editor if you are authenticated or there are no users
 		if($auth || countRecords($this->conn,$this->table) == 0) {
 			switch($action) {
-				case "insert":
-					//Determine if the form has been submitted
-					if(isset($_POST['saveChanges'])) {
-						// User has posted the article edit form: save the new article
-							
-						$this->storeFormValues($_POST);
-							
-						if($parent == null) {
-							$result = $this->insert();
-								
-							//Only display the main form if the user authenticated
-							//Since the setup uses the above insert, we want to make sure we don't
-							//genereate the below until they truely login
-							if(!$result) {
-								$this->buildEditForm($parent);
-							} else if($auth) {
-								//Re-build the main User after creation
-								$ret = true;
-								$this->log->trackChange($this->table, 'add',$this->getId(),$this->getLoginname(), $this->loginname . " added");
-							} else {
-								parent::render("siteLogin");
-							}
-						}
+				case "read":
+					if($user->checkPermission($this->table, 'read')) {
+						$this->displayModelList();
 					} else {
-						// User has not posted the template edit form yet: display the form
-						$this->buildEditForm($parent);
+						echo "You do not have permissions to '<strong>read</strong>' records for " . $this->table . ".<br />";
 					}
 					break;
-				
-				case "update":
-					//Determine if the form has been submitted
-					if(isset($_POST['saveChanges'])) {
-						// User has posted the article edit form: save the new article
-						$this->storeFormValues($_POST);
-	
-						$result = $this->update($parent);
-							
-						if(!$result) {
-							$this->buildEditForm($parent);
+				case "insert":
+					if($user->checkPermission($this->table, 'insert')) {
+						//Determine if the form has been submitted
+						if(isset($_POST['saveChanges'])) {
+							// User has posted the article edit form: save the new article
+								
+							$this->storeFormValues($_POST);
+								
+							if($parent == null) {
+								$result = $this->insert();
+									
+								//Only display the main form if the user authenticated
+								//Since the setup uses the above insert, we want to make sure we don't
+								//genereate the below until they truely login
+								if(!$result) {
+									$this->buildEditForm($parent);
+								} else if($auth) {
+									//Re-build the main User after creation
+									$ret = true;
+									$this->log->trackChange($this->table, 'add',$this->getId(),$this->getLoginname(), $this->loginname . " added");
+								} else {
+									parent::render("siteLogin");
+								}
+							}
 						} else {
-							//Re-build the User creation form once we are done
+							// User has not posted the template edit form yet: display the form
 							$this->buildEditForm($parent);
-							$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
 						}
-						
 					} else {
-						// User has not posted the article edit form yet: display the form
-						$this->buildEditForm($parent);
+						echo "You do not have permissions to '<strong>insert</strong>' records for " . $this->table . ".<br />";
+					}
+					break;
+				case "update":
+					if($user->checkPermission($this->table, 'update')) {
+						//Determine if the form has been submitted
+						if(isset($_POST['saveChanges'])) {
+							// User has posted the article edit form: save the new article
+							$this->storeFormValues($_POST);
+		
+							$result = $this->update($parent);
+								
+							if(!$result) {
+								$this->buildEditForm($parent);
+							} else {
+								//Re-build the User creation form once we are done
+								$this->buildEditForm($parent);
+								$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
+							}
+							
+						} else {
+							// User has not posted the article edit form yet: display the form
+							$this->buildEditForm($parent);
+						}
+					} else {
+						echo "You do not have permissions to '<strong>update</strong>' records for " . $this->table . ".<br />";
 					}
 					break;
 				case "delete":
-					$this->delete($parent);
-					$ret = true;
-					$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->loginname . " deleted");
+					if($user->checkPermission($this->table, 'delete')) {
+						$this->delete($parent);
+						$ret = true;
+						$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->loginname . " deleted");
+					} else {
+						echo "You do not have permissions to '<strong>delete</strong>' records for " . $this->table . ".<br />";
+					}
 					break;
 				default:
 					if(countRecords($this->conn,$this->table) == 0) {
@@ -330,7 +348,7 @@ class account extends model
 			}
 		} else {
 			//Show the login if your not authenticated and users exist in the DB
-			$user->buildLogin();
+			echo "Authentication Error!";
 		}
 		return $ret;
 	}
@@ -354,7 +372,7 @@ class account extends model
 				echo "
 				<div class=\"user\">
 					<h2>
-					<a href=\"admin.php?type=user&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >$username</a>
+					<a href=\"admin.php?type=account&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >$username</a>
 						</h2>
 						<p>" . $email . "</p>
 				</div>";
@@ -392,7 +410,7 @@ class account extends model
 	
 	}
 	
-	public function checkPermission($model, $change, $showError = true) {
+	public function checkPermission($model, $change) {
 		$ret = false;
 		$permissions = getRecords($this->conn, "permission", array("*"), "permission_model='$model' AND permission_groupId=" . $this->groupId, $order=null);
 
@@ -413,10 +431,6 @@ class account extends model
 					$ret = ($data['permission_delete'] == 1 ? true : false);
 					break;
 			}
-		}
-		
-		if($ret == false && $showError) {
-			echo "You do not have permissions to <strong>'" . $change . "'</strong> the '<strong>" . $model . "</strong>'.<br />";
 		}
 		
 		return $ret;

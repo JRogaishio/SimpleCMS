@@ -231,7 +231,7 @@ class page extends model
 		//Load the page from an ID
 		$this->loadRecord($pageId);
 		
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $this->id . '">Page</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=page&action=read">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $this->id . '">Page</a><br /><br />';
 
 		echo '
 			<form action="admin.php?type=page&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
