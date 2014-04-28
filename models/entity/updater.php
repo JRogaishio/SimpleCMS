@@ -2,7 +2,7 @@
 
 class updater extends model {
 
-    public function displayManager() {
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
         echo "<br />
             <table>
                 <tr><td>Current Version: </td><td><strong>" . SYSTEM_VERSION . "</strong></td></tr>
@@ -12,7 +12,7 @@ class updater extends model {
 
         if($this->isBehind(SYSTEM_VERSION)) {
             //The below is caught by the controller and will run the update function
-            echo "<a href='?type=update' class='btn btn-primary'>Click here to update the system</a>";
+            echo "<a href='?type=updater' class='btn btn-primary'>Click here to update the system</a>";
          }  else {
 			echo '<p> FerretCMS is up to date.</p>';
 		 }

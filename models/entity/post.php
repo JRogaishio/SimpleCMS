@@ -9,6 +9,7 @@
 class post extends model
 {
 	// Properties
+	protected $table = "post";
 	protected $id = null;
 	protected $pageId = null;
 	protected $authorId = 1;
@@ -82,12 +83,12 @@ class post extends model
 	 * 
 	 * @param $pageId	The page this post is tied to
 	 */
-	public function insert($pageId) {
+	public function insert() {
 		$ret = true;
 		if($this->constr) {
 			$error = $this->validate();
 			if($error == "") {
-				$sql = "INSERT INTO posts (page_id, post_authorId, post_date, post_title, post_content, post_lastModified, post_created) VALUES";
+				$sql = "INSERT INTO " . $this->table . " (page_id, post_authorId, post_date, post_title, post_content, post_lastModified, post_created) VALUES";
 				$sql .= "($this->pageId, $this->authorId, '" . date('Y-m-d H:i:s') . "', '$this->title', '$this->content', " . time() . "," . time() . ")";
 				
 				$result = $this->conn->query($sql) OR DIE ("Could not create post!");
@@ -117,7 +118,7 @@ class post extends model
 		if($this->constr) {
 			$error = $this->validate();
 			if($error == "") {
-				$sql = "UPDATE posts SET
+				$sql = "UPDATE " . $this->table . " SET
 				page_id = '$this->pageId', 
 				post_authorId = '$this->authorId', 
 				post_title = '$this->title', 
@@ -153,7 +154,7 @@ class post extends model
 	public function delete() {	
 		echo "<span class='update_notice'>Post deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
 		
-		$postSQL = "DELETE FROM posts WHERE page_id=" . $this->pageId . " AND id=" . $this->id;
+		$postSQL = "DELETE FROM " . $this->table . " WHERE page_id=" . $this->pageId . " AND id=" . $this->id;
 
 		$postResult = $this->conn->query($postSQL);
 		
@@ -166,8 +167,11 @@ class post extends model
 	 * @param $postId	The post to be loaded
 	 */
 	public function loadRecord($postId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->title;
+		
 		if(isset($postId) && $postId != null) {
-			$pageSQL = "SELECT * FROM posts WHERE id=$postId";
+			$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=$postId";
 			$pageResult = $this->conn->query($pageSQL);
 
 			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
@@ -196,9 +200,9 @@ class post extends model
 	public function buildEditForm($pageId, $postId, $user) {
 		//Load the page from an ID
 		$this->loadRecord($postId);
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=pageDisplay">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $pageId . '">Page</a> > <a href="admin.php?type=post&action=update&p=' . $pageId . '&c=' . $postId . '">Post</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=page&action=read">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $pageId . '">Page</a> > <a href="admin.php?type=post&action=update&p=' . $pageId . '&c=' . $postId . '">Post</a><br /><br />';
 		
-		echo '<form action="admin.php?type=post&action=update&p=' . $pageId . '&c=' . $postId . '" method="post">
+		echo '<form action="admin.php?type=post&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $pageId . '&c=' . $postId . '" method="post">
 		<label for="pageId">Page:</label><br />';
 		echo getFormattedPages($this->conn, "dropdown", "pageId",$pageId);
 		echo '
@@ -225,67 +229,49 @@ class post extends model
 	}
 
 	/**
-	 * Display the post management page
-	 * 
-	 * @param $action	The action to be performed such as update or delete
-	 * @param $parent	The ID of the page object to be edited. This is the p GET Data
-	 * @param $child	The ID of the post object to be edited. This is the c GET Data
-	 * @param $user		The user making the change
-	 * @param $auth		A boolean value depending on if the user is logged in
-	 * 
-	 * @return Returns true on change success otherwise false
+	 * Display the list of all posts and their respective pages
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $auth=null) {
-		$this->loadRecord($child);
-		$ret = false;
-		switch($action) {
-			case "update":
-				if(isset($_POST['saveChanges'])) {
-					// User has posted the article edit form: save the new article
-					$this->storeFormValues($_POST);
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=post&action=read">Post List</a><br /><br />';
+	
+		$postSQL = "SELECT * FROM " . $this->table . " ORDER BY page_id ASC";
+		$postResult = $this->conn->query($postSQL);
+		$lastPageName = "";
+	
+		if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($postResult) ) {
+	
+				if($lastPageName != lookupPageNameById($this->_CONN, $row['page_id'])) {
+					//If we aren't on the first page in the list, add some line breaks inbetween page lists.
+					if($lastPageName != "")
+						echo "<br /><br />";
 						
-					if($child==null) {
-						$result = $this->insert($parent);
-						if(!$result) {
-							//Re-build the post creation form once we are done
-							$this->buildEditForm($parent, $child, $user);
-						} else {
-							$this->buildEditForm($parent,getLastField($this->conn,"posts", "id"), $user);
-							$this->log->trackChange("post", 'add',$user->getId(),$user->getLoginname(), $this->title . " added");
-						}
-					}
-					else {
-						$result = $this->update($child);
-						//Re-build the post creation form once we are done
-						$this->buildEditForm($parent, $child, $user);
-	
-						if($result) {
-							$this->log->trackChange("post", 'update',$user->getId(),$user->getLoginname(), $this->title . " updated");
-						}
-	
-					}
-	
-						
-				} else {
-					// User has not posted the article edit form yet: display the form
-					$this->buildEditForm($parent, $child, $user);
+					$lastPageName = lookupPageNameById($this->_CONN, $row['page_id']);
+					echo "<h1 class='cms_pageTitle'>" . $lastPageName . "</h1>";
 				}
-				break;
-			case "delete":
-				//Delete the post
-				$this->delete();
-				$this->log->trackChange("post", 'delete',$user->getId(),$user->getLoginname(), $this->title . " deleted");
 	
-				//Display the page form
-				$ret = true;
+				$title = stripslashes($row['post_title']);
+				$postDate = stripslashes($row['post_date']);
 	
-				break;
-			default:
-				echo "Error with post manager<br /><br />";
-				$ret = true;
+				echo "
+				<div class=\"page\">
+				<h3>
+				<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >$title</a>
+					</h3>
+					<p>
+					" . $postDate . "
+				</p>
+				</div>";
+	
+			}
+		} else {
+			echo "
+			<p>
+			No posts found!<br /><br />
+			</p>";
 		}
-		return $ret;
+	
 	}
 	
 	/**
@@ -294,7 +280,7 @@ class post extends model
 	 */
 	public function buildTable() {
 		/*Table structure for table `posts` */
-		$sql = "CREATE TABLE IF NOT EXISTS `posts` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 			  `id` int(16) NOT NULL AUTO_INCREMENT,
 			  `page_id` int(16) DEFAULT NULL,
 			  `post_authorId` int(16) DEFAULT NULL,
@@ -305,7 +291,7 @@ class post extends model
 			  `post_created` VARCHAR(128) DEFAULT NULL,
 			  PRIMARY KEY (`id`)
 			)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"posts\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 	}
 }
 

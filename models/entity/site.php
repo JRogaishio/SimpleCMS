@@ -9,10 +9,10 @@
 class site extends model
 {
 	// Properties
+	protected $table = "site";
 	protected $id = null;
 	protected $name = null;
 	protected $linkFormat = null;
-	
 
 	//Getters
 	public function getId() {return $this->id;}
@@ -66,7 +66,7 @@ class site extends model
 		if($this->constr) {
 			$error = $this->validate();
 			if($error == "") {
-				$sql = "UPDATE sites SET
+				$sql = "UPDATE " . $this->table . " SET
 				site_name = '$this->name', 
 				site_linkFormat = '$this->linkFormat'
 				WHERE id=" . $this->id . ";";
@@ -93,9 +93,12 @@ class site extends model
 	 * @param $siteId	The site to be loaded
 	 */
 	public function loadRecord($siteId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->name;
+		
 		if(isset($siteId) && $siteId != null) {
 			
-			$siteSQL = "SELECT * FROM sites WHERE id=$siteId";
+			$siteSQL = "SELECT * FROM " . $this->table . " WHERE id=$siteId";
 				
 			$siteResult = $this->conn->query($siteSQL);
 
@@ -117,15 +120,15 @@ class site extends model
 	 * 
 	 * @param $siteId	The site to be edited
 	 */
-	public function buildEditForm($siteId) {
+	public function buildEditForm($siteId, $child=null, $user=null) {
 
 		//Load the site from an ID
 		$this->loadRecord($siteId);
 
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=siteDisplay">Site List</a> > <a href="admin.php?type=site&action=update&p=' . $siteId . '">Site</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=site&action=read">Site List</a> > <a href="admin.php?type=site&action=update&p=' . $siteId . '">Site</a><br /><br />';
 
 		echo '
-			<form action="admin.php?type=site&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=site&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="name" title="This is ...">Site name:</label><br />
 			<input name="name" id="name" type="text" maxlength="150" value="' . $this->name . '" />
@@ -163,6 +166,13 @@ class site extends model
 		$this->loadRecord($parent);
 		$ret = false;
 		switch($action) {
+			case "read":
+				if($user->checkPermission($this->table, 'read', false)) {
+					$this->displayModelList();
+				} else {
+					echo "You do not have permissions to '<strong>read</strong>' records for " . $this->table . ".<br />";
+				}
+				break;
 			case "update":
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
@@ -173,7 +183,7 @@ class site extends model
 					//Re-build the site creation form once we are done
 					$this->buildEditForm($parent);
 					if($result) {
-						$this->log->trackChange("site", 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
+						$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
 					}
 				} else {
 					// User has not posted the site edit form yet: display the form
@@ -188,23 +198,53 @@ class site extends model
 	}
 	
 	/**
+	 * Display the site manager
+	 *
+	 */
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=site&action=read">Site</a><br /><br />';
+	
+		$siteSQL = "SELECT * FROM " . $this->table . " ORDER BY id DESC";
+		$siteResult = $this->conn->query($siteSQL);
+	
+		if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($siteResult) ) {
+	
+				$name = stripslashes($row['site_name']);
+	
+				echo "
+				<div class=\"site\">
+					<h2>
+					Site: <a href=\"admin.php?type=site&action=update&p=".$row['id']."\" class=\"cms_siteEditLink\" >$name</a>
+						</h2>
+						</div>";
+			}
+		} else {
+			echo "
+			<p>
+				No sites found!
+			</p>";
+		}
+	}
+	
+	/**
 	 * Builds the necessary tables for this object
 	 *
 	 */
 	public function buildTable() {
 		/*Table structure for table `site` */
-		$sql = "CREATE TABLE IF NOT EXISTS `sites` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `site_name` varchar(64) DEFAULT NULL,
 		  `site_linkFormat` varchar(64) DEFAULT NULL,
 		  PRIMARY KEY (`id`)
 		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"site\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 		
 		
 		/*Insert site data for `site` if we dont have one already*/
-		if(countRecords($this->conn, "sites") == 0) {
-			$sql = "INSERT INTO sites (site_name, site_linkFormat) VALUES('My FerretCMS Website', 'clean')";
+		if(countRecords($this->conn, $this->table) == 0) {
+			$sql = "INSERT INTO " . $this->table . " (site_name, site_linkFormat) VALUES('My FerretCMS Website', 'clean')";
 			$this->conn->query($sql) OR DIE ("Could not insert default data into \"site\"");
 		}
 	

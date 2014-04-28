@@ -9,6 +9,7 @@
 class plugin extends model
 {
 	// Properties
+	protected $table = "plugin";
 	protected $id = null;
 	protected $path = null;
 	protected $file = null;
@@ -47,7 +48,7 @@ class plugin extends model
 	public function insert() {
 		if($this->constr) {
 			
-			$sql = "INSERT INTO plugins (plugin_path, plugin_file, plugin_created) VALUES";
+			$sql = "INSERT INTO " . $this->table . " (plugin_path, plugin_file, plugin_created) VALUES";
 			$sql .= "('$this->path', '$this->file', '" . time() . "')";
 			
 			$result = $this->conn->query($sql) OR DIE ("Could not create plugin!");
@@ -68,7 +69,7 @@ class plugin extends model
 	
 		if($this->constr) {
 
-			$sql = "UPDATE plugins SET
+			$sql = "UPDATE " . $this->table . " SET
 			plugin_path = '$this->path', 
 			plugin_file = '$this->file'
 			WHERE id=" . $this->id . ";";
@@ -94,7 +95,7 @@ class plugin extends model
 	public function delete() {
 		echo "<span class='update_notice'>Plugin deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this plugin!</span><br /><br />";
 		
-		$sql = "DELETE FROM plugins WHERE id=" . $this->id;
+		$sql = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
 		$result = $this->conn->query($sql);
 		
 		return $result;
@@ -106,9 +107,12 @@ class plugin extends model
 	 * @param $pluginId	The plugin to be loaded
 	 */
 	public function loadRecord($pluginId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->name;
+		
 		if(isset($pluginId) && $pluginId != null) {
 			
-			$sql = "SELECT * FROM plugins WHERE id=$pluginId";
+			$sql = "SELECT * FROM " . $this->table . " WHERE id=$pluginId";
 				
 			$result = $this->conn->query($sql);
 
@@ -132,14 +136,14 @@ class plugin extends model
 	 * 
 	 * @param $pluginId	The plugin to be edited
 	 */
-	public function buildEditForm($pluginId) {
+	public function buildEditForm($pluginId, $child=null, $user=null) {
 
 		//Load the page from an ID
 		$this->loadRecord($pluginId);
 
 		echo "<div id='main_content'>";
 		echo '
-			<form action="admin.php?type=plugin&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=plugin&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="path" title="This is the name in plugins">Plugin folder name:</label><br />
 			<input name="path" id="path" type="text" maxlength="150" value="' . $this->path . '" />
@@ -156,66 +160,44 @@ class plugin extends model
 			</form>
 		';
 		echo "</div>";
-		
-		echo "<div id='main_tools'>";
-		echo "<h2>Admin Actions</h2><br /><br />";
-		
-		echo '<a href="admin.php" class="actionLink">Back to Home</a><br /><br />';
-		echo "</div><div class='clear'></div>";
-		
-		
 	}
 	
 	/**
-	 * Display the plugin management page
-	 * 
-	 * @param $action	The action to be performed such as update or delete
-	 * @param $parent	The ID of the plugin object to be edited. This is the p GET Data
-	 * @param $child	This is the c GET Data
-	 * @param $user		The user making the change
-	 * @param $auth		A boolean value depending on if the user is logged in
-	 * 
-	 * @return Returns true on change success otherwise false
+	 * Display the list of all plugins
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $auth=null) {
-		$this->loadRecord($parent);
-		$ret = false;
-		switch($action) {
-			case "update":
-				//Determine if the form has been submitted
-				if(isset($_POST['saveChanges'])) {
-					// User has posted the article edit form: save the new article
-						
-					$this->storeFormValues($_POST);
-						
-					if($parent == null) {
-						$this->insert();
-						//Re-build the main page after creation
-						$ret = true;
-						$this->log->trackChange("plugin", 'add',$user->getId(),$user->getLoginname(), $this->name . " added");
-					} else {
-						$this->update($parent);
-						//Re-build the page creation form once we are done
-						$this->buildEditForm($parent);
-						$this->log->trackChange("plugin", 'update',$user->getId(),$user->getLoginname(), $this->name . " added");
-					}
-				} else {
-					// User has not posted the template edit form yet: display the form
-					$this->buildEditForm($parent);
-				}
-				break;
-			case "delete":
-				$this->delete($parent);
-				$ret = true;
-				$this->log->trackChange("plugin", 'delete',$user->getId(),$user->getLoginname(), $this->name . " added");
-				break;
-			default:
-				echo "Error with plugin manager<br /><br />";
-				$ret = true;
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=plugin&action=read">Plugin List</a><br /><br />';
+	
+		$sql = "SELECT * FROM " . $this->table . " ORDER BY plugin_created DESC";
+		$result = $this->conn->query($sql);
+	
+		if ($result !== false && mysqli_num_rows($result) > 0 ) {
+			while($row = mysqli_fetch_assoc($result) ) {
+	
+				$file = stripslashes($row['plugin_file']);
+				$path = stripslashes($row['plugin_path']);
+				$name = substr($file, 0, strpos($file, ".php"));
+				if($name == null)
+					$name = "ERROR WITH PLUGIN FILE NAME";
+	
+				echo "
+				<div class=\"plugin\">
+					<h2>
+					<a href=\"admin.php?type=plugin&action=update&p=".$row['id']."\" title=\"Edit / Manage this plugin\" alt=\"Edit / Manage this plugin\" class=\"cms_pageEditLink\" >$name</a>
+						</h2>
+						<p>" . PLUGIN_PATH . "/" . $path . "/" . $file . "</p>
+				</div>";
+	
+			}
+			} else {
+			echo "
+			<p>
+				No plugins found!
+			</p>";
 		}
-		return $ret;
-	}
+	
+			}
 	
 	/**
 	 * Builds the necessary tables for this object
@@ -223,7 +205,7 @@ class plugin extends model
 	 */
 	public function buildTable() {
 		/*Table structure for table `plugins` */
-		$sql = "CREATE TABLE IF NOT EXISTS `plugins` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `plugin_path` varchar(128) DEFAULT NULL,
 		  `plugin_file` varchar(128) DEFAULT NULL,
@@ -231,10 +213,9 @@ class plugin extends model
 		  PRIMARY KEY (`id`)
 		)";
 		
-		$this->conn->query($sql) OR DIE ("Could not build table \"plugins\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 		
 	}
 }
 
 ?>
-

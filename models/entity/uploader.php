@@ -105,6 +105,50 @@ class uploader extends model {
     }
     
     /**
+     * Display the system uploader
+     *
+     */
+    public function displayModelList() {
+    	$fileData = getRecords($this->conn, "upload", array("*"));
+    
+    	echo "<div class=\"upload\">";
+    
+    	if($fileData != false) {
+    		echo "<table class='table table-bordered'>
+			<tr><th>Thumb</th><th>Filename</th><th>Type</th><th>Size</th><th>Added</th><th>Link to file</th><th>Manage</th></tr>";
+    			
+    		while($row = mysqli_fetch_assoc($fileData) ) {
+    			$id = stripslashes($row['id']);
+    			$name = stripslashes($row['file_name']);
+    			$type = stripslashes($row['file_type']);
+    			$size = stripslashes($row['file_size']);
+    			$date = stripslashes($row['file_date']);
+    
+    			//Format size to MB
+    			$size = round(($size / 1024 / 1024), 2);
+    
+    
+    
+    			echo "
+				<tr><td>";
+    			echo (strpos($type, "image/") !== false ? "<img src='custom/uploads/$name' height='40' width='40' />" : "" );
+    			echo "</td>
+    			<td>$name</td>
+    			<td>$type</td>
+    			<td>$size (MB)</td>
+    			<td>$date</td>
+    			<td><a href='" . SITE_ROOT . "custom/uploads/$name' target='_blank'>Link</a></td>
+    			<td><form action='?type=uploader&action=delete&p=$id' method='post'><input type='submit' value='Delete'></form></td>
+    			</tr>";
+    		}
+    		echo "</table>";
+    	} else {
+    				echo "No files uploaded yet...";
+		}
+		echo "</div>";
+    }
+    
+    /**
      * Builds the necessary tables for this object
      *
      */

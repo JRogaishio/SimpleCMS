@@ -9,6 +9,7 @@
 class template extends model
 {
 	// Properties
+	protected $table = "template";
 	protected $id = null;
 	protected $path = null;
 	protected $file = null;
@@ -74,7 +75,7 @@ class template extends model
 			$error = $this->validate();
 			if($error == "") {
 			
-				$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES";
+				$sql = "INSERT INTO " . $this->table . " (template_path, template_file, template_name, template_created) VALUES";
 				$sql .= "('$this->path', '$this->file', '$this->name','" . time() . "')";
 	
 				$result = $this->conn->query($sql) OR DIE ("Could not create template!");
@@ -102,7 +103,7 @@ class template extends model
 	
 		if($this->constr) {
 
-			$sql = "UPDATE templates SET
+			$sql = "UPDATE " . $this->table . " SET
 			template_path = '$this->path', 
 			template_file = '$this->file', 
 			template_name = '$this->name'
@@ -128,7 +129,7 @@ class template extends model
 	public function delete() {
 		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
 		
-		$templateSQL = "DELETE FROM templates WHERE id=" . $this->id;
+		$templateSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
 		$templateResult = $this->conn->query($templateSQL);
 		
 		return $templateResult;
@@ -140,9 +141,12 @@ class template extends model
 	 * @param $templateId	The template to be loaded
 	 */
 	public function loadRecord($templateId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->name;
+		
 		if(isset($templateId) && $templateId != null) {
 			
-			$templateSQL = "SELECT * FROM templates WHERE id=$templateId";
+			$templateSQL = "SELECT * FROM " . $this->table . " WHERE id=$templateId";
 				
 			$templateResult = $this->conn->query($templateSQL);
 
@@ -166,16 +170,16 @@ class template extends model
 	 * 
 	 * @param $templateId	The template to be edited
 	 */
-	public function buildEditForm($templateId) {
+	public function buildEditForm($templateId, $child=null, $user=null) {
 
 		//Load the page from an ID
 		$this->loadRecord($templateId);
 
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=templateDisplay">Template List</a> > <a href="admin.php?type=template&action=update&p=' . $templateId . '">Template</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=template&action=read">Template List</a> > <a href="admin.php?type=template&action=update&p=' . $templateId . '">Template</a><br /><br />';
 
 		
 		echo '
-			<form action="admin.php?type=template&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=template&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="path" title="This is the name in _template">Template folder name:</label><br />
 			<input name="path" id="path" type="text" maxlength="150" value="' . $this->path . '" />
@@ -195,67 +199,41 @@ class template extends model
 			' . ((isset($templateId) && $templateId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
 			</form>
 		';
-
-		
-		
 	}
 	
 	/**
-	 * Display the template management page
-	 * 
-	 * @param $action	The action to be performed such as update or delete
-	 * @param $parent	The ID of the template object to be edited. This is the p GET Data
-	 * @param $child	This is the c GET Data
-	 * @param $user		The user making the change
-	 * @param $auth		A boolean value depending on if the user is logged in
-	 * 
-	 * @return Returns true on change success otherwise false
+	 * Display the list of all templates
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $auth=null) {
-		$this->loadRecord($parent);
-		$ret = false;
-		switch($action) {
-			case "update":
-				//Determine if the form has been submitted
-				if(isset($_POST['saveChanges'])) {
-					// User has posted the article edit form: save the new article
-						
-					$this->storeFormValues($_POST);
-						
-					if($parent == null) {
-						$result = $this->insert();
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=template&action=read">Template List</a><br /><br />';
 	
-						if(!$result) {
-							$this->buildEditForm($parent);
-						} else {
-							$this->buildEditForm(getLastField($this->conn,"templates", "id"));
-							$this->log->trackChange("template", 'add',$user->getId(),$user->getLoginname(), $this->name . " added");
-						}
-					} else {
-						$result = $this->update($parent);
-						//Re-build the page creation form once we are done
-						$this->buildEditForm($parent);
+		$templateSQL = "SELECT * FROM " . $this->table . " ORDER BY template_created DESC";
+		$templateResult = $this->conn->query($templateSQL);
 	
-						if($result) {
-							$this->log->trackChange("template", 'update',$user->getId(),$user->getLoginname(), $this->name . " updated");
-						}
-					}
-				} else {
-					// User has not posted the template edit form yet: display the form
-					$this->buildEditForm($parent);
-				}
-				break;
-			case "delete":
-				$this->delete($parent);
-				$ret = true;
-				$this->log->trackChange("template", 'delete',$user->getId(),$user->getLoginname(), $this->name . " deleted");
-				break;
-			default:
-				echo "Error with template manager<br /><br />";
-				$ret = true;
+		if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($templateResult) ) {
+	
+				$name = stripslashes($row['template_name']);
+				$file = stripslashes($row['template_file']);
+				$path = stripslashes($row['template_path']);
+	
+				echo "
+				<div class=\"template\">
+					<h2>
+					<a href=\"admin.php?type=template&action=update&p=".$row['id']."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"cms_pageEditLink\" >$name</a>
+						</h2>
+						<p>" . TEMPLATE_PATH . "/" . $path . "/" . $file . "</p>
+				</div>";
+	
+			}
+		} else {
+			echo "
+			<p>
+				No templates found!
+			</p>";
 		}
-		return $ret;
+	
 	}
 	
 	/**
@@ -264,7 +242,7 @@ class template extends model
 	 */
 	public function buildTable() {
 		/*Table structure for table `templates` */
-		$sql = "CREATE TABLE IF NOT EXISTS `templates` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `template_path` varchar(128) DEFAULT NULL,
 		  `template_file` varchar(128) DEFAULT NULL,
@@ -273,11 +251,11 @@ class template extends model
 		
 		  PRIMARY KEY (`id`)
 		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"templates\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 		
 		/*Insert default data for `templates` if we dont have one already*/
-		if(countRecords($this->conn, "templates") == 0) {
-			$sql = "INSERT INTO templates (template_path, template_file, template_name, template_created) VALUES('default_example', 'index.php', 'Default Example Template', '" . time() . "')";
+		if(countRecords($this->conn, $this->table) == 0) {
+			$sql = "INSERT INTO " . $this->table . " (template_path, template_file, template_name, template_created) VALUES('default_example', 'index.php', 'Default Example Template', '" . time() . "')";
 			$this->conn->query($sql) OR DIE ("Could not insert default example data into \"templates\"");
 		}
 		

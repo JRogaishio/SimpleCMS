@@ -15,12 +15,14 @@ include_once('lib/management.php');
 
 include_once('models/entity/model.php');
 include_once('models/entity/site.php');
-include_once('models/entity/user.php');
+include_once('models/entity/account.php');
+include_once('models/entity/permissiongroup.php');
+include_once('models/entity/permission.php');
 include_once('models/entity/page.php');
 include_once('models/entity/post.php');
 include_once('models/entity/plugin.php');
 include_once('models/entity/template.php');
-include_once('models/entity/key.php');
+include_once('models/entity/customkey.php');
 include_once('models/entity/updater.php');
 include_once('models/entity/log.php');
 include_once('models/entity/authenticate.php');
@@ -247,14 +249,20 @@ class core {
 		$template = new template($this->_CONN, $this->_LOG);
 		$template->buildTable();
 	
-		$user = new user($this->_CONN, $this->_LOG);
+		$user = new account($this->_CONN, $this->_LOG);
 		$user->buildTable();
-	
+		
+		$permissiongroup = new permissiongroup($this->_CONN, $this->_LOG);
+		$permissiongroup->buildTable();
+		
+		$permission = new permission($this->_CONN, $this->_LOG);
+		$permission->buildTable();
+		
 		$site = new site($this->_CONN, $this->_LOG);
 		$site->buildTable();
 		
-		$key = new key($this->_CONN, $this->_LOG);
-		$key->buildTable();
+		$customkey = new customkey($this->_CONN, $this->_LOG);
+		$customkey->buildTable();
 	
 		$log = new log($this->_CONN, $this->_LOG);
 		$log->buildTable();

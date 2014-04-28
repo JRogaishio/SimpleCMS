@@ -6,9 +6,10 @@
  * @author Jacob Rogaishio
  * 
  */
-class user extends model
+class account extends model
 {
 	// Properties
+	protected $table = "account";
 	protected $id = null;
 	protected $loginname = null;
 	protected $password = null;
@@ -16,6 +17,7 @@ class user extends model
 	protected $salt = null;
 	protected $email = null;
 	protected $isRegistered = null;
+	protected $groupId = null;
 	
 	//Getters
 	public function getId() {return $this->id;}
@@ -25,6 +27,7 @@ class user extends model
 	public function getSalt() {return $this->salt;}
 	public function getEmail() {return $this->email;}
 	public function getIsRegistered() {return $this->isRegistered;}
+	public function getGroupId() {return $this->groupId;}
 	
 	//Setters
 	public function setId($val) {$this->id = $val;}
@@ -34,6 +37,7 @@ class user extends model
 	public function setSalt($val) {$this->salt = $val;}
 	public function setEmail($val) {$this->email = $val;}
 	public function setIsRegistered($val) {$this->isRegistered = $val;}
+	public function setGroupId($val) {$this->groupId = $val;}
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -47,6 +51,7 @@ class user extends model
 		if(isset($params['password'])) $this->password = clean($this->conn, $params['password']);
 		if(isset($params['password2'])) $this->password2 = clean($this->conn, $params['password2']);
 		if(isset($params['email'])) $this->email = clean($this->conn, $params['email']);
+		if(isset($params['groupId'])) $this->groupId = clean($this->conn, $params['groupId']);
 
 		$this->constr = true;
 	}
@@ -88,8 +93,8 @@ class user extends model
 				$secPass = hash('sha256',$this->password);
 				$secPass = hash('sha256',($secPass . $salt));
 				
-				$sql = "INSERT INTO users (user_login, user_pass, user_salt, user_email,user_created, user_isRegistered) VALUES";
-				$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1)";
+				$sql = "INSERT INTO " . $this->table . " (account_login, account_pass, account_salt, account_email,account_created, account_isRegistered, account_groupId) VALUES";
+				$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1, " . $this->groupId . ")";
 				
 				$result = $this->conn->query($sql) OR DIE ("Could not create user!");
 				if($result) {
@@ -124,10 +129,10 @@ class user extends model
 				$secPass = hash('sha256',$this->password);
 				$secPass = hash('sha256',($secPass . get_userSalt($this->conn, $this->loginname)));
 				
-				$sql = "UPDATE users SET
-				user_login = '$this->loginname', 
-				user_pass = '$secPass', 
-				user_email = '$this->email'
+				$sql = "UPDATE user SET
+				account_login = '$this->loginname', 
+				account_pass = '$secPass', 
+				account_email = '$this->email'
 				WHERE id=" . $this->id . ";";
 	
 				$result = $this->conn->query($sql) OR DIE ("Could not update user!");
@@ -157,7 +162,7 @@ class user extends model
 	public function delete() {
 		echo "<span class='update_notice'>User deleted! Bye bye '$this->loginname', we will miss you.</span><br /><br />";
 		
-		$userSQL = "DELETE FROM users WHERE id=" . $this->id;
+		$userSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
 		$userResult = $this->conn->query($userSQL);
 		
 		return $userResult;
@@ -169,9 +174,12 @@ class user extends model
 	 * @param $userId	The user to be loaded
 	 */
 	public function loadRecord($userId) {
+		//Set a field to use by the logger
+		$this->logField = &$this->loginname;
+		
 		if(isset($userId) && $userId != null) {
 			
-			$userSQL = "SELECT * FROM users WHERE id=$userId";
+			$userSQL = "SELECT * FROM " . $this->table . " WHERE id=$userId";
 				
 			$userResult = $this->conn->query($userSQL);
 
@@ -180,16 +188,16 @@ class user extends model
 
 			if(isset($row)) {
 				$this->id = $row['id'];
-				$this->loginname = $row['user_login'];
-				$this->password = $row['user_pass'];
-				$this->salt = $row['user_salt'];
-				$this->email = $row['user_email'];
-				$this->isRegistered = $row['user_isRegistered'];
+				$this->loginname = $row['account_login'];
+				$this->password = $row['account_pass'];
+				$this->salt = $row['account_salt'];
+				$this->email = $row['account_email'];
+				$this->isRegistered = $row['account_isRegistered'];
+				$this->groupId = $row['account_groupId'];
 			}
 			
 			$this->constr = true;
 		}
-	
 	}
 	
 	/**
@@ -197,15 +205,15 @@ class user extends model
 	 * 
 	 * @param $userId	The user to be edited
 	 */
-	public function buildEditForm($userId) {
+	public function buildEditForm($userId, $child=null, $user=null) {
 
 		//Load the page from an ID
 		$this->loadRecord($userId);
 		if($userId != null)
-			echo '<a href="admin.php">Home</a> > <a href="admin.php?type=userDisplay">User List</a> > <a href="admin.php?type=user&action=update&p=' . $userId . '">User</a><br /><br />';
+			echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">User List</a> > <a href="admin.php?type=account&action=update&p=' . $userId . '">User</a><br /><br />';
 
 		echo '
-			<form action="admin.php?type=user&action=update&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=account&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="username">Username:</label><br />
 			<input name="username" id="username" class="cms_username"type="text" maxlength="150" value="' . $this->loginname . '" ' . ($this->loginname != null ? "readonly=readonly" : "") . ' />
@@ -225,14 +233,21 @@ class user extends model
 			<label for="email">Email Address:</label><br />
 			<input name="email" id="email" type="text" maxlength="150" value="' . $this->email . '" />
 			<div class="clear"></div>
+											
+			<label for="groupId">Permission Group:</label><br />';
+			echo getFormattedGroups($this->conn, "dropdown", "groupId", $this->groupId);
+			echo '
+			<div class="clear"></div>
+			<br />
+
+				
 			<br />
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($userId) || $userId == null) ? "Create" : "Update") . ' This User!" /><br /><br />
-			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=user&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
+			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=account&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
 			</form>
 		';
 	}
 	
-
 	/**
 	 * Display the user management page
 	 * 
@@ -245,35 +260,58 @@ class user extends model
 	 * @return Returns true on change success otherwise false
 	 *
 	 */
-	public function displayManager($action, $parent, $child, $user, $auth) {
+	public function displayManager($action, $parent, $child, $user, $auth=null) {
 		$this->loadRecord($parent);
 		$ret = false;
 		//Allow access to the user editor if you are authenticated or there are no users
-		if($auth || countRecords($this->conn,"users") == 0) {
+		if($auth || countRecords($this->conn,$this->table) == 0) {
 			switch($action) {
-				case "update":
-					//Determine if the form has been submitted
-					if(isset($_POST['saveChanges'])) {
-						// User has posted the article edit form: save the new article
-						$this->storeFormValues($_POST);
-	
-						if($parent == null) {
-							$result = $this->insert();
+				case "read":
+					if($user->checkPermission($this->table, 'read')) {
+						$this->displayModelList();
+					} else {
+						echo "You do not have permissions to '<strong>read</strong>' records for " . $this->table . ".<br />";
+					}
+					break;
+				case "insert":
+					if($user->checkPermission($this->table, 'insert')) {
+						//Determine if the form has been submitted
+						if(isset($_POST['saveChanges'])) {
+							// User has posted the article edit form: save the new article
 								
-							//Only display the main form if the user authenticated
-							//Since the setup uses the above insert, we want to make sure we don't
-							//genereate the below until they truely login
-							if(!$result) {
-								$this->buildEditForm($parent);
-							} else if($auth) {
-								//Re-build the main User after creation
-								$ret = true;
-								$this->log->trackChange("user", 'add',$this->getId(),$this->getLoginname(), $this->loginname . " added");
-							} else {
-								parent::render("siteLogin");
+							$this->storeFormValues($_POST);
+								
+							if($parent == null) {
+								$result = $this->insert();
+									
+								//Only display the main form if the user authenticated
+								//Since the setup uses the above insert, we want to make sure we don't
+								//genereate the below until they truely login
+								if(!$result) {
+									$this->buildEditForm($parent);
+								} else if($auth) {
+									//Re-build the main User after creation
+									$ret = true;
+									$this->log->trackChange($this->table, 'add',$this->getId(),$this->getLoginname(), $this->loginname . " added");
+								} else {
+									parent::render("siteLogin");
+								}
 							}
-								
 						} else {
+							// User has not posted the template edit form yet: display the form
+							$this->buildEditForm($parent);
+						}
+					} else {
+						echo "You do not have permissions to '<strong>insert</strong>' records for " . $this->table . ".<br />";
+					}
+					break;
+				case "update":
+					if($user->checkPermission($this->table, 'update')) {
+						//Determine if the form has been submitted
+						if(isset($_POST['saveChanges'])) {
+							// User has posted the article edit form: save the new article
+							$this->storeFormValues($_POST);
+		
 							$result = $this->update($parent);
 								
 							if(!$result) {
@@ -281,33 +319,73 @@ class user extends model
 							} else {
 								//Re-build the User creation form once we are done
 								$this->buildEditForm($parent);
-								$this->log->trackChange("user", 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
+								$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
 							}
+							
+						} else {
+							// User has not posted the article edit form yet: display the form
+							$this->buildEditForm($parent);
 						}
 					} else {
-						// User has not posted the article edit form yet: display the form
-						$this->buildEditForm($parent);
+						echo "You do not have permissions to '<strong>update</strong>' records for " . $this->table . ".<br />";
 					}
 					break;
 				case "delete":
-					$this->delete($parent);
-					$ret = true;
-					$this->log->trackChange("user", 'delete',$user->getId(),$user->getLoginname(), $this->loginname . " deleted");
+					if($user->checkPermission($this->table, 'delete')) {
+						$this->delete($parent);
+						$ret = true;
+						$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->loginname . " deleted");
+					} else {
+						echo "You do not have permissions to '<strong>delete</strong>' records for " . $this->table . ".<br />";
+					}
 					break;
 				default:
-					if(countRecords($this->conn,"users") == 0) {
+					if(countRecords($this->conn,$this->table) == 0) {
 						$this->buildEditForm(null);
 					} else {
-						echo "Error with user manager<br /><br />";
+						echo "Error with account manager<br /><br />";
 					}
 			}
 		} else {
 			//Show the login if your not authenticated and users exist in the DB
-			$user->buildLogin();
+			echo "Authentication Error!";
 		}
 		return $ret;
 	}
 	
+	/**
+	 * Display the list of all accounts
+	 *
+	 */
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">Account List</a><br /><br />';
+	
+		$accountSQL = "SELECT * FROM " . $this->table . " ORDER BY account_created DESC";
+		$accountResult = $this->conn->query($accountSQL);
+	
+		if ($accountResult !== false && mysqli_num_rows($accountResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($accountResult) ) {
+	
+				$username = stripslashes($row['account_login']);
+				$email = stripslashes($row['account_email']);
+	
+				echo "
+				<div class=\"user\">
+					<h2>
+					<a href=\"admin.php?type=account&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >$username</a>
+						</h2>
+						<p>" . $email . "</p>
+				</div>";
+	
+			}
+		} else {
+			echo "
+			<p>
+				No users found!
+			</p>";
+		}
+	
+	}
 	
 	/**
 	 * Builds the necessary tables for this object
@@ -315,19 +393,47 @@ class user extends model
 	 */
 	public function buildTable() {
 		/*Table structure for table `users` */
-		$sql = "CREATE TABLE IF NOT EXISTS `users` (
+		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `user_login` varchar(64) DEFAULT NULL,
-		  `user_pass` varchar(64) DEFAULT NULL,
-		  `user_salt` varchar(64) DEFAULT NULL,
-		  `user_token` varchar(64) DEFAULT NULL,
-		  `user_email` varchar(128) DEFAULT NULL,
-		  `user_created` varchar(100) DEFAULT NULL,
-		  `user_isRegistered` tinyint(1) DEFAULT NULL,
+		  `account_login` varchar(64) DEFAULT NULL,
+		  `account_pass` varchar(64) DEFAULT NULL,
+		  `account_salt` varchar(64) DEFAULT NULL,
+		  `account_token` varchar(64) DEFAULT NULL,
+		  `account_email` varchar(128) DEFAULT NULL,
+		  `account_created` varchar(100) DEFAULT NULL,
+		  `account_isRegistered` tinyint(1) DEFAULT NULL,
+		  `account_groupId` int(16) DEFAULT NULL,
+				
 		  PRIMARY KEY (`id`)
 		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"users\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 	
+	}
+	
+	public function checkPermission($model, $change) {
+		$ret = false;
+		$permissions = getRecords($this->conn, "permission", array("*"), "permission_model='$model' AND permission_groupId=" . $this->groupId, $order=null);
+
+		if($permissions != false) {
+			$data = mysqli_fetch_assoc($permissions);
+
+			switch($change) {
+				case "read":
+					$ret = ($data['permission_read'] == 1 ? true : false);
+					break;
+				case "insert":
+					$ret = ($data['permission_insert'] == 1 ? true : false);
+					break;
+				case "update":
+					$ret = ($data['permission_update'] == 1 ? true : false);
+					break;
+				case "delete":
+					$ret = ($data['permission_delete'] == 1 ? true : false);
+					break;
+			}
+		}
+		
+		return $ret;
 	}
 	
 }
