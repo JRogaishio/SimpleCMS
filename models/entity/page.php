@@ -324,6 +324,38 @@ class page extends model
 	}
 	
 	/**
+	 * Display the list of all pages
+	 *
+	 */
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=page&action=read">Page List</a><br /><br />';
+	
+		$pageSQL = "SELECT * FROM " . $this->table . " ORDER BY page_created DESC";
+		$pageResult = $this->conn->query($pageSQL);
+	
+		if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($pageResult) ) {
+	
+				$title = stripslashes($row['page_title']);
+				$safeLink = stripslashes($row['page_safeLink']);
+	
+				echo "
+				<div class=\"page\">
+					<h2>
+					<a href=\"admin.php?type=page&action=update&p=".$row['id']."\" " . ($row['page_isHome']==1 ? "id='cms_homepageMarker'":"") . " title='" . ($row['page_isHome']==1 ? "Edit / Manage the homepage":"Edit / Manage this page") . "' class=\"cms_pageEditLink\" >$title</a>
+						</h2>
+						<p>" . SITE_ROOT . $safeLink . "</p>
+				</div>";
+			}
+		} else {
+			echo "
+			<p>
+				No pages found!
+			</p>";
+		}
+	}
+	
+	/**
 	 * Builds the necessary tables for this object
 	 *
 	 */

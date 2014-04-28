@@ -13,7 +13,7 @@ class permission extends model
 	protected $id = null;
 	protected $groupId = null;
 	protected $model = null;
-	protected $view = null;
+	protected $read = null;
 	protected $insert = null;
 	protected $update = null;
 	protected $delete = null;
@@ -22,7 +22,7 @@ class permission extends model
 	public function getId() {return $this->id;}
 	public function getGroupId() {return $this->groupId;}
 	public function getModel() {return $this->model;}
-	public function getView() {return $this->view;}
+	public function getRead() {return $this->read;}
 	public function getInsert() {return $this->insert;}
 	public function getUpdate() {return $this->update;}
 	public function getDelete() {return $this->delete;}
@@ -31,7 +31,7 @@ class permission extends model
 	public function setId($val) {$this->id = $val;}
 	public function setGroupId($val) {$this->groupId = $val;}
 	public function setModel($val) {$this->model = $val;}
-	public function setView($val) {$this->view = $val;}
+	public function setRead($val) {$this->read = $val;}
 	public function setInsert($val) {$this->insert = $val;}
 	public function setUpdate($val) {$this->update = $val;}
 	public function setDelete($val) {$this->delete = $val;}
@@ -46,7 +46,7 @@ class permission extends model
 		if(isset($params['id'])) $this->id = clean($this->conn, $params['id']);
 		if(isset($params['groupId'])) $this->groupId = clean($this->conn, $params['groupId']);
 		if(isset($params['model'])) $this->model = clean($this->conn, $params['model']);
-		(isset($params['view'])) ? $this->view = clean($this->conn, $params['view']) : $this->view = 0;
+		(isset($params['read'])) ? $this->read = clean($this->conn, $params['read']) : $this->read = 0;
 		(isset($params['insert'])) ? $this->insert = clean($this->conn, $params['insert']) : $this->insert = 0;
 		(isset($params['update'])) ? $this->update = clean($this->conn, $params['update']) : $this->update = 0;
 		(isset($params['delete'])) ? $this->delete = clean($this->conn, $params['delete']) : $this->delete = 0;
@@ -73,8 +73,8 @@ class permission extends model
 		if($this->constr) {
 			if( $this->groupId == null ||  $this->groupId == '') {$this->groupId = getLastField($this->conn, 'permissiongroup', 'id');}
 			
-			$sql = "INSERT INTO " . $this->table . " (permission_groupId, permission_model, permission_view, permission_insert, permission_update, permission_delete, permission_created) VALUES";
-			$sql .= "('$this->groupId', '$this->model', $this->view, $this->insert, $this->update, $this->delete, '" . time() . "')";
+			$sql = "INSERT INTO " . $this->table . " (permission_groupId, permission_model, permission_read, permission_insert, permission_update, permission_delete, permission_created) VALUES";
+			$sql .= "('$this->groupId', '$this->model', $this->read, $this->insert, $this->update, $this->delete, '" . time() . "')";
 
 			$result = $this->conn->query($sql) OR DIE ("Could not create " . $this->table . "!");
 
@@ -95,7 +95,7 @@ class permission extends model
 		if($this->constr) {
 
 			$sql = "UPDATE " . $this->table . " SET
-			permission_view = $this->view, 
+			permission_read = $this->read, 
 			permission_insert = $this->insert,
 			permission_update = $this->update, 
 			permission_delete = $this->delete
@@ -145,7 +145,7 @@ class permission extends model
 				$this->id = $row['id'];
 				$this->groupId = $row['permission_groupId'];
 				$this->model = $row['permission_model'];
-				$this->view = $row['permission_view'];
+				$this->read = $row['permission_read'];
 				$this->insert = $row['permission_insert'];
 				$this->update = $row['permission_update'];
 				$this->delete = $row['permission_delete'];
@@ -175,7 +175,7 @@ class permission extends model
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `permission_groupId` int(16) DEFAULT NULL,
 		  `permission_model` varchar(128) DEFAULT NULL,
-		  `permission_view` tinyint(1) DEFAULT NULL,
+		  `permission_read` tinyint(1) DEFAULT NULL,
 		  `permission_insert` tinyint(1) DEFAULT NULL,
 		  `permission_update` tinyint(1) DEFAULT NULL,
 		  `permission_delete` tinyint(1) DEFAULT NULL,

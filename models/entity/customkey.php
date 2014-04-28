@@ -185,6 +185,40 @@ class customkey extends model
 	}
 	
 	/**
+	 * Display the list of all templates
+	 *
+	 */
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=customkey&action=read">Key List</a><br /><br />';
+	
+		$keySQL = "SELECT * FROM " . $this->table . " ORDER BY key_created DESC";
+		$keyResult = $this->conn->query($keySQL);
+	
+		if ($keyResult !== false && mysqli_num_rows($keyResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($keyResult) ) {
+	
+				$name = stripslashes($row['key_name']);
+				$value = stripslashes($row['key_value']);
+	
+				echo "
+				<div class=\"key\">
+					<h2>
+					<a href=\"admin.php?type=key&action=update&p=".$row['id']."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >$name</a>
+						</h2>
+						<p>" . $value . "</p>
+				</div>";
+	
+			}
+			} else {
+			echo "
+			<p>
+				No keys found!
+			</p>";
+		}
+	
+			}
+	
+	/**
 	 * Builds the necessary tables for this object
 	 *
 	 */

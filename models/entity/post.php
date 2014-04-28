@@ -229,6 +229,52 @@ class post extends model
 	}
 
 	/**
+	 * Display the list of all posts and their respective pages
+	 *
+	 */
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=post&action=read">Post List</a><br /><br />';
+	
+		$postSQL = "SELECT * FROM " . $this->table . " ORDER BY page_id ASC";
+		$postResult = $this->conn->query($postSQL);
+		$lastPageName = "";
+	
+		if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($postResult) ) {
+	
+				if($lastPageName != lookupPageNameById($this->_CONN, $row['page_id'])) {
+					//If we aren't on the first page in the list, add some line breaks inbetween page lists.
+					if($lastPageName != "")
+						echo "<br /><br />";
+						
+					$lastPageName = lookupPageNameById($this->_CONN, $row['page_id']);
+					echo "<h1 class='cms_pageTitle'>" . $lastPageName . "</h1>";
+				}
+	
+				$title = stripslashes($row['post_title']);
+				$postDate = stripslashes($row['post_date']);
+	
+				echo "
+				<div class=\"page\">
+				<h3>
+				<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >$title</a>
+					</h3>
+					<p>
+					" . $postDate . "
+				</p>
+				</div>";
+	
+			}
+		} else {
+			echo "
+			<p>
+			No posts found!<br /><br />
+			</p>";
+		}
+	
+	}
+	
+	/**
 	 * Builds the necessary tables for this object
 	 *
 	 */

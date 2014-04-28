@@ -336,6 +336,40 @@ class account extends model
 	}
 	
 	/**
+	 * Display the list of all accounts
+	 *
+	 */
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">Account List</a><br /><br />';
+	
+		$accountSQL = "SELECT * FROM " . $this->table . " ORDER BY account_created DESC";
+		$accountResult = $this->conn->query($accountSQL);
+	
+		if ($accountResult !== false && mysqli_num_rows($accountResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($accountResult) ) {
+	
+				$username = stripslashes($row['account_login']);
+				$email = stripslashes($row['account_email']);
+	
+				echo "
+				<div class=\"user\">
+					<h2>
+					<a href=\"admin.php?type=user&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >$username</a>
+						</h2>
+						<p>" . $email . "</p>
+				</div>";
+	
+			}
+		} else {
+			echo "
+			<p>
+				No users found!
+			</p>";
+		}
+	
+	}
+	
+	/**
 	 * Builds the necessary tables for this object
 	 *
 	 */
@@ -358,7 +392,7 @@ class account extends model
 	
 	}
 	
-	public function checkPermission($model, $change) {
+	public function checkPermission($model, $change, $showError = true) {
 		$ret = false;
 		$permissions = getRecords($this->conn, "permission", array("*"), "permission_model='$model' AND permission_groupId=" . $this->groupId, $order=null);
 
@@ -366,8 +400,8 @@ class account extends model
 			$data = mysqli_fetch_assoc($permissions);
 
 			switch($change) {
-				case "view":
-					$ret = ($data['permission_view'] == 1 ? true : false);
+				case "read":
+					$ret = ($data['permission_read'] == 1 ? true : false);
 					break;
 				case "insert":
 					$ret = ($data['permission_insert'] == 1 ? true : false);
@@ -379,6 +413,10 @@ class account extends model
 					$ret = ($data['permission_delete'] == 1 ? true : false);
 					break;
 			}
+		}
+		
+		if($ret == false && $showError) {
+			echo "You do not have permissions to <strong>'" . $change . "'</strong> the '<strong>" . $model . "</strong>'.<br />";
 		}
 		
 		return $ret;

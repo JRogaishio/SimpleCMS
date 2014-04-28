@@ -201,7 +201,40 @@ class template extends model
 		';
 	}
 	
+	/**
+	 * Display the list of all templates
+	 *
+	 */
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=template&action=read">Template List</a><br /><br />';
 	
+		$templateSQL = "SELECT * FROM " . $this->table . " ORDER BY template_created DESC";
+		$templateResult = $this->conn->query($templateSQL);
+	
+		if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($templateResult) ) {
+	
+				$name = stripslashes($row['template_name']);
+				$file = stripslashes($row['template_file']);
+				$path = stripslashes($row['template_path']);
+	
+				echo "
+				<div class=\"template\">
+					<h2>
+					<a href=\"admin.php?type=template&action=update&p=".$row['id']."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"cms_pageEditLink\" >$name</a>
+						</h2>
+						<p>" . TEMPLATE_PATH . "/" . $path . "/" . $file . "</p>
+				</div>";
+	
+			}
+		} else {
+			echo "
+			<p>
+				No templates found!
+			</p>";
+		}
+	
+	}
 	
 	/**
 	 * Builds the necessary tables for this object

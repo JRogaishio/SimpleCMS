@@ -43,10 +43,10 @@ class permissiongroup extends model
 			$permission = new permission($this->conn, $this->log);
 			
 			//Load permission data from the form
-			$values = array('id'=>'', 'groupId'=>$this->id, 'model'=>$modelName, 'view'=>null, 'insert'=>null, 'update'=>null, 'delete'=>null);
+			$values = array('id'=>'', 'groupId'=>$this->id, 'model'=>$modelName, 'read'=>null, 'insert'=>null, 'update'=>null, 'delete'=>null);
 			
 			if(isset($params[$modelName . '_id'])) $values['id'] = clean($this->conn, $params[$modelName . '_id']);
-			if(isset($params[$modelName . '_view'])) $values['view'] = clean($this->conn, $params[$modelName . '_view']);
+			if(isset($params[$modelName . '_read'])) $values['read'] = clean($this->conn, $params[$modelName . '_read']);
 			if(isset($params[$modelName . '_insert'])) $values['insert'] = clean($this->conn, $params[$modelName . '_insert']);
 			if(isset($params[$modelName . '_update'])) $values['update'] = clean($this->conn, $params[$modelName . '_update']);
 			if(isset($params[$modelName . '_delete'])) $values['delete'] = clean($this->conn, $params[$modelName . '_delete']);
@@ -211,7 +211,7 @@ class permissiongroup extends model
 	 */
 	private function buildPermissionForm() {
 		echo "<table class='table table-bordered'>
-				<tr><th>Item</th><th>View</th><th>Insert</th><th>Update</th><th>Delete</th></tr>";
+				<tr><th>Item</th><th>Read</th><th>Insert</th><th>Update</th><th>Delete</th></tr>";
 		foreach($this->availModels as $modelName) {
 			$obj = new permission($this->conn, $this->log);
 			$obj->setModel($modelName);
@@ -219,7 +219,7 @@ class permissiongroup extends model
 			echo '
 				<tr>
 					<td>' . ucfirst($modelName) . '<input type="hidden" name="' . $modelName . '_id" value="' . $obj->getId() . '" /></td>
-					<td><input name="' . $modelName . '_view" id="' . $modelName . '_view" type="checkbox" value="1" '. ($obj->getView()==1?"checked=checked":"") . ' ' . ($this->edit == 0 ? "disabled" : "") . ' /></td>
+					<td><input name="' . $modelName . '_read" id="' . $modelName . '_read" type="checkbox" value="1" '. ($obj->getRead()==1?"checked=checked":"") . ' ' . ($this->edit == 0 ? "disabled" : "") . ' /></td>
 					<td><input name="' . $modelName . '_insert" id="' . $modelName . '_insert" type="checkbox" value="1" '. ($obj->getInsert()==1?"checked=checked":"") . ' ' . ($this->edit == 0 ? "disabled" : "") . ' /></td>
 					<td><input name="' . $modelName . '_update" id="' . $modelName . '_update" type="checkbox" value="1" '. ($obj->getUpdate()==1?"checked=checked":"") . ' ' . ($this->edit == 0 ? "disabled" : "") . ' /></td>
 					<td><input name="' . $modelName . '_delete" id="' . $modelName . '_delete" type="checkbox" value="1" '. ($obj->getDelete()==1?"checked=checked":"") . ' ' . ($this->edit == 0 ? "disabled" : "") . ' /></td>
@@ -246,6 +246,13 @@ class permissiongroup extends model
 		$this->loadRecord($parent);
 		$ret = false;
 		switch($action) {
+			case "read":
+				if($user->checkPermission($this->table, 'read', false)) {
+					$this->displayModelList();
+				} else {
+					echo "You do not have permissions to '<strong>read</strong>' records for " . $this->table . ".<br />";
+				}
+				break;
 			case "insert":
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
@@ -316,6 +323,37 @@ class permissiongroup extends model
 	}
 	
 	/**
+	 * Display the list of all permission groups
+	 *
+	 */
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=permissiongroup&action=read">Permission Group List</a><br /><br />';
+	
+		$groupSQL = "SELECT * FROM " . $this->table . " ORDER BY permissiongroup_created DESC";
+		$groupResult = $this->conn->query($groupSQL);
+	
+		if ($groupResult !== false && mysqli_num_rows($groupResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($groupResult) ) {
+	
+				$name = stripslashes($row['permissiongroup_name']);
+	
+				echo "
+				<div class=\"user\">
+					<h2>
+						<a href=\"admin.php?type=permission&action=update&p=".$row['id']."\" title=\"Edit / Manage this permission group\" alt=\"Edit / Manage this permission group\" class=\"cms_pageEditLink\" >$name</a>
+							</h2>
+							</div>";
+			}
+		} else {
+			echo "
+			<p>
+				No permission groups found!
+			</p>";
+		}
+	
+	}
+	
+	/**
 	 * Builds the necessary tables for this object
 	 *
 	 */
@@ -340,7 +378,7 @@ class permissiongroup extends model
 		/*Insert default data for `permission` if we dont have one already*/
 		if(countRecords($this->conn, 'permission') == false && countRecords($this->conn, $this->table) == 1 && is_array($this->availModels)) {
 			foreach($this->availModels as $modelName) {
-				$sql = "INSERT INTO permission (permission_groupId, permission_model, permission_view, permission_insert, permission_update, permission_delete, permission_created)
+				$sql = "INSERT INTO permission (permission_groupId, permission_model, permission_read, permission_insert, permission_update, permission_delete, permission_created)
 						VALUES(" . countRecords($this->conn, 'permissiongroup') . ", '" . $modelName. "', 1, 1, 1, 1, '" . time() . "')";
 				$this->conn->query($sql) OR DIE ("Could not insert default permission data for \"" . $modelName . "\"");
 		

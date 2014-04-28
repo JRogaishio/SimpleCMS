@@ -166,6 +166,13 @@ class site extends model
 		$this->loadRecord($parent);
 		$ret = false;
 		switch($action) {
+			case "read":
+				if($user->checkPermission($this->table, 'read', false)) {
+					$this->displayModelList();
+				} else {
+					echo "You do not have permissions to '<strong>read</strong>' records for " . $this->table . ".<br />";
+				}
+				break;
 			case "update":
 				//Determine if the form has been submitted
 				if(isset($_POST['saveChanges'])) {
@@ -188,6 +195,36 @@ class site extends model
 				$ret = true;
 		}
 		return $ret;
+	}
+	
+	/**
+	 * Display the site manager
+	 *
+	 */
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=site&action=read">Site</a><br /><br />';
+	
+		$siteSQL = "SELECT * FROM " . $this->table . " ORDER BY id DESC";
+		$siteResult = $this->conn->query($siteSQL);
+	
+		if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {
+			while($row = mysqli_fetch_assoc($siteResult) ) {
+	
+				$name = stripslashes($row['site_name']);
+	
+				echo "
+				<div class=\"site\">
+					<h2>
+					Site: <a href=\"admin.php?type=site&action=update&p=".$row['id']."\" class=\"cms_siteEditLink\" >$name</a>
+						</h2>
+						</div>";
+			}
+		} else {
+			echo "
+			<p>
+				No sites found!
+			</p>";
+		}
 	}
 	
 	/**

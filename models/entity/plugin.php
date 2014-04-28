@@ -163,6 +163,43 @@ class plugin extends model
 	}
 	
 	/**
+	 * Display the list of all plugins
+	 *
+	 */
+	public function displayModelList() {
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=plugin&action=read">Plugin List</a><br /><br />';
+	
+		$sql = "SELECT * FROM " . $this->table . " ORDER BY plugin_created DESC";
+		$result = $this->conn->query($sql);
+	
+		if ($result !== false && mysqli_num_rows($result) > 0 ) {
+			while($row = mysqli_fetch_assoc($result) ) {
+	
+				$file = stripslashes($row['plugin_file']);
+				$path = stripslashes($row['plugin_path']);
+				$name = substr($file, 0, strpos($file, ".php"));
+				if($name == null)
+					$name = "ERROR WITH PLUGIN FILE NAME";
+	
+				echo "
+				<div class=\"plugin\">
+					<h2>
+					<a href=\"admin.php?type=plugin&action=update&p=".$row['id']."\" title=\"Edit / Manage this plugin\" alt=\"Edit / Manage this plugin\" class=\"cms_pageEditLink\" >$name</a>
+						</h2>
+						<p>" . PLUGIN_PATH . "/" . $path . "/" . $file . "</p>
+				</div>";
+	
+			}
+			} else {
+			echo "
+			<p>
+				No plugins found!
+			</p>";
+		}
+	
+			}
+	
+	/**
 	 * Builds the necessary tables for this object
 	 *
 	 */
