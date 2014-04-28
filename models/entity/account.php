@@ -360,12 +360,15 @@ class account extends model
 	
 	public function checkPermission($model, $change) {
 		$ret = false;
-		$permissions = getRecords($this->conn, "permissions", array("*"), "permission_model='$model' AND permission_groupId=" . $this->groupId, $order=null);
-		
+		$permissions = getRecords($this->conn, "permission", array("*"), "permission_model='$model' AND permission_groupId=" . $this->groupId, $order=null);
+
 		if($permissions != false) {
 			$data = mysqli_fetch_assoc($permissions);
 
 			switch($change) {
+				case "view":
+					$ret = ($data['permission_view'] == 1 ? true : false);
+					break;
 				case "insert":
 					$ret = ($data['permission_insert'] == 1 ? true : false);
 					break;
