@@ -9,22 +9,22 @@
 class template extends model
 {
 	// Properties
-	protected $id = null;
-	protected $path = null;
-	protected $file = null;
-	protected $name = null;
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $path = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"path");
+	protected $file = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"file");
+	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
 	
 	//Getters
-	public function getId() {return $this->id;}
+	public function getId() {return $this->get($this->id);}
 	public function getPath() {return $this->path;}
 	public function getFile() {return $this->file;}
-	public function getName() {return $this->name;}
+	public function getTitle() {return $this->title;}
 	
 	//Setters
-	public function setId($val) {$this->id = $val;}
-	public function setPath($val) {$this->path = $val;}
-	public function setFile($val) {$this->file = $val;}
-	public function setName($val) {$this->name = $val;}
+	public function setId($val) {$this->set($this->id, $val);}
+	public function setPath($val) {$this->set($this->path, $val);}
+	public function setFile($val) {$this->set($this->file, $val);}
+	public function setTitle($val) {$this->set($this->title, $val);}
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -35,9 +35,9 @@ class template extends model
 		//Set the data to variables if the post data is set
 
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['path'])) $this->path = clean($this->conn, $params['path']);
-		if(isset($params['file'])) $this->file = clean($this->conn, $params['file']);
-		if(isset($params['name'])) $this->name = clean($this->conn, $params['name']);
+		if(isset($params['path'])) $this->setPath(clean($this->conn, $params['path']));
+		if(isset($params['file'])) $this->setFile(clean($this->conn, $params['file']));
+		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
 
 		$this->constr = true;
 	}
@@ -50,15 +50,15 @@ class template extends model
 	private function validate() {
 		$ret = "";
 		
-		if($this->path == "") {
+		if($this->getPath() == "") {
 			$ret = "Please enter a folder name in _template/.";
-		} else if(strpos($this->path, " ") !== false) {
+		} else if(strpos($this->getPath(), " ") !== false) {
 			$ret = "The path cannot contain any spaces.";
-		} else if($this->file == "") {
+		} else if($this->getFile() == "") {
 			$ret = "Please enter a file to load in template folder (ex. index.php).";
-		} else if(strpos($this->file, " ") !== false) {
+		} else if(strpos($this->getFile(), " ") !== false) {
 			$ret = "The file cannot contain any spaces.";
-		} else if($this->name == "") {
+		} else if($this->getTitle() == "") {
 			$ret = "Please enter a title.";
 		}
 	
@@ -69,7 +69,8 @@ class template extends model
 	 * Inserts the current template object into the database
 	 */
 	public function insert() {
-		$ret = true;
+		$this->save();
+		/*$ret = true;
 		if($this->constr) {
 			$error = $this->validate();
 			if($error == "") {
@@ -90,7 +91,7 @@ class template extends model
 			$ret = false;
 			echo "Failed to load form data!";
 		}
-		return $ret;
+		return $ret;*/
 	}
 
 	/**
@@ -101,7 +102,9 @@ class template extends model
 	public function update() {
 	
 		if($this->constr) {
-
+			$result = $this->save();
+			
+			/*
 			$sql = "UPDATE " . $this->table . " SET
 			template_path = '$this->path', 
 			template_file = '$this->file', 
@@ -109,6 +112,7 @@ class template extends model
 			WHERE id=" . $this->id . ";";
 
 			$result = $this->conn->query($sql) OR DIE ("Could not update template!");
+			*/
 			if($result) {
 				echo "<span class='update_notice'>Updated template successfully!</span><br /><br />";
 			}
@@ -127,10 +131,11 @@ class template extends model
 	 */
 	public function delete() {
 		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
-		
+		/*
 		$templateSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
 		$templateResult = $this->conn->query($templateSQL);
-		
+		*/
+		$templateResult = $this->delete();
 		return $templateResult;
 	}
 	
@@ -141,11 +146,11 @@ class template extends model
 	 */
 	public function loadRecord($templateId) {
 		//Set a field to use by the logger
-		$this->logField = &$this->name;
+		//$this->logField = &$this->getTitle();
 		
 		if(isset($templateId) && $templateId != null) {
-			
-			$templateSQL = "SELECT * FROM " . $this->table . " WHERE id=$templateId";
+			$templateResult = $this->load($templateId);
+			/*$templateSQL = "SELECT * FROM " . $this->table . " WHERE id=$templateId";
 				
 			$templateResult = $this->conn->query($templateSQL);
 
@@ -158,7 +163,7 @@ class template extends model
 				$this->file = $row['template_file'];
 				$this->name = $row['template_name'];
 			}
-			
+			*/
 			$this->constr = true;
 		}
 	
@@ -181,15 +186,15 @@ class template extends model
 			<form action="admin.php?type=template&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
 
 			<label for="path" title="This is the name in _template">Template folder name:</label><br />
-			<input name="path" id="path" type="text" maxlength="150" value="' . $this->path . '" />
+			<input name="path" id="path" type="text" maxlength="150" value="' . $this->getPath() . '" />
 			<div class="clear"></div>
 
 			<label for="file" title="This is the name of the template php file">Template filename:</label><br />
-			<input name="file" id="file" type="text" maxlength="150" value="' . $this->file . '" />
+			<input name="file" id="file" type="text" maxlength="150" value="' . $this->getFile() . '" />
 			<div class="clear"></div>
 
-			<label for="name" title="This is the name that will appear when selecting a template">Display name:</label><br />
-			<input name="name" id="name" type="text" maxlength="150" value="' . $this->name . '" />
+			<label for="title" title="This is the name that will appear when selecting a template">Display name:</label><br />
+			<input name="title" id="title" type="text" maxlength="150" value="' . $this->getTitle() . '" />
 			<div class="clear"></div>
 
 			<div class="clear"></div>
@@ -240,8 +245,9 @@ class template extends model
 	 *
 	 */
 	public function buildTable() {
+		$this->persist();
 		/*Table structure for table `templates` */
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
+		/*$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `template_path` varchar(128) DEFAULT NULL,
 		  `template_file` varchar(128) DEFAULT NULL,
@@ -251,11 +257,11 @@ class template extends model
 		  PRIMARY KEY (`id`)
 		)";
 		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
-		
+		*/
 		/*Insert default data for `templates` if we dont have one already*/
 		if(countRecords($this->conn, $this->table) == 0) {
-			$sql = "INSERT INTO " . $this->table . " (template_path, template_file, template_name, template_created) VALUES('default_example', 'index.php', 'Default Example Template', '" . time() . "')";
-			$this->conn->query($sql) OR DIE ("Could not insert default example data into \"templates\"");
+			//$sql = "INSERT INTO " . $this->table . " (template_path, template_file, template_name, template_created) VALUES('default_example', 'index.php', 'Default Example Template', '" . time() . "')";
+			//$this->conn->query($sql) OR DIE ("Could not insert default example data into \"templates\"");
 		}
 		
 	}
