@@ -8,7 +8,6 @@
  */
 class log extends model
 {
-	protected $table = "log";
 	
 	/**
 	 * Inserts any changes in the log database table

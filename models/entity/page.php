@@ -9,7 +9,6 @@
 class page extends model
 {
 	// Properties
-	protected $table = "page";
 	protected $id = null;
 	protected $title = null;
 	protected $template = null;

@@ -13,6 +13,7 @@ include_once('lib/database.php');
 include_once('lib/encrypt.php');
 include_once('lib/management.php');
 
+include_once('models/entity/orm.php');
 include_once('models/entity/model.php');
 include_once('models/entity/site.php');
 include_once('models/entity/account.php');

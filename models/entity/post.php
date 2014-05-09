@@ -9,7 +9,6 @@
 class post extends model
 {
 	// Properties
-	protected $table = "post";
 	protected $id = null;
 	protected $pageId = null;
 	protected $authorId = 1;

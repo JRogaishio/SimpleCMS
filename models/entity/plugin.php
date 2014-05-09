@@ -9,7 +9,6 @@
 class plugin extends model
 {
 	// Properties
-	protected $table = "plugin";
 	protected $id = null;
 	protected $path = null;
 	protected $file = null;

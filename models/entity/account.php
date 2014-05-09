@@ -9,7 +9,6 @@
 class account extends model
 {
 	// Properties
-	protected $table = "account";
 	protected $id = null;
 	protected $loginname = null;
 	protected $password = null;

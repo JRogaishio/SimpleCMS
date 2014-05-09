@@ -9,7 +9,6 @@
 class permission extends model
 {
 	// Properties
-	protected $table = "permission";
 	protected $id = null;
 	protected $groupId = null;
 	protected $model = null;

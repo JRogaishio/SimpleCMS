@@ -9,7 +9,6 @@
 class template extends model
 {
 	// Properties
-	protected $table = "template";
 	protected $id = null;
 	protected $path = null;
 	protected $file = null;

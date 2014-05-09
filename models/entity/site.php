@@ -9,7 +9,6 @@
 class site extends model
 {
 	// Properties
-	protected $table = "site";
 	protected $id = null;
 	protected $name = null;
 	protected $linkFormat = null;

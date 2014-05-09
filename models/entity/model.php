@@ -1,6 +1,6 @@
 <?php
 
-class model {
+class model extends orm {
 	
 	protected $conn = null; //Database connection object
 	protected $log = null;
@@ -15,6 +15,7 @@ class model {
 	 */
 	public function __construct($dbConn, $dbLog) {
 		$this->conn = $dbConn;
+		$this->table = get_class($this);
 		$this->log = $dbLog;
 		$this->linkFormat = get_linkFormat($dbConn);
 		$this->logField = &$this->id; //Default to the Id

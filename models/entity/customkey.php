@@ -9,7 +9,6 @@
 class customkey extends model
 {
 	// Properties
-	protected $table = "customkey";
 	protected $id = null;
 	protected $key = null;
 	protected $value = null;
