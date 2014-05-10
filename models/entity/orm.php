@@ -1,8 +1,8 @@
 <?php 
 
  class orm {
- 	private $table = null;
- 	private $conn = null;
+ 	protected $table = null;
+ 	protected $conn = null;
  	
  	/*
  	 * Saves the class name and the database connection object
