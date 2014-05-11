@@ -18,7 +18,7 @@ class model extends orm {
 		$this->table = get_class($this);
 		$this->log = $dbLog;
 		$this->linkFormat = get_linkFormat($dbConn);
-		$this->logField = &$this->id; //Default to the Id
+		$this->logField = null; //Default to the Id by ref incase it changes from a load
 	}
 	
 	/**

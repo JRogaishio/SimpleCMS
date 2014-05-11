@@ -9,34 +9,40 @@
 class account extends model
 {
 	// Properties
-	protected $id = null;
-	protected $loginname = null;
-	protected $password = null;
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $loginname = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"loginname");
+	protected $password = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"password");
 	protected $password2 = null;
-	protected $salt = null;
-	protected $email = null;
-	protected $isRegistered = null;
-	protected $groupId = null;
+	protected $token = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"token");
+	protected $salt = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"salt");
+	protected $email = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"email");
+	protected $isRegistered = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"isRegistered");
+	protected $groupId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"groupId");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
 	//Getters
-	public function getId() {return $this->id;}
-	public function getLoginname() {return $this->loginname;}
-	public function getPassword() {return $this->password;}
-	public function getPassword2() {return $this->password2;}
-	public function getSalt() {return $this->salt;}
-	public function getEmail() {return $this->email;}
-	public function getIsRegistered() {return $this->isRegistered;}
-	public function getGroupId() {return $this->groupId;}
+	public function getId() {return $this->get($this->id);}
+	public function getLoginname() {return $this->get($this->loginname);}
+	public function getPassword() {return $this->get($this->password);}
+	public function getPassword2() {return $this->get($this->password2);}
+	public function getToken() {return $this->get($this->token);}
+	public function getSalt() {return $this->get($this->salt);}
+	public function getEmail() {return $this->get($this->email);}
+	public function getIsRegistered() {return $this->get($this->isRegistered);}
+	public function getGroupId() {return $this->get($this->groupId);}
+	public function getCreated() {return $this->get($this->created);}
 	
 	//Setters
-	public function setId($val) {$this->id = $val;}
-	public function setLoginname($val) {$this->loginname = $val;}
-	public function setPassword($val) {$this->password = $val;}
-	public function setPassword2($val) {$this->password2 = $val;}
-	public function setSalt($val) {$this->salt = $val;}
-	public function setEmail($val) {$this->email = $val;}
-	public function setIsRegistered($val) {$this->isRegistered = $val;}
-	public function setGroupId($val) {$this->groupId = $val;}
+	public function setId($val) {$this->set($this->id, $val);}
+	public function setLoginname($val) {$this->set($this->loginname, $val);}
+	public function setPassword($val) {$this->set($this->password, $val);}
+	public function setPassword2($val) {$this->set($this->password2, $val);}
+	public function setToken($val) {$this->set($this->token, $val);}
+	public function setSalt($val) {$this->set($this->salt, $val);}
+	public function setEmail($val) {$this->set($this->email, $val);}
+	public function setIsRegistered($val) {$this->set($this->isRegistered, $val);}
+	public function setGroupId($val) {$this->set($this->groupId, $val);}
+	public function setCreated($val) {$this->set($this->created, $val);}
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -273,7 +279,7 @@ class account extends model
 					}
 					break;
 				case "insert":
-					if($user->checkPermission($this->table, 'insert')) {
+					if(countRecords($this->conn,$this->table) == 0 || $user->checkPermission($this->table, 'insert')) {
 						//Determine if the form has been submitted
 						if(isset($_POST['saveChanges'])) {
 							// User has posted the article edit form: save the new article

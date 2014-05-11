@@ -13,18 +13,21 @@ class template extends model
 	protected $path = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"path");
 	protected $file = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"file");
 	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
 	//Getters
 	public function getId() {return $this->get($this->id);}
-	public function getPath() {return $this->path;}
-	public function getFile() {return $this->file;}
-	public function getTitle() {return $this->title;}
+	public function getPath() {return $this->get($this->path);}
+	public function getFile() {return $this->get($this->file);}
+	public function getTitle() {return $this->get($this->title);}
+	public function getCreated() {return $this->get($this->created);}
 	
 	//Setters
 	public function setId($val) {$this->set($this->id, $val);}
 	public function setPath($val) {$this->set($this->path, $val);}
 	public function setFile($val) {$this->set($this->file, $val);}
 	public function setTitle($val) {$this->set($this->title, $val);}
+	public function setCreated($val) {$this->set($this->created, $val);}
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -69,16 +72,11 @@ class template extends model
 	 * Inserts the current template object into the database
 	 */
 	public function insert() {
-		$this->save();
-		/*$ret = true;
+		$ret = true;
 		if($this->constr) {
 			$error = $this->validate();
-			if($error == "") {
-			
-				$sql = "INSERT INTO " . $this->table . " (template_path, template_file, template_name, template_created) VALUES";
-				$sql .= "('$this->path', '$this->file', '$this->name','" . time() . "')";
-	
-				$result = $this->conn->query($sql) OR DIE ("Could not create template!");
+			if($error == "") {	
+				$result = $this->save();
 				if($result) {
 					echo "<span class='update_notice'>Created template successfully!</span><br /><br />";
 				}
@@ -91,7 +89,7 @@ class template extends model
 			$ret = false;
 			echo "Failed to load form data!";
 		}
-		return $ret;*/
+		return $ret;
 	}
 
 	/**
@@ -104,15 +102,6 @@ class template extends model
 		if($this->constr) {
 			$result = $this->save();
 			
-			/*
-			$sql = "UPDATE " . $this->table . " SET
-			template_path = '$this->path', 
-			template_file = '$this->file', 
-			template_name = '$this->name'
-			WHERE id=" . $this->id . ";";
-
-			$result = $this->conn->query($sql) OR DIE ("Could not update template!");
-			*/
 			if($result) {
 				echo "<span class='update_notice'>Updated template successfully!</span><br /><br />";
 			}
@@ -131,10 +120,7 @@ class template extends model
 	 */
 	public function delete() {
 		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
-		/*
-		$templateSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
-		$templateResult = $this->conn->query($templateSQL);
-		*/
+
 		$templateResult = $this->delete();
 		return $templateResult;
 	}
@@ -146,24 +132,11 @@ class template extends model
 	 */
 	public function loadRecord($templateId) {
 		//Set a field to use by the logger
-		//$this->logField = &$this->getTitle();
+		$this->logField = $this->getTitle();
 		
 		if(isset($templateId) && $templateId != null) {
 			$templateResult = $this->load($templateId);
-			/*$templateSQL = "SELECT * FROM " . $this->table . " WHERE id=$templateId";
-				
-			$templateResult = $this->conn->query($templateSQL);
 
-			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
-				$row = mysqli_fetch_assoc($templateResult);
-
-			if(isset($row)) {
-				$this->id = $row['id'];
-				$this->path = $row['template_path'];
-				$this->file = $row['template_file'];
-				$this->name = $row['template_name'];
-			}
-			*/
 			$this->constr = true;
 		}
 	
@@ -183,7 +156,7 @@ class template extends model
 
 		
 		echo '
-			<form action="admin.php?type=template&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=template&action=' . (($this->getId() == null) ? "insert" : "update") . '&p=' . $this->getId() . '" method="post">
 
 			<label for="path" title="This is the name in _template">Template folder name:</label><br />
 			<input name="path" id="path" type="text" maxlength="150" value="' . $this->getPath() . '" />
@@ -200,7 +173,7 @@ class template extends model
 			<div class="clear"></div>
 			<br />
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($templateId) || $templateId == null) ? "Create" : "Update") . ' This Template!" /><br /><br />
-			' . ((isset($templateId) && $templateId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
+			' . ((isset($templateId) && $templateId != null) ? '<a href="admin.php?type=template&action=delete&p=' . $this->getId() . '"" class="deleteBtn">Delete This Template!</a><br /><br />' : '') . '
 			</form>
 		';
 	}
@@ -246,22 +219,14 @@ class template extends model
 	 */
 	public function buildTable() {
 		$this->persist();
-		/*Table structure for table `templates` */
-		/*$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `template_path` varchar(128) DEFAULT NULL,
-		  `template_file` varchar(128) DEFAULT NULL,
-		  `template_name` varchar(64) DEFAULT NULL,
-		  `template_created` varchar(128) DEFAULT NULL,
-		
-		  PRIMARY KEY (`id`)
-		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
-		*/
+
 		/*Insert default data for `templates` if we dont have one already*/
 		if(countRecords($this->conn, $this->table) == 0) {
-			//$sql = "INSERT INTO " . $this->table . " (template_path, template_file, template_name, template_created) VALUES('default_example', 'index.php', 'Default Example Template', '" . time() . "')";
-			//$this->conn->query($sql) OR DIE ("Could not insert default example data into \"templates\"");
+			$this->setPath('default_example');
+			$this->setFile('index.php');
+			$this->setTitle('Default Example Template');
+			$this->setCreated(time());
+			$this->save();
 		}
 		
 	}
