@@ -265,6 +265,7 @@ class core {
 		
 		$site = new site($this->_CONN, $this->_LOG);
 		$site->persist();
+		$site->populate();
 		
 		$customkey = new customkey($this->_CONN, $this->_LOG);
 		$customkey->persist();

@@ -96,11 +96,11 @@ class admin extends core {
 					
 					//Grab the username from the token for logging. We don't have the login set yet before we havent authenticated
 					if(isset($_COOKIE['token'])) {
-						$userSQL = "SELECT * FROM account WHERE account_token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
+						$userSQL = "SELECT * FROM account WHERE token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
 						$userResult = $this->_CONN->query($userSQL);
 						if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 							$userData = mysqli_fetch_assoc($userResult);
-							$this->_LOG->trackChange("account", 'log_out',$userData['id'], $userData['account_login'], "logged out");
+							$this->_LOG->trackChange("account", 'log_out',$userData['id'], $userData['loginname'], "logged out");
 						}					
 					}
 
