@@ -131,7 +131,7 @@ function getFormattedPages($conn, $format, $eleName, $defaultVal) {
  */
 function getFormattedGroups($conn, $format, $eleName, $defaultVal) {
 
-	$groupSQL = "SELECT * FROM permissiongroup ORDER BY permissiongroup_created DESC";
+	$groupSQL = "SELECT * FROM permissiongroup ORDER BY created DESC";
 	$groupResult =  $conn->query($groupSQL);
 	$formattedData = "";
 	if ($groupResult !== false && mysqli_num_rows($groupResult) > 0 ) {
@@ -143,7 +143,7 @@ function getFormattedGroups($conn, $format, $eleName, $defaultVal) {
 					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupGroupNameById($conn, $defaultVal) . "--</option>";
 
 				while($row = mysqli_fetch_assoc($groupResult) ) {
-					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['permissiongroup_name']) . "</option>";
+					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['title']) . "</option>";
 				}
 				$formattedData .= "</select>";
 
@@ -230,12 +230,12 @@ function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
  */
 function get_userSalt($conn, $username) {
 
-	$userSQL = "SELECT * FROM account WHERE account_login='$username';";
+	$userSQL = "SELECT * FROM account WHERE loginname='$username';";
 	$userResult =  $conn->query($userSQL);
 
 	if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 		$userData = mysqli_fetch_assoc($userResult);
-		return $userData['account_salt'];
+		return $userData['salt'];
 	} else {
 		return false;
 	}

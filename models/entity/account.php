@@ -20,30 +20,6 @@ class account extends model
 	protected $groupId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"groupId");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
-	//Getters
-	/*public function getId() {return $this->get($this->id);}
-	public function getLoginname() {return $this->get($this->loginname);}
-	public function getPassword() {return $this->get($this->password);}
-	public function getPassword2() {return $this->get($this->password2);}
-	public function getToken() {return $this->get($this->token);}
-	public function getSalt() {return $this->get($this->salt);}
-	public function getEmail() {return $this->get($this->email);}
-	public function getIsRegistered() {return $this->get($this->isRegistered);}
-	public function getGroupId() {return $this->get($this->groupId);}
-	public function getCreated() {return $this->get($this->created);}
-	
-	//Setters
-	public function setId($val) {$this->set($this->id, $val);}
-	public function setLoginname($val) {$this->set($this->loginname, $val);}
-	public function setPassword($val) {$this->set($this->password, $val);}
-	public function setPassword2($val) {$this->set($this->password2, $val);}
-	public function setToken($val) {$this->set($this->token, $val);}
-	public function setSalt($val) {$this->set($this->salt, $val);}
-	public function setEmail($val) {$this->set($this->email, $val);}
-	public function setIsRegistered($val) {$this->set($this->isRegistered, $val);}
-	public function setGroupId($val) {$this->set($this->groupId, $val);}
-	public function setCreated($val) {$this->set($this->created, $val);}*/
-	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -52,11 +28,11 @@ class account extends model
 	public function storeFormValues ($params=array()) {
 		// Store all the parameters
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['username'])) $this->loginname = clean($this->conn, $params['username']);
-		if(isset($params['password'])) $this->password = clean($this->conn, $params['password']);
+		if(isset($params['username'])) $this->setLoginname(clean($this->conn, $params['username']));
+		if(isset($params['password'])) $this->setPassword(clean($this->conn, $params['password']));
 		if(isset($params['password2'])) $this->password2 = clean($this->conn, $params['password2']);
-		if(isset($params['email'])) $this->email = clean($this->conn, $params['email']);
-		if(isset($params['groupId'])) $this->groupId = clean($this->conn, $params['groupId']);
+		if(isset($params['email'])) $this->setEmail(clean($this->conn, $params['email']));
+		if(isset($params['groupId'])) $this->setGroupId(clean($this->conn, $params['groupId']));
 
 		$this->constr = true;
 	}
@@ -95,16 +71,13 @@ class account extends model
 			$error = $this->validate();
 			if($error == "") {
 				$salt = unique_salt();
-				$secPass = hash('sha256',$this->password);
+				$secPass = hash('sha256',$this->getPassword());
 				$secPass = hash('sha256',($secPass . $salt));
 				$this->setPassword($secPass);
 				$this->setSalt($salt);
 				$this->setCreated(time());
-				$this->save();
-				//$sql = "INSERT INTO " . $this->table . " (account_login, account_pass, account_salt, account_email,account_created, account_isRegistered, account_groupId) VALUES";
-				//$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1, " . $this->groupId . ")";
+				$result = $this->save();
 				
-				//$result = $this->conn->query($sql) OR DIE ("Could not create user!");
 				if($result) {
 					echo "<span class='update_notice'>Created user successfully!</span><br /><br />";
 				} else {
@@ -290,7 +263,7 @@ class account extends model
 								} else if($auth) {
 									//Re-build the main User after creation
 									$ret = true;
-									$this->log->trackChange($this->table, 'add',$this->getId(),$this->getLoginname(), $this->loginname . " added");
+									$this->log->trackChange($this->table, 'add',$this->getId(),$this->getLoginname(), $this->getLoginname() . " added");
 								} else {
 									parent::render("siteLogin");
 								}
@@ -412,23 +385,23 @@ class account extends model
 	
 	public function checkPermission($model, $change) {
 		$ret = false;
-		$permissions = getRecords($this->conn, "permission", array("*"), "permission_model='$model' AND permission_groupId=" . $this->getGroupId(), $order=null);
+		$permissions = getRecords($this->conn, "permission", array("*"), "model='$model' AND groupId=" . $this->getGroupId(), $order=null);
 
 		if($permissions != false) {
 			$data = mysqli_fetch_assoc($permissions);
 
 			switch($change) {
 				case "read":
-					$ret = ($data['permission_read'] == 1 ? true : false);
+					$ret = ($data['readAction'] == 1 ? true : false);
 					break;
 				case "insert":
-					$ret = ($data['permission_insert'] == 1 ? true : false);
+					$ret = ($data['insertAction'] == 1 ? true : false);
 					break;
 				case "update":
-					$ret = ($data['permission_update'] == 1 ? true : false);
+					$ret = ($data['updateAction'] == 1 ? true : false);
 					break;
 				case "delete":
-					$ret = ($data['permission_delete'] == 1 ? true : false);
+					$ret = ($data['deleteAction'] == 1 ? true : false);
 					break;
 			}
 		}

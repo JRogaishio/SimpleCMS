@@ -373,31 +373,27 @@ class permissiongroup extends model
 	 * Builds the necessary tables for this object
 	 *
 	 */
-	public function buildTable() {
-		/*Table structure for table `templates` */
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `permissiongroup_name` varchar(128) DEFAULT NULL,
-		  `permissiongroup_edit` tinyint(1) DEFAULT NULL,
-		  `permissiongroup_created` varchar(128) DEFAULT NULL,
-		
-		  PRIMARY KEY (`id`)
-		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
-		
+	public function populate() {
 		/*Insert default data for `grouo` if we dont have one already*/
 		if(countRecords($this->conn, $this->table) == 0) {
-			$sql = "INSERT INTO " . $this->table . " (permissiongroup_name, permissiongroup_edit, permissiongroup_created) VALUES('Administrator', 0, '" . time() . "')";
-			$this->conn->query($sql) OR DIE ("Could not insert administrator group data into \"permissiongroup\"");			
+			$this->setTitle('Administrator');
+			$this->setEditable(0);
+			$this->setCreated(time());
+			$this->save();
 		}
 		
 		/*Insert default data for `permission` if we dont have one already*/
 		if(countRecords($this->conn, 'permission') == false && countRecords($this->conn, $this->table) == 1 && is_array($this->availModels)) {
 			foreach($this->availModels as $modelName) {
-				$sql = "INSERT INTO permission (permission_groupId, permission_model, permission_read, permission_insert, permission_update, permission_delete, permission_created)
-						VALUES(" . countRecords($this->conn, 'permissiongroup') . ", '" . $modelName. "', 1, 1, 1, 1, '" . time() . "')";
-				$this->conn->query($sql) OR DIE ("Could not insert default permission data for \"" . $modelName . "\"");
-		
+				$permission = new permission($this->conn, $this->log);
+				$permission->setGroupId(countRecords($this->conn, 'permissiongroup'));
+				$permission->setModel($modelName);
+				$permission->setReadAction(1);
+				$permission->setInsertAction(1);
+				$permission->setUpdateAction(1);
+				$permission->setDeleteAction(1);
+				$permission->setCreated(time());
+				$permission->save();
 			}
 		}
 		

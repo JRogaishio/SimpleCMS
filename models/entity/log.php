@@ -30,13 +30,19 @@ class log extends model
 	 *
 	 * @return returns the result of the mysql query
 	 */
-	function trackChange($type, $action, $userId, $user, $change) {
-	
-		$sql = "INSERT INTO " . $this->table . " (log_type, log_action, log_accountId, log_user, log_info, log_date, log_created, log_remoteIp) VALUES";
-		$sql .= "('$type', '$action', '$userId', '$user', '$change', '" . date('Y-m-d H:i:s') . "','" . time() . "','" . $_SERVER['REMOTE_ADDR'] . "')";
-	
-		$result = $this->conn->query($sql) OR DIE ("Could not write to log!");
-	
+	function trackChange($model, $action, $userId, $user, $change) {
+		$result = null;
+		
+		$this->setModel($model);
+		$this->setAction($action);
+		$this->setAccountId($userId);
+		$this->setLoginname($user);
+		$this->setInfo($change);
+		$this->setActionDate(date('Y-m-d H:i:s'));
+		$this->setRemoteIp($_SERVER['REMOTE_ADDR']);
+		
+		$result = $this->setCreated(time());
+
 		return $result;
 	}
 

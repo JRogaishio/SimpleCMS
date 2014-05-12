@@ -258,6 +258,7 @@ class core {
 		
 		$permissiongroup = new permissiongroup($this->_CONN, $this->_LOG);
 		$permissiongroup->persist();
+		$permissiongroup->populate();
 
 		$user = new account($this->_CONN, $this->_LOG);
 		$user->persist();
