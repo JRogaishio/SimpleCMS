@@ -11,12 +11,12 @@ class template extends model
 	// Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $path = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"path");
-	protected $file = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"file");
+	protected $filename = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"filename");
 	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
 	//Getters
-	public function getId() {return $this->get($this->id);}
+	/*public function getId() {return $this->get($this->id);}
 	public function getPath() {return $this->get($this->path);}
 	public function getFile() {return $this->get($this->file);}
 	public function getTitle() {return $this->get($this->title);}
@@ -27,7 +27,7 @@ class template extends model
 	public function setPath($val) {$this->set($this->path, $val);}
 	public function setFile($val) {$this->set($this->file, $val);}
 	public function setTitle($val) {$this->set($this->title, $val);}
-	public function setCreated($val) {$this->set($this->created, $val);}
+	public function setCreated($val) {$this->set($this->created, $val);}*/
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array

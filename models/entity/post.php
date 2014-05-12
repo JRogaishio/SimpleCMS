@@ -9,33 +9,47 @@
 class post extends model
 {
 	// Properties
-	protected $id = null;
+	/*protected $id = null;
 	protected $pageId = null;
 	protected $authorId = 1;
 	protected $postDate = null;
 	protected $title = null;
 	protected $content = null;
-	protected $lastMod = null;
+	protected $lastMod = null;*/
 	protected $constr = false;
 
+	// Properties
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $pageId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"pageId");
+	protected $authorId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"authorId");
+	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>150, "field"=>"title");
+	protected $content = array("orm"=>true, "datatype"=>"text", "field"=>"content");
+	protected $lastModified = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"lastModified");
+	protected $createdDate = array("orm"=>true, "datatype"=>"datetime", "field"=>"createdDate");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
+	
+	
+	
+	
+	
 	//Getters
-	public function getId() {return $this->id;}
+	/*public function getId() {return $this->id;}
 	public function getPageId() {return $this->pageId;}
 	public function getAuthorId() {return $this->authorId;}
 	public function getPostDate() {return $this->postDate;}
 	public function getTitle() {return $this->title;}
 	public function getContent() {return $this->content;}
-	public function getLastMod() {return $this->lastMod;}
+	public function getLastMod() {return $this->lastMod;}*/
 	public function getConstr() {return $this->constr;}
 	
 	//Setters
-	public function setId($val) {$this->id = $val;}
+	/*public function setId($val) {$this->id = $val;}
 	public function setPageId($val) {$this->pageId = $val;}
 	public function setAuthorId($val) {$this->authorId = $val;}
 	public function setPostDate($val) {$this->postDate = $val;}
 	public function setTitle($val) {$this->title = $val;}
 	public function setContent($val) {$this->content = $val;}
-	public function setLastMod($val) {$this->lastMod = $val;}
+	public function setLastMod($val) {$this->lastMod = $val;}*/
 	public function setConstr($val) {$this->constr = $val;}
 	
 	

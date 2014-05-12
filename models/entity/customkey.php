@@ -9,19 +9,22 @@
 class customkey extends model
 {
 	// Properties
-	protected $id = null;
-	protected $key = null;
-	protected $value = null;
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $keyItem = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"keyItem");
+	protected $keyValue = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"keyValue");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
 	//Getters
-	public function getId() {return $this->id;}
-	public function getKey() {return $this->key;}
-	public function getValue() {return $this->value;}
+	/*public function getId() {return $this->get($this->id);}
+	public function getKey() {return $this->get($this->keyItem);}
+	public function getValue() {return $this->get($this->keyValue);}
+	public function getCreated() {return $this->get($this->created);}
 	
 	//Setters
-	public function setId($val) {$this->id = $val;}
-	public function setKey($val) {$this->key = $val;}
-	public function setValue($val) {$this->value = $val;}
+	public function setId($val) {$this->set($this->id, $val);}
+	public function setKey($val) {$this->set($this->keyItem, $val);}
+	public function setValue($val) {$this->set($this->keyValue, $val);}
+	public function setCreated($val) {$this->set($this->created, $val);}*/
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array

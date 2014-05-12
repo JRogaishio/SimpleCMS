@@ -9,16 +9,26 @@
 class permission extends model
 {
 	// Properties
-	protected $id = null;
+	/*protected $id = null;
 	protected $groupId = null;
 	protected $model = null;
-	protected $read = null;
-	protected $insert = null;
-	protected $update = null;
-	protected $delete = null;
+	protected $readAction = null;
+	protected $insertAction = null;
+	protected $updateAction = null;
+	protected $deleteAction = null;*/
+	
+	// Properties
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $groupId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"groupId");
+	protected $model = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"model");
+	protected $readAction = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"readAction");
+	protected $insertAction = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"insertAction");
+	protected $updateAction = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"updateAction");
+	protected $deleteAction = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"deleteAction");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
 	//Getters
-	public function getId() {return $this->id;}
+	/*public function getId() {return $this->id;}
 	public function getGroupId() {return $this->groupId;}
 	public function getModel() {return $this->model;}
 	public function getRead() {return $this->read;}
@@ -33,7 +43,7 @@ class permission extends model
 	public function setRead($val) {$this->read = $val;}
 	public function setInsert($val) {$this->insert = $val;}
 	public function setUpdate($val) {$this->update = $val;}
-	public function setDelete($val) {$this->delete = $val;}
+	public function setDelete($val) {$this->delete = $val;}*/
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array

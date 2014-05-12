@@ -9,21 +9,28 @@
 class plugin extends model
 {
 	// Properties
-	protected $id = null;
+	/*protected $id = null;
 	protected $path = null;
-	protected $file = null;
+	protected $file = null;*/
+	
+	// Properties
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $path = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"path");
+	protected $filename = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"filename");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
+	
 	protected $name = null;
 	
 	//Getters
-	public function getId() {return $this->id;}
+	/*public function getId() {return $this->id;}
 	public function getPath() {return $this->path;}
-	public function getFile() {return $this->file;}
+	public function getFile() {return $this->file;}*/
 	public function getName() {return $this->name;}
 	
 	//Setters
-	public function setId($val) {$this->id = $val;}
+	/*public function setId($val) {$this->id = $val;}
 	public function setPath($val) {$this->path = $val;}
-	public function setFile($val) {$this->file = $val;}
+	public function setFile($val) {$this->file = $val;}*/
 	public function setName($val) {$this->name = $val;}
 	
 	/**

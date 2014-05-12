@@ -7,20 +7,19 @@
  * 
  */
 class page extends model
-{
+{	
 	// Properties
-	protected $id = null;
-	protected $title = null;
-	protected $template = null;
-	protected $templatePath = null;
-	protected $safeLink = null;
-	protected $metaData = null;
-	protected $flags = null;
-	protected $isHome = null;
-	protected $constr = false;
-
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
+	protected $templateId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"templateId");
+	protected $safeLink = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"safeLink");
+	protected $metaData = array("orm"=>true, "datatype"=>"text", "field"=>"metaData");
+	protected $flags = array("orm"=>true, "datatype"=>"text", "field"=>"flags");
+	protected $isHome = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"isHome");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
+	
 	//Getters
-	public function getId() {return $this->id;}
+	/*public function getId() {return $this->id;}
 	public function getTitle() {return $this->title;}
 	public function getTemplate() {return $this->template;}
 	public function getTemplatePath() {return $this->templatePath;}
@@ -39,7 +38,7 @@ class page extends model
 	public function setMetaData($val) {$this->metaData = $val;}
 	public function setFlags($arr=array()) {$this->flags = implode(",", $arr);}
 	public function setIsHome($val) {$this->isHome = $val;}
-	public function setConstr($val) {$this->constr = $val;}
+	public function setConstr($val) {$this->constr = $val;}*/
 	
 	/**
 	 * Returns true if the flag exists or false if it doesnt

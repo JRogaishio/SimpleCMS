@@ -21,7 +21,7 @@ class account extends model
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
 	//Getters
-	public function getId() {return $this->get($this->id);}
+	/*public function getId() {return $this->get($this->id);}
 	public function getLoginname() {return $this->get($this->loginname);}
 	public function getPassword() {return $this->get($this->password);}
 	public function getPassword2() {return $this->get($this->password2);}
@@ -42,7 +42,7 @@ class account extends model
 	public function setEmail($val) {$this->set($this->email, $val);}
 	public function setIsRegistered($val) {$this->set($this->isRegistered, $val);}
 	public function setGroupId($val) {$this->set($this->groupId, $val);}
-	public function setCreated($val) {$this->set($this->created, $val);}
+	public function setCreated($val) {$this->set($this->created, $val);}*/
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -69,15 +69,15 @@ class account extends model
 	private function validate() {
 		$ret = "";
 		
-		if($this->loginname == "") {
+		if($this->getLoginname() == "") {
 			$ret = "Please enter a username.";
-		} else if($this->password == "") {
+		} else if($this->getPassword() == "") {
 			$ret = "Please enter a password.";
-		} else if($this->password != $this->password2) {
+		} else if($this->getPassword() != $this->password2) {
 			$ret = "The passwords don't match.";
-		} else if($this->email == "") {
+		} else if($this->getEmail() == "") {
 			$ret = "Please enter an email.";
-		} else if(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+		} else if(!filter_var($this->getEmail(), FILTER_VALIDATE_EMAIL)) {
 			$ret = "Email address is not valid.";
 		}
 		
@@ -97,11 +97,14 @@ class account extends model
 				$salt = unique_salt();
 				$secPass = hash('sha256',$this->password);
 				$secPass = hash('sha256',($secPass . $salt));
+				$this->setPassword($secPass);
+				$this->setSalt($salt);
+				$this->setCreated(time());
+				$this->save();
+				//$sql = "INSERT INTO " . $this->table . " (account_login, account_pass, account_salt, account_email,account_created, account_isRegistered, account_groupId) VALUES";
+				//$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1, " . $this->groupId . ")";
 				
-				$sql = "INSERT INTO " . $this->table . " (account_login, account_pass, account_salt, account_email,account_created, account_isRegistered, account_groupId) VALUES";
-				$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1, " . $this->groupId . ")";
-				
-				$result = $this->conn->query($sql) OR DIE ("Could not create user!");
+				//$result = $this->conn->query($sql) OR DIE ("Could not create user!");
 				if($result) {
 					echo "<span class='update_notice'>Created user successfully!</span><br /><br />";
 				} else {
@@ -133,14 +136,16 @@ class account extends model
 			if($error == "") {
 				$secPass = hash('sha256',$this->password);
 				$secPass = hash('sha256',($secPass . get_userSalt($this->conn, $this->loginname)));
-				
+				$this->setPassword($secPass);
+				$this->save();
+				/*
 				$sql = "UPDATE user SET
 				account_login = '$this->loginname', 
 				account_pass = '$secPass', 
 				account_email = '$this->email'
 				WHERE id=" . $this->id . ";";
 	
-				$result = $this->conn->query($sql) OR DIE ("Could not update user!");
+				$result = $this->conn->query($sql) OR DIE ("Could not update user!");*/
 				if($result) {
 					echo "<span class='update_notice'>Updated user successfully!</span><br /><br />";
 				} else {
@@ -166,9 +171,9 @@ class account extends model
 	 */
 	public function delete() {
 		echo "<span class='update_notice'>User deleted! Bye bye '$this->loginname', we will miss you.</span><br /><br />";
-		
-		$userSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
-		$userResult = $this->conn->query($userSQL);
+		$this->delete();
+		//$userSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
+		//$userResult = $this->conn->query($userSQL);
 		
 		return $userResult;
 	}
@@ -180,27 +185,15 @@ class account extends model
 	 */
 	public function loadRecord($userId) {
 		//Set a field to use by the logger
-		$this->logField = &$this->loginname;
+		$this->logField = $this->getLoginname();
 		
 		if(isset($userId) && $userId != null) {
 			
 			$userSQL = "SELECT * FROM " . $this->table . " WHERE id=$userId";
 				
-			$userResult = $this->conn->query($userSQL);
-
-			if ($userResult !== false && mysqli_num_rows($userResult) > 0 )
-				$row = mysqli_fetch_assoc($userResult);
-
-			if(isset($row)) {
-				$this->id = $row['id'];
-				$this->loginname = $row['account_login'];
-				$this->password = $row['account_pass'];
-				$this->salt = $row['account_salt'];
-				$this->email = $row['account_email'];
-				$this->isRegistered = $row['account_isRegistered'];
-				$this->groupId = $row['account_groupId'];
-			}
-			
+			//$userResult = $this->conn->query($userSQL);
+			$userResult = $this->load($userId);
+						
 			$this->constr = true;
 		}
 	}
@@ -218,10 +211,10 @@ class account extends model
 			echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">User List</a> > <a href="admin.php?type=account&action=update&p=' . $userId . '">User</a><br /><br />';
 
 		echo '
-			<form action="admin.php?type=account&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=account&action=' . (($this->getId() == null) ? "insert" : "update") . '&p=' . $this->getId() . '" method="post">
 
 			<label for="username">Username:</label><br />
-			<input name="username" id="username" class="cms_username"type="text" maxlength="150" value="' . $this->loginname . '" ' . ($this->loginname != null ? "readonly=readonly" : "") . ' />
+			<input name="username" id="username" class="cms_username"type="text" maxlength="150" value="' . $this->getLoginname() . '" ' . ($this->getLoginname() != null ? "readonly=readonly" : "") . ' />
 			<div class="clear"></div>
 			<br />
 					
@@ -236,11 +229,11 @@ class account extends model
 			<br />		
 					
 			<label for="email">Email Address:</label><br />
-			<input name="email" id="email" type="text" maxlength="150" value="' . $this->email . '" />
+			<input name="email" id="email" type="text" maxlength="150" value="' . $this->getEmail() . '" />
 			<div class="clear"></div>
 											
 			<label for="groupId">Permission Group:</label><br />';
-			echo getFormattedGroups($this->conn, "dropdown", "groupId", $this->groupId);
+			echo getFormattedGroups($this->conn, "dropdown", "groupId", $this->getGroupId());
 			echo '
 			<div class="clear"></div>
 			<br />
@@ -248,7 +241,7 @@ class account extends model
 				
 			<br />
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($userId) || $userId == null) ? "Create" : "Update") . ' This User!" /><br /><br />
-			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=account&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
+			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=account&action=delete&p=' . $this->getId() . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
 			</form>
 		';
 	}
@@ -397,8 +390,10 @@ class account extends model
 	 *
 	 */
 	public function buildTable() {
+		$this->persist();
+		
 		/*Table structure for table `users` */
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
+		/*$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
 		  `id` int(16) NOT NULL AUTO_INCREMENT,
 		  `account_login` varchar(64) DEFAULT NULL,
 		  `account_pass` varchar(64) DEFAULT NULL,
@@ -411,13 +406,13 @@ class account extends model
 				
 		  PRIMARY KEY (`id`)
 		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
+		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");*/
 	
 	}
 	
 	public function checkPermission($model, $change) {
 		$ret = false;
-		$permissions = getRecords($this->conn, "permission", array("*"), "permission_model='$model' AND permission_groupId=" . $this->groupId, $order=null);
+		$permissions = getRecords($this->conn, "permission", array("*"), "permission_model='$model' AND permission_groupId=" . $this->getGroupId(), $order=null);
 
 		if($permissions != false) {
 			$data = mysqli_fetch_assoc($permissions);

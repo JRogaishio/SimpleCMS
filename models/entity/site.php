@@ -9,19 +9,26 @@
 class site extends model
 {
 	// Properties
-	protected $id = null;
-	protected $name = null;
-	protected $linkFormat = null;
+	//protected $id = null;
+	//protected $name = null;
+	//protected $linkFormat = null;
 
+	// Properties
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
+	protected $linkFormat = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"linkFormat");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
+	
+	
 	//Getters
-	public function getId() {return $this->id;}
-	public function getName() {return $this->name;}
-	public function getLinkFormat() {return $this->linkFormat;}
+	//public function getId() {return $this->id;}
+	//public function getName() {return $this->name;}
+	//public function getLinkFormat() {return $this->linkFormat;}
 	
 	//Setters
-	public function setId($val) {$this->id = $val;}
-	public function setName($val) {$this->name = $val;}
-	public function setLinkFormat($val) {$this->linkFormat = $val;}
+	//public function setId($val) {$this->id = $val;}
+	//public function setName($val) {$this->name = $val;}
+	//public function setLinkFormat($val) {$this->linkFormat = $val;}
 
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array

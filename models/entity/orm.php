@@ -6,13 +6,48 @@
  	
  	/*
  	 * Saves the class name and the database connection object
- 	*
- 	* @param $conn	The database connection object
+ 	 * 
+ 	 * @param $conn	The database connection object
  	*/
  	public function __construct($conn) {
  		$this->table = get_class($this);
  		$this->conn = $conn;
  	}
+ 	
+ 	/*
+ 	 * Used as a getter / setter incase not already defined
+ 	 * 
+ 	 * @param $name			The name of the function called that doesn't exist
+ 	 * @param $arguments	Arguments sent to the function
+ 	 * 
+ 	 * @return Retuns true if the function was successful
+ 	 */
+ 	public function __call($name, $arguments)
+ 	{
+ 		$code = substr($name, 0, 3);
+ 	
+ 		if($code == "get") {
+ 			$var = substr($name, 3);
+ 			$var = lcfirst($var); //Set the first letter to lowercase for convention
+ 			
+ 			if(isset($this->$var)) {
+ 				return $this->get($this->$var);
+ 			} else {
+ 				return false;
+ 			}
+ 		} else if($code == "set") {
+ 			$var = substr($name, 3);
+ 			$var = lcfirst($var); //Set the first letter to lowercase for convention
+ 					
+ 			if(isset($this->$var) && isset($arguments[0])) {
+ 				$this->set($this->$var, $arguments[0]);
+ 				return true;
+ 			} else {
+ 				return false;
+ 			}
+ 		}
+ 	}
+ 	
  	
  	/*
  	 * Loads the object from the database based on an id
@@ -190,7 +225,7 @@
  	 * @return Returns the wrapped value if needed
  	*/
  	private function sqlWrap($val, $type) {
- 		$wrappedTypes = array("CHAR", "VARCHAR", "TEXT", "TINYTEXT");
+ 		$wrappedTypes = array("CHAR", "VARCHAR", "TEXT", "TINYTEXT", "DATETIME");
  		
  		if(in_array(strtoupper($type), $wrappedTypes) == true) {
  			$val = "'" . $val . "'";

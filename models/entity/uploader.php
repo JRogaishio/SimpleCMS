@@ -1,7 +1,14 @@
 <?php
 
 class uploader extends model {
-
+	// Properties
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $filename = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"filename");
+	protected $fileType = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"fileType");
+	protected $fileSize = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"fileSize");
+	protected $fileDate = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"fileDate");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
+	
     public function buildEditForm() {
         echo "<br />
 			<form action='?type=uploader&action=upload' method='post' enctype='multipart/form-data'>

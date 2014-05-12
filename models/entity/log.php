@@ -8,6 +8,16 @@
  */
 class log extends model
 {
+	// Properties
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $model = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"model");
+	protected $action = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"action");
+	protected $accountId = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"accountId");
+	protected $loginname = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"loginname");
+	protected $info = array("orm"=>true, "datatype"=>"text", "field"=>"info");
+	protected $actionDate = array("orm"=>true, "datatype"=>"datetime", "field"=>"actionDate");
+	protected $remoteIp = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"remoteIp");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
 	/**
 	 * Inserts any changes in the log database table

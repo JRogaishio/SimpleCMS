@@ -8,7 +8,24 @@
  */
 class authenticate extends model
 {
-
+	// Properties
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $login = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"login");
+	protected $attemptTime= array("orm"=>true, "datatype"=>"varchar", "length"=>32, "field"=>"attemptTime");
+	protected $ip = array("orm"=>true, "datatype"=>"varchar", "length"=>16, "field"=>"ip");
+	
+	//Getters
+	/*public function getId() {return $this->get($this->id);}
+	public function getLogin() {return $this->get($this->login);}
+	public function getAttemptTime() {return $this->get($this->attemptTime);}
+	public function getIp() {return $this->get($this->ip);}
+	
+	//Setters
+	public function setId($val) {$this->set($this->id, $val);}
+	public function setLogin($val) {$this->set($this->login, $val);}
+	public function setAttemptTime($val) {$this->set($this->attemptTime, $val);}
+	public function setIp($val) {$this->set($this->ip, $val);}*/
+	
 	/**
 	 * Checks the IP address and returns the number of minutes you need to wait
 	 *
