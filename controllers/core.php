@@ -242,40 +242,40 @@ class core {
 	 */
 	private function buildDB() {
 		$auth = new authenticate($this->_CONN, $this->_LOG);
-		$auth->buildTable();
+		$auth->persist();
 		
 		$page = new page($this->_CONN, $this->_LOG);
-		$page->buildTable();
+		$page->persist();
 	
 		$post = new post($this->_CONN, $this->_LOG);
-		$post->buildTable();
+		$post->persist();
 	
 		$template = new template($this->_CONN, $this->_LOG);
-		$template->buildTable();
+		$template->persist();
 	
 		$permission = new permission($this->_CONN, $this->_LOG);
-		$permission->buildTable();
+		$permission->persist();
 		
 		$permissiongroup = new permissiongroup($this->_CONN, $this->_LOG);
-		$permissiongroup->buildTable();
+		$permissiongroup->persist();
 
 		$user = new account($this->_CONN, $this->_LOG);
-		$user->buildTable();
+		$user->persist();
 		
 		$site = new site($this->_CONN, $this->_LOG);
-		$site->buildTable();
+		$site->persist();
 		
 		$customkey = new customkey($this->_CONN, $this->_LOG);
-		$customkey->buildTable();
+		$customkey->persist();
 	
 		$log = new log($this->_CONN, $this->_LOG);
-		$log->buildTable();
+		$log->persist();
 	
 		$plugin = new plugin($this->_CONN, $this->_LOG);
-		$plugin->buildTable();
+		$plugin->persist();
 				
 		$uploader = new uploader($this->_CONN, $this->_LOG);
-		$uploader->buildTable();
+		$uploader->persist();
 	}
 	
 	/**
