@@ -76,7 +76,7 @@ class site extends model
 	 * 
 	 * @param $siteId	The site to be loaded
 	 */
-	public function loadRecord($siteId) {
+	public function loadRecord($siteId, $c=null) {
 		//Set a field to use by the logger
 		$this->logField = $this->getTitle();
 		

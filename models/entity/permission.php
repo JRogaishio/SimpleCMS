@@ -9,15 +9,6 @@
 class permission extends model
 {
 	// Properties
-	/*protected $id = null;
-	protected $groupId = null;
-	protected $model = null;
-	protected $readAction = null;
-	protected $insertAction = null;
-	protected $updateAction = null;
-	protected $deleteAction = null;*/
-	
-	// Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $groupId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"groupId");
 	protected $model = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"model");
@@ -27,24 +18,6 @@ class permission extends model
 	protected $deleteAction = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"deleteAction");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
-	//Getters
-	/*public function getId() {return $this->id;}
-	public function getGroupId() {return $this->groupId;}
-	public function getModel() {return $this->model;}
-	public function getRead() {return $this->read;}
-	public function getInsert() {return $this->insert;}
-	public function getUpdate() {return $this->update;}
-	public function getDelete() {return $this->delete;}
-	
-	//Setters
-	public function setId($val) {$this->id = $val;}
-	public function setGroupId($val) {$this->groupId = $val;}
-	public function setModel($val) {$this->model = $val;}
-	public function setRead($val) {$this->read = $val;}
-	public function setInsert($val) {$this->insert = $val;}
-	public function setUpdate($val) {$this->update = $val;}
-	public function setDelete($val) {$this->delete = $val;}*/
-
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -137,7 +110,7 @@ class permission extends model
 	 * 
 	 * @param $templateId	The template to be loaded
 	 */
-	public function loadRecord($groupId) {
+	public function loadRecord($groupId, $c=null) {
 		//Set a field to use by the logger
 		$this->logField = &$this->id;
 		

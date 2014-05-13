@@ -110,7 +110,7 @@ class customkey extends model
 	 * 
 	 * @param $keyId	The key to be loaded
 	 */
-	public function loadRecord($keyId) {
+	public function loadRecord($keyId, $c=null) {
 		//Set a field to use by the logger
 		$this->logField = $this->getKeyValue();
 		

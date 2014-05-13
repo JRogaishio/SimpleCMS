@@ -116,7 +116,7 @@ class template extends model
 	 * 
 	 * @param $templateId	The template to be loaded
 	 */
-	public function loadRecord($templateId) {
+	public function loadRecord($templateId, $c=null) {
 		//Set a field to use by the logger
 		$this->logField = $this->getTitle();
 		

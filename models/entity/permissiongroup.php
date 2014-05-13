@@ -154,7 +154,7 @@ class permissiongroup extends model
 	 * 
 	 * @param $templateId	The template to be loaded
 	 */
-	public function loadRecord($groupId) {
+	public function loadRecord($groupId, $c=null) {
 		//Set a field to use by the logger
 		$this->logField = &$this->name;
 		

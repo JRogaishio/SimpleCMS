@@ -27,7 +27,7 @@ function lookupPageNameById($conn, $pageId) {
 	$name = null;
 	if(mysqli_num_rows($pageResult) > 0) {
 		$row = mysqli_fetch_assoc($pageResult);
-		$name = $row['page_title'];
+		$name = $row['title'];
 	}
 	
 	return $name;
@@ -92,7 +92,7 @@ function lookupPageIdByLink($conn, $pageLink) {
  */
 function getFormattedPages($conn, $format, $eleName, $defaultVal) {
 
-	$pageSQL = "SELECT * FROM page ORDER BY page_created DESC";
+	$pageSQL = "SELECT * FROM page ORDER BY created DESC";
 	$pageResult =  $conn->query($pageSQL);
 	$formattedData = "";
 	if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 ) {
@@ -104,7 +104,7 @@ function getFormattedPages($conn, $format, $eleName, $defaultVal) {
 					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupPageNameById($conn, $defaultVal) . "--</option>";
 				
 				while($row = mysqli_fetch_assoc($pageResult) ) {
-					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['page_title']) . "</option>";
+					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['title']) . "</option>";
 				}
 				$formattedData .= "</select>";
 				

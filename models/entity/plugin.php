@@ -9,11 +9,6 @@
 class plugin extends model
 {
 	// Properties
-	/*protected $id = null;
-	protected $path = null;
-	protected $file = null;*/
-	
-	// Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $path = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"path");
 	protected $filename = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"filename");
@@ -112,7 +107,7 @@ class plugin extends model
 	 * 
 	 * @param $pluginId	The plugin to be loaded
 	 */
-	public function loadRecord($pluginId) {
+	public function loadRecord($pluginId, $c=null) {
 		//Set a field to use by the logger
 		$this->logField = &$this->name;
 		

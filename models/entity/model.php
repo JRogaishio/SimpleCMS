@@ -34,7 +34,7 @@ class model extends orm {
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {
-		$this->loadRecord($parent);
+		$this->loadRecord($parent, $child);
 		$ret = false;
 		switch($action) {
 			case "read":
@@ -57,7 +57,12 @@ class model extends orm {
 						if(!$result) {
 							$this->buildEditForm($parent, $child, $user);
 						} else {
-							$this->buildEditForm(getLastField($this->conn,$this->table, "id"), $child, $user);
+							if($parent == null)
+								$parent = getLastField($this->conn,$this->table, "id");
+							else if($child == null)
+								$child = getLastField($this->conn,$this->table, "id");
+								
+							$this->buildEditForm($parent, $child, $user);
 							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->logField . " added");
 						}
 					} else {

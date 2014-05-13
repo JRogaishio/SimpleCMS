@@ -150,7 +150,7 @@ class page extends model
 	/**
 	 * Loads the page object members based off the page id in the database
 	 */
-	public function loadRecord($pageId) {
+	public function loadRecord($pageId, $c=null) {
 		//Set a field to use by the logger
 		$this->logField = $this->getTitle();
 		
@@ -231,7 +231,7 @@ class page extends model
 		echo $this->display_pagePosts($pageId);
 		
 		if(isset($pageId) && $pageId != null)
-			echo "<p><a href=\"{$_SERVER['PHP_SELF']}?type=post&action=update&p=" . $this->getId() . "\" class=\"actionLink\">Add a New Post</a><br /></p>";
+			echo "<p><a href=\"{$_SERVER['PHP_SELF']}?type=post&action=insert&p=" . $this->getId() . "\" class=\"actionLink\">Add a New Post</a><br /></p>";
 
 	}
 
@@ -242,20 +242,20 @@ class page extends model
 	 */
 	private function display_pagePosts($pageId) {
 		if($pageId != null) {
-			$postSQL = "SELECT * FROM post WHERE page_id=$pageId ORDER BY post_created ASC";
+			$postSQL = "SELECT * FROM post WHERE pageId=$pageId ORDER BY created ASC";
 			$postResult = $this->conn->query($postSQL);
 			$entry_display = "";
 			
 			if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
 				while($row = mysqli_fetch_assoc($postResult) ) {
 					
-					$title = stripslashes($row['post_title']);
-					$postDate = stripslashes($row['post_date']);
+					$title = stripslashes($row['title']);
+					$postDate = stripslashes($row['createdDate']);
 
 					$entry_display .= "
 					<div class=\"page\">
 					<h3>
-					<a href=\"admin.php?type=post&action=update&p=".$row['page_id']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >$title</a>
+					<a href=\"admin.php?type=post&action=update&p=".$row['pageId']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >$title</a>
 					</h3>
 					<p>
 					" . $postDate . "

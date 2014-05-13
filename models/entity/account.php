@@ -156,7 +156,7 @@ class account extends model
 	 * 
 	 * @param $userId	The user to be loaded
 	 */
-	public function loadRecord($userId) {
+	public function loadRecord($userId, $c=null) {
 		//Set a field to use by the logger
 		$this->logField = $this->getLoginname();
 		
