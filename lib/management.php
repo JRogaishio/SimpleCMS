@@ -256,7 +256,7 @@ function get_linkFormat($conn) {
 
 	if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {
 		$siteData = mysqli_fetch_assoc($siteResult);
-		return $siteData['linkFormat'];
+		return $siteData['urlFormat'];
 	} else {
 		return false;
 	}

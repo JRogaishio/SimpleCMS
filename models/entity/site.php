@@ -9,27 +9,11 @@
 class site extends model
 {
 	// Properties
-	//protected $id = null;
-	//protected $name = null;
-	//protected $linkFormat = null;
-
-	// Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
-	protected $linkFormat = array("orm"=>true, "datatype"=>"varchar", "length"=>32, "field"=>"linkFormat");
+	protected $urlFormat = array("orm"=>true, "datatype"=>"varchar", "length"=>32, "field"=>"urlFormat");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
-	
-	//Getters
-	//public function getId() {return $this->id;}
-	//public function getName() {return $this->name;}
-	//public function getLinkFormat() {return $this->linkFormat;}
-	
-	//Setters
-	//public function setId($val) {$this->id = $val;}
-	//public function setName($val) {$this->name = $val;}
-	//public function setLinkFormat($val) {$this->linkFormat = $val;}
-
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -37,14 +21,12 @@ class site extends model
 	 */
 	public function storeFormValues ($params) {
 		//Set the data to variables if the post data is set
-
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['name'])) $this->setName(clean($this->conn, $params['name']));
-		if(isset($params['linkFormat'])) $this->setLinkFormat(clean($this->conn, $params['linkFormat']));
+		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
+		if(isset($params['urlFormat'])) $this->setUrlFormat(clean($this->conn, $params['urlFormat']));
 		$this->constr = true;
 	}
 
-	
 	/**
 	 * validate the fields
 	 *
@@ -53,7 +35,7 @@ class site extends model
 	private function validate() {
 		$ret = "";
 	
-		if($this->name == "") {
+		if($this->getTitle() == "") {
 			$ret = "Please enter a site name.";
 		}
 	
@@ -121,13 +103,13 @@ class site extends model
 		echo '
 			<form action="admin.php?type=site&action=' . (($this->getId() == null) ? "insert" : "update") . '&p=' . $this->getId() . '" method="post">
 
-			<label for="name" title="This is ...">Site name:</label><br />
-			<input name="name" id="name" type="text" maxlength="150" value="' . $this->getTitle() . '" />
+			<label for="title" title="This is ...">Site name:</label><br />
+			<input name="title" id="title" type="text" maxlength="150" value="' . $this->getTitle() . '" />
 			<div class="clear"></div>
 
-			<label for="linkFormat" title="This is the link format">Link format:</label><br />
-			<select name="linkFormat" id="linkFormat">
-				<option selected value="' . $this->getLinkFormat() . '">-- ' .($this->getLinkFormat()=="clean"?"website.com/page/MyPage":($this->getLinkFormat()=="raw"?"website.com/index.php?p=MyPage":"ERROR - UNKNOWN FORMAT TYPE")) . ' --</option>
+			<label for="urlFormat" title="This is the link format">Link format:</label><br />
+			<select name="urlFormat" id="urlFormat">
+				<option selected value="' . $this->getUrlFormat() . '">-- ' .($this->getUrlFormat()=="clean"?"website.com/page/MyPage":($this->getUrlFormat()=="raw"?"website.com/index.php?p=MyPage":"ERROR - UNKNOWN FORMAT TYPE")) . ' --</option>
 				<option value="clean">website.com/page/MyPage</option>
 				<option value="raw">website.com/index.php?p=MyPage</option>
 			</select>
@@ -226,7 +208,7 @@ class site extends model
 		/*Insert site data for `site` if we dont have one already*/
 		if(countRecords($this->conn, $this->table) == 0) {
 			$this->setTitle('My FerretCMS Website');
-			$this->setLinkFormat('clean');
+			$this->setUrlFormat('clean');
 			$this->setCreated(time());
 			$this->save();
 		}

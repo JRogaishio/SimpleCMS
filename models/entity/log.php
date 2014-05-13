@@ -40,8 +40,8 @@ class log extends model
 		$this->setInfo($change);
 		$this->setActionDate(date('Y-m-d H:i:s'));
 		$this->setRemoteIp($_SERVER['REMOTE_ADDR']);
-		
-		$result = $this->setCreated(time());
+		$this->setCreated(time());
+		$result = $this->save();
 
 		return $result;
 	}
@@ -90,7 +90,7 @@ class log extends model
 	 */
 	public function displayModelList() {
 		$resultList = "";
-		$logSQL = "SELECT * FROM " . $this->table . " ORDER BY log_created DESC;";
+		$logSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC;";
 		$logResult = $this->conn->query($logSQL);
 	
 		if ($logResult !== false && mysqli_num_rows($logResult) > 0 ) {
@@ -101,7 +101,7 @@ class log extends model
 			<tr><th>User</th><th>Type</th><th>Details</th><th>Date</th><th>IP Address</th></tr>
 			";
 			while($row = mysqli_fetch_assoc($logResult))
-				$resultList .= "<tr><td>" . $row['log_user'] . "</td><td>" . $row['log_type'] . "</td><td>" . $row['log_info'] . "</td><td>" . $row['log_date'] . "</td><td>". $row['log_remoteIp'] . "</td></tr>";
+				$resultList .= "<tr><td>" . $row['loginname'] . "</td><td>" . $row['model'] . "</td><td>" . $row['info'] . "</td><td>" . $row['actionDate'] . "</td><td>". $row['remoteIp'] . "</td></tr>";
 				
 			$resultList .= "</table>";
 				
