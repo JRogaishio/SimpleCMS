@@ -252,6 +252,7 @@ class core {
 	
 		$template = new template($this->_CONN, $this->_LOG);
 		$template->persist();
+		$template->populate();
 	
 		$permission = new permission($this->_CONN, $this->_LOG);
 		$permission->persist();

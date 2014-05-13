@@ -173,7 +173,7 @@ function lookupTemplateNameById($conn, $templateId) {
 	
 	if(mysqli_num_rows($templateResult) > 0) {
 		$row = mysqli_fetch_assoc($templateResult);
-		$name = $row['template_name'];
+		$name = $row['title'];
 	}
 
 	return $name;
@@ -191,7 +191,7 @@ function lookupTemplateNameById($conn, $templateId) {
  */
 function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
 
-	$templateSQL = "SELECT * FROM template ORDER BY template_created DESC";
+	$templateSQL = "SELECT * FROM template ORDER BY created DESC";
 	$templateResult =  $conn->query($templateSQL);
 	$formattedData = "";
 
@@ -204,7 +204,7 @@ function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
 					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupTemplateNameById($conn, $defaultVal) . "--</option>";
 				
 				while($row = mysqli_fetch_assoc($templateResult) ) {
-					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['template_name']) . "</option>";
+					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['title']) . "</option>";
 				}
 				$formattedData .= "</select>";
 				

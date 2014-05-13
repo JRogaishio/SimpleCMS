@@ -15,20 +15,6 @@ class template extends model
 	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
-	//Getters
-	/*public function getId() {return $this->get($this->id);}
-	public function getPath() {return $this->get($this->path);}
-	public function getFile() {return $this->get($this->file);}
-	public function getTitle() {return $this->get($this->title);}
-	public function getCreated() {return $this->get($this->created);}
-	
-	//Setters
-	public function setId($val) {$this->set($this->id, $val);}
-	public function setPath($val) {$this->set($this->path, $val);}
-	public function setFile($val) {$this->set($this->file, $val);}
-	public function setTitle($val) {$this->set($this->title, $val);}
-	public function setCreated($val) {$this->set($this->created, $val);}*/
-	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -217,13 +203,11 @@ class template extends model
 	 * Builds the necessary tables for this object
 	 *
 	 */
-	public function buildTable() {
-		$this->persist();
-
+	public function populate() {
 		/*Insert default data for `templates` if we dont have one already*/
 		if(countRecords($this->conn, $this->table) == 0) {
 			$this->setPath('default_example');
-			$this->setFile('index.php');
+			$this->setFilename('index.php');
 			$this->setTitle('Default Example Template');
 			$this->setCreated(time());
 			$this->save();

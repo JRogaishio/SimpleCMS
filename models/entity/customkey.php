@@ -14,18 +14,6 @@ class customkey extends model
 	protected $keyValue = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"keyValue");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
-	//Getters
-	/*public function getId() {return $this->get($this->id);}
-	public function getKey() {return $this->get($this->keyItem);}
-	public function getValue() {return $this->get($this->keyValue);}
-	public function getCreated() {return $this->get($this->created);}
-	
-	//Setters
-	public function setId($val) {$this->set($this->id, $val);}
-	public function setKey($val) {$this->set($this->keyItem, $val);}
-	public function setValue($val) {$this->set($this->keyValue, $val);}
-	public function setCreated($val) {$this->set($this->created, $val);}*/
-	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -35,8 +23,9 @@ class customkey extends model
 		//Set the data to variables if the post data is set
 
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['key'])) $this->key = clean($this->conn, $params['key']);
-		if(isset($params['value'])) $this->value = clean($this->conn, $params['value']);
+		if(isset($params['key'])) $this->setKeyItem(clean($this->conn, $params['key']));
+		if(isset($params['value'])) $this->setKeyValue(clean($this->conn, $params['value']));
+		$this->setCreated(time());
 
 		$this->constr = true;
 	}
@@ -49,9 +38,9 @@ class customkey extends model
 	private function validate() {
 		$ret = "";
 		
-		if($this->key == "") {
+		if($this->getKeyItem() == "") {
 			$ret = "Please enter a key.";
-		} else if($this->value == "") {
+		} else if($this->getKeyValue() == "") {
 			$ret = "Please enter a value for this key";
 		}
 		return $ret;
@@ -68,11 +57,8 @@ class customkey extends model
 		if($this->constr) {
 			$error = $this->validate();
 			if($error == "") {
-			
-				$sql = "INSERT INTO " . $this->table . " (key_name, key_value, key_created) VALUES";
-				$sql .= "('$this->key', '$this->value','" . time() . "')";
+				$result = $this->save();
 
-				$result = $this->conn->query($sql) OR DIE ("Could not create key!");
 				if($result) {
 					echo "<span class='update_notice'>Created key successfully!</span><br /><br />";
 				}
@@ -95,13 +81,8 @@ class customkey extends model
 	public function update() {
 	
 		if($this->constr) {
+			$result = $this->save();
 
-			$sql = "UPDATE " . $this->table . " SET
-			key_name = '$this->key', 
-			key_value = '$this->value' 
-			WHERE id=" . $this->id . ";";
-			
-			$result = $this->conn->query($sql) OR DIE ("Could not update key!");
 			if($result) {
 				echo "<span class='update_notice'>Updated key successfully!</span><br /><br />";
 			}
@@ -119,8 +100,7 @@ class customkey extends model
 	public function delete() {
 		echo "<span class='update_notice'>Key deleted! Bye bye '$this->key', we will miss you.<br />Please be sure to update any pages that were using this key!</span><br /><br />";
 		
-		$keySQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
-		$keyResult = $this->conn->query($keySQL);
+		$keyResult = $this->delete();
 		
 		return $keyResult;
 	}
@@ -132,23 +112,11 @@ class customkey extends model
 	 */
 	public function loadRecord($keyId) {
 		//Set a field to use by the logger
-		$this->logField = &$this->key;
+		$this->logField = $this->getKeyValue();
 		
 		if(isset($keyId) && $keyId != null) {
 			
-			$keySQL = "SELECT * FROM " . $this->table . " WHERE id=$keyId";
-				
-			$keyResult = $this->conn->query($keySQL);
-
-			if ($keyResult !== false && mysqli_num_rows($keyResult) > 0 )
-				$row = mysqli_fetch_assoc($keyResult);
-
-			if(isset($row)) {
-				$this->id = $row['id'];
-				$this->key = $row['key_name'];
-				$this->value = $row['key_value'];
-			}
-			
+			$this->load($keyId);
 			$this->constr = true;
 		}
 	
@@ -168,20 +136,20 @@ class customkey extends model
 
 		
 		echo '
-			<form action="admin.php?type=customkey&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=customkey&action=' . (($this->getId() == null) ? "insert" : "update") . '&p=' . $this->getId() . '" method="post">
 
 			<label for="key" title="This is the key name">Key name:</label><br />
-			<input name="key" id="key" type="text" maxlength="150" value="' . $this->key . '" />
+			<input name="key" id="key" type="text" maxlength="150" value="' . $this->getKeyItem() . '" />
 			<div class="clear"></div>
 
 			<label for="value" title="This is value of the key">Value:</label><br />
-			<input name="value" id="value" type="text" maxlength="150" value="' . $this->value . '" />
+			<input name="value" id="value" type="text" maxlength="150" value="' . $this->getKeyValue() . '" />
 			<div class="clear"></div>
 
 			<div class="clear"></div>
 			<br />
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($keyId) || $keyId == null) ? "Create" : "Update") . ' This Key!" /><br /><br />
-			' . ((isset($keyId) && $keyId != null) ? '<a href="admin.php?type=customkey&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Key!</a><br /><br />' : '') . '
+			' . ((isset($keyId) && $keyId != null) ? '<a href="admin.php?type=customkey&action=delete&p=' . $this->getId() . '"" class="deleteBtn">Delete This Key!</a><br /><br />' : '') . '
 			</form>
 		';
 	}
@@ -193,14 +161,14 @@ class customkey extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=customkey&action=read">Key List</a><br /><br />';
 	
-		$keySQL = "SELECT * FROM " . $this->table . " ORDER BY key_created DESC";
+		$keySQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
 		$keyResult = $this->conn->query($keySQL);
 	
 		if ($keyResult !== false && mysqli_num_rows($keyResult) > 0 ) {
 			while($row = mysqli_fetch_assoc($keyResult) ) {
 	
-				$name = stripslashes($row['key_name']);
-				$value = stripslashes($row['key_value']);
+				$name = stripslashes($row['keyItem']);
+				$value = stripslashes($row['keyValue']);
 	
 				echo "
 				<div class=\"key\">
@@ -217,26 +185,7 @@ class customkey extends model
 				No keys found!
 			</p>";
 		}
-	
-			}
-	
-	/**
-	 * Builds the necessary tables for this object
-	 *
-	 */
-	public function buildTable() {
-		/*Table structure for table `key` */
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `key_name` varchar(128) DEFAULT NULL,
-		  `key_value` text,
-		  `key_created` varchar(128) DEFAULT NULL,
-		
-		  PRIMARY KEY (`id`)
-		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");	
 	}
-	
 }
 
 ?>

@@ -69,8 +69,7 @@ class admin extends core {
 				case "uploader":
 					$obj = new uploader($this->_CONN, $this->_LOG);
 					$obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_AUTH);
-					$this->cms_displayAdminUploads();
-				
+					$obj->displayModelList();
 					break;
 				default:
 					$this->cms_displayMain();

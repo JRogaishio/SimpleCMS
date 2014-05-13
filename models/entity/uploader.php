@@ -26,25 +26,23 @@ class uploader extends model {
     	
     	switch($action) {
     		case "delete":
-	    		$fileData = getRecords($this->conn, "upload", array("*"), "id=$parent");
+	    		$fileData = getRecords($this->conn, "uploader", array("*"), "id=$parent");
 	    		
 	    		//If the file exists, delete it
 	    		if($fileData != false) {
 		    		$data = mysqli_fetch_assoc($fileData);
 		
-		    		if(file_exists("custom/uploads//" . $data["file_name"])) {
-		    			unlink("custom/uploads/" . $data["file_name"]);
+		    		if(file_exists("custom/uploads//" . $data["filename"])) {
+		    			unlink("custom/uploads/" . $data["filename"]);
 		    		} else {
 		    			echo "Could not find file on server. Removing record...<br />";
 		    		}
 		    		
-		    		
-		    		$sql = "DELETE FROM upload WHERE id=$parent";
-		    		
-		    		$result = $this->conn->query($sql) OR DIE ("Could delete file!");
+		    		$this->load($parent);
+		    		$this->delete();
 
 		    		echo "File deleted successfully.<br /><br />";
-		    		$this->log->trackChange("uploader", 'delete',$user->getId(),$user->getLoginname(), "Deleted file: " . $data["file_name"]);
+		    		$this->log->trackChange("uploader", 'delete',$user->getId(),$user->getLoginname(), "Deleted file: " . $data["filename"]);
 	    		} else {
 	    			echo "Could not delete file. Reason: Could not find file in database with ID: $parent!<br /><br />";
 	    		}
@@ -67,10 +65,12 @@ class uploader extends model {
 		    			move_uploaded_file($_FILES["file"]["tmp_name"], "custom/uploads/" . $name);
 		    			echo "File uploaded successfully!<br /><br />";
 	
-		    			$sql = "INSERT INTO upload (file_name, file_type, file_size, file_date, file_created) VALUES";
-		    			$sql .= "('" . $name . "', '" . $_FILES["file"]["type"] . "', '" . $_FILES["file"]["size"] . "', '" . date('Y-m-d H:i:s') . "','" . time() . "')";
-		    			
-		    			$result = $this->conn->query($sql) OR DIE ("Could not write to file table!");    
+		    			$this->setFilename($name);
+						$this->setFileType($_FILES["file"]["type"]);
+						$this->setFileSize($_FILES["file"]["size"]);
+						$this->setFileDate(date('Y-m-d H:i:s'));
+						$this->setCreated(time());
+						$this->save();
 
 		    			$this->log->trackChange("uploader", 'upload',$user->getId(),$user->getLoginname(), "Uploaded file: " . $name);
 			    	}
@@ -116,7 +116,7 @@ class uploader extends model {
      *
      */
     public function displayModelList() {
-    	$fileData = getRecords($this->conn, "upload", array("*"));
+    	$fileData = getRecords($this->conn, "uploader", array("*"));
     
     	echo "<div class=\"upload\">";
     
@@ -126,16 +126,14 @@ class uploader extends model {
     			
     		while($row = mysqli_fetch_assoc($fileData) ) {
     			$id = stripslashes($row['id']);
-    			$name = stripslashes($row['file_name']);
-    			$type = stripslashes($row['file_type']);
-    			$size = stripslashes($row['file_size']);
-    			$date = stripslashes($row['file_date']);
+    			$name = stripslashes($row['filename']);
+    			$type = stripslashes($row['fileType']);
+    			$size = stripslashes($row['fileSize']);
+    			$date = stripslashes($row['fileDate']);
     
     			//Format size to MB
     			$size = round(($size / 1024 / 1024), 2);
-    
-    
-    
+        
     			echo "
 				<tr><td>";
     			echo (strpos($type, "image/") !== false ? "<img src='custom/uploads/$name' height='40' width='40' />" : "" );
@@ -153,25 +151,6 @@ class uploader extends model {
     				echo "No files uploaded yet...";
 		}
 		echo "</div>";
-    }
-    
-    /**
-     * Builds the necessary tables for this object
-     *
-     */
-    public function buildTable() {
-    	/*Table structure for table `upload` */
-    	$sql = "CREATE TABLE IF NOT EXISTS `upload` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `file_name` varchar(255) DEFAULT NULL,
-		  `file_type` varchar(64) DEFAULT NULL,
-		  `file_size` int(255) DEFAULT NULL,
-		  `file_date` datetime DEFAULT NULL,
-		  `file_created` varchar(128) DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-    	$this->conn->query($sql) OR DIE ("Could not build table \"file\"");
-    
     }
 }
 

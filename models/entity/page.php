@@ -17,29 +17,7 @@ class page extends model
 	protected $flags = array("orm"=>true, "datatype"=>"text", "field"=>"flags");
 	protected $isHome = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"isHome");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
-	
-	//Getters
-	/*public function getId() {return $this->id;}
-	public function getTitle() {return $this->title;}
-	public function getTemplate() {return $this->template;}
-	public function getTemplatePath() {return $this->templatePath;}
-	public function getSafeLink() {return $this->safeLink;}
-	public function getMetaData() {return $this->metaData;}
-	public function getFlags() {return explode(",", $this->flags);}
-	public function getIsHome() {return $this->isHome;}
-	public function getConstr() {return $this->constr;}
-
-	//Setters
-	public function setId($val) {$this->id = $val;}
-	public function setTitle($val) {$this->title = $val;}
-	public function setTemplate($val) {$this->template = $val;}
-	public function setTemplatePath($val) {$this->templatePath = $val;}
-	public function setSafeLink($val) {$this->safeLink = $val;}
-	public function setMetaData($val) {$this->metaData = $val;}
-	public function setFlags($arr=array()) {$this->flags = implode(",", $arr);}
-	public function setIsHome($val) {$this->isHome = $val;}
-	public function setConstr($val) {$this->constr = $val;}*/
-	
+		
 	/**
 	 * Returns true if the flag exists or false if it doesnt
 	 * 
@@ -60,15 +38,14 @@ class page extends model
 	 */
 	public function storeFormValues ($params) {
 		//Set the data to variables if the post data is set
-
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['id'])) $this->id = (int) clean($this->conn, $params['id']);
-		if(isset($params['title'])) $this->title = clean($this->conn, $params['title']);
-		if(isset($params['template'])) $this->template = clean($this->conn, $params['template']);
-		if(isset($params['safelink'])) $this->safeLink = clean($this->conn, $params['safelink']);
-		if(isset($params['metadata'])) $this->metaData = clean($this->conn, $params['metadata']);
-		if(isset($params['flags'])) $this->flags = clean($this->conn, $params['flags']);
-		if(isset($params['homepage'])) $this->isHome = (int) clean($this->conn, $params['homepage']);
+		if(isset($params['id'])) $this->getId(clean($this->conn, $params['id']));
+		if(isset($params['title'])) $this->getTitle(clean($this->conn, $params['title']));
+		if(isset($params['template'])) $this->getTemplate(clean($this->conn, $params['template']));
+		if(isset($params['safelink'])) $this->getSafeLink(clean($this->conn, $params['safelink']));
+		if(isset($params['metadata'])) $this->getMetaData(clean($this->conn, $params['metadata']));
+		if(isset($params['flags'])) $this->getFlags(clean($this->conn, $params['flags']));
+		if(isset($params['homepage'])) $this->getIsHome(clean($this->conn, $params['homepage']));
 		$this->constr = true;
 	}
 
@@ -80,13 +57,13 @@ class page extends model
 	private function validate() {
 		$ret = "";
 	
-		if($this->title == "") {
+		if($this->getTitle() == "") {
 			$ret = "Please enter a title.";
-		} else if($this->safeLink == "") {
+		} else if($this->getSafeLink() == "") {
 			$ret = "Please enter a safelink.";
-		} else if(strpos($this->safeLink, " ") !== false) {
+		} else if(strpos($this->getSafeLink(), " ") !== false) {
 			$ret = "The safelink cannot contain any spaces.";
-		} else if(preg_match("/^(SYS_)/", strtoupper($this->safeLink))) {
+		} else if(preg_match("/^(SYS_)/", strtoupper($this->getSafeLink()))) {
 			$ret = "Error! Cannot create a new page with SYS_ prefix as the safe link. This is reserved for system pages!";
 		}
 	
@@ -110,7 +87,7 @@ class page extends model
 				}
 				
 				$sql = "INSERT INTO " . $this->table . " (page_template, page_safeLink, page_meta, page_title, page_flags, page_isHome, page_created) VALUES";
-				$sql .= "('$this->template', '$this->safeLink', '$this->metaData', '$this->title', '$this->flags', " . convertToBit($this->isHome) . "," . time() . ")";
+				$sql .= "('$this->getTemplate()', '$this->getSafeLink()', '$this->getMetaData()', '$this->getTitle()', '$this->getFlags()', " . convertToBit($this->getIsHome()) . "," . time() . ")";
 
 				$result = $this->conn->query($sql) OR DIE ("Could not create page!");
 				if($result) {
@@ -143,22 +120,7 @@ class page extends model
 					$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
 				}
 			
-				//Update the page SQL
-				$sql = "UPDATE " . $this->table . " SET
-				page_template = '$this->template', 
-				page_safeLink = '$this->safeLink', 
-				page_meta = '$this->metaData', 
-				page_title = '$this->title', 
-				page_flags = '$this->flags', 
-				page_isHome = " . convertToBit($this->isHome) . "
-				WHERE id=" . $this->id . ";";
-
-				$result = $this->conn->query($sql) OR DIE ("Could not update page!");
-				if($result) {
-					echo "<span class='update_notice'>Updated page successfully!</span><br /><br />";
-				} else {
-					$ret = false;
-				}
+				$this->save();
 			} else {
 				$ret = false;
 				echo "<p class='cms_warning'>" . $error . "</p><br />";
@@ -178,10 +140,10 @@ class page extends model
 	public function delete() {
 		echo "<span class='update_notice'>Page deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
 		
-		$pageSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
+		$pageSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->getId();
 		$pageResult = $this->conn->query($pageSQL);
 		
-		$postSQL = "DELETE FROM post WHERE page_id=" . $this->id;
+		$postSQL = "DELETE FROM post WHERE pageId=" . $this->getId();
 		$postResult = $this->conn->query($postSQL);
 	}
 	
@@ -190,7 +152,7 @@ class page extends model
 	 */
 	public function loadRecord($pageId) {
 		//Set a field to use by the logger
-		$this->logField = &$this->title;
+		$this->logField = $this->getTitle();
 		
 		if(isset($pageId) && $pageId != null) {
 			
@@ -205,13 +167,7 @@ class page extends model
 				$row = mysqli_fetch_assoc($pageResult);
 
 			if(isset($row)) {
-				$this->id = $row['id'];
-				$this->title = $row['page_title'];
-				$this->template = $row['page_template'];
-				$this->safeLink = $row['page_safeLink'];
-				$this->metaData = $row['page_meta'];
-				$this->flags = $row['page_flags'];
-				$this->isHome = $row['page_isHome'];
+				$this->load($row['id']);
 			}
 			
 			$this->constr = true;
@@ -229,38 +185,38 @@ class page extends model
 		//Load the page from an ID
 		$this->loadRecord($pageId);
 		
-		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=page&action=read">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $this->id . '">Page</a><br /><br />';
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=page&action=read">Page List</a> > <a href="admin.php?type=page&action=update&p=' . $this->getId() . '">Page</a><br /><br />';
 
 		echo '
-			<form action="admin.php?type=page&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=page&action=' . (($this->getId() == null) ? "insert" : "update") . '&p=' . $this->getId() . '" method="post">
 
 			<label for="title">Title:</label><br />
-			<input name="title" id="title" type="text" class="cms_pageTextHeader" maxlength="150" value="' . $this->title . '" />
+			<input name="title" id="title" type="text" class="cms_pageTextHeader" maxlength="150" value="' . $this->getTitle() . '" />
 			<div class="clear"></div>
 			<br />
 
 			<label for="template">Template:</label><br />
-			' . getFormattedTemplates($this->conn, "dropdown", "template",$this->template) . '
+			' . getFormattedTemplates($this->conn, "dropdown", "template",$this->getTemplate()) . '
 			<div class="clear"></div>
 			<br />
 
 			<label for="safelink">Safe Link:</label><br />
-			<input name="safelink" id="safelink" type="text" maxlength="150" value="' . $this->safeLink . '" />
+			<input name="safelink" id="safelink" type="text" maxlength="150" value="' . $this->getSafeLink() . '" />
 			<div class="clear"></div>
 			<br />
 
 			<label for="metadata">Meta data:</label><br />
-			<input name="metadata" id="metadata" type="text" maxlength="150" value="' . $this->metaData . '" />
+			<input name="metadata" id="metadata" type="text" maxlength="150" value="' . $this->getMetaData() . '" />
 			<div class="clear"></div>
 			<br />
 
 			<label for="flags">Flags (separated by comma):</label><br />
-			<input name="flags" id="flags" type="text" value="' . $this->flags . '" />
+			<input name="flags" id="flags" type="text" value="' . $this->getFlags() . '" />
 			<div class="clear"></div>
 			<br />
 
 			<label for="homepage">Is homepage?:</label><br />
-			<input name="homepage" id="homepage" type="checkbox" value="1" '. ($this->isHome==1?"checked=checked":"") . '/>
+			<input name="homepage" id="homepage" type="checkbox" value="1" '. ($this->getIsHome()==1?"checked=checked":"") . '/>
 			<div class="clear"></div>
 			<br />
 					
