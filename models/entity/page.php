@@ -39,13 +39,13 @@ class page extends model
 	public function storeFormValues ($params) {
 		//Set the data to variables if the post data is set
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['id'])) $this->getId(clean($this->conn, $params['id']));
-		if(isset($params['title'])) $this->getTitle(clean($this->conn, $params['title']));
-		if(isset($params['template'])) $this->getTemplate(clean($this->conn, $params['template']));
-		if(isset($params['safelink'])) $this->getSafeLink(clean($this->conn, $params['safelink']));
-		if(isset($params['metadata'])) $this->getMetaData(clean($this->conn, $params['metadata']));
-		if(isset($params['flags'])) $this->getFlags(clean($this->conn, $params['flags']));
-		if(isset($params['homepage'])) $this->getIsHome(clean($this->conn, $params['homepage']));
+		if(isset($params['id'])) $this->setId(clean($this->conn, $params['id']));
+		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
+		if(isset($params['template'])) $this->setTemplate(clean($this->conn, $params['template']));
+		if(isset($params['safelink'])) $this->setSafeLink(clean($this->conn, $params['safelink']));
+		if(isset($params['metadata'])) $this->setMetaData(clean($this->conn, $params['metadata']));
+		if(isset($params['flags'])) $this->setFlags(clean($this->conn, $params['flags']));
+		if(isset($params['homepage'])) $this->setIsHome(clean($this->conn, $params['homepage']));
 		$this->constr = true;
 	}
 
@@ -80,16 +80,15 @@ class page extends model
 		if($this->constr) {
 			$error = $this->validate();
 			if($error == "") {
-				//Ensure you are not submitting a system page
-				if($this->isHome == 1){
-					$sql = "UPDATE " . $this->table . " SET page_isHome=0";
+				//Set all other pages to be not a homepage
+				if($this->getIsHome() == 1){
+					$sql = "UPDATE " . $this->table . " SET isHome=0";
 					$homeResult = $this->conn->query($sql) OR DIE ("Could not update home page!");
 				}
 				
-				$sql = "INSERT INTO " . $this->table . " (page_template, page_safeLink, page_meta, page_title, page_flags, page_isHome, page_created) VALUES";
-				$sql .= "('$this->getTemplate()', '$this->getSafeLink()', '$this->getMetaData()', '$this->getTitle()', '$this->getFlags()', " . convertToBit($this->getIsHome()) . "," . time() . ")";
-
-				$result = $this->conn->query($sql) OR DIE ("Could not create page!");
+				$this->setCreated(time());
+				$result = $this->save();		
+				
 				if($result) {
 					echo "<span class='update_notice'>Created page successfully!</span><br /><br />";
 				}
@@ -116,11 +115,12 @@ class page extends model
 			if($error == "") {
 				//Reset all home pages since we are setting a new one
 				if($this->isHome == true) {
-					$sql = "UPDATE " . $this->table . " SET page_isHome = false;";
+					$sql = "UPDATE " . $this->table . " SET isHome = false;";
 					$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
 				}
 			
 				$this->save();
+				
 			} else {
 				$ret = false;
 				echo "<p class='cms_warning'>" . $error . "</p><br />";
@@ -221,17 +221,17 @@ class page extends model
 			<br />
 					
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($pageId) || $pageId == null) ? "Create" : "Update") . ' This Page!" /><br /><br />
-			' . ((isset($pageId) && $pageId != null) ? '<a href="admin.php?type=page&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This Page!</a><br /><br />' : '') . '
+			' . ((isset($pageId) && $pageId != null) ? '<a href="admin.php?type=page&action=delete&p=' . $this->getId() . '"" class="deleteBtn">Delete This Page!</a><br /><br />' : '') . '
 			</form>
 		';
-		
+
 		if(isset($pageId) && $pageId != null)
 			echo "<h2>Current Posts</h2><br />";
 		
 		echo $this->display_pagePosts($pageId);
 		
 		if(isset($pageId) && $pageId != null)
-			echo "<p><a href=\"{$_SERVER['PHP_SELF']}?type=post&action=update&p=$this->id\" class=\"actionLink\">Add a New Post</a><br /></p>";
+			echo "<p><a href=\"{$_SERVER['PHP_SELF']}?type=post&action=update&p=" . $this->getId() . "\" class=\"actionLink\">Add a New Post</a><br /></p>";
 
 	}
 
@@ -284,19 +284,19 @@ class page extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=page&action=read">Page List</a><br /><br />';
 	
-		$pageSQL = "SELECT * FROM " . $this->table . " ORDER BY page_created DESC";
+		$pageSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
 		$pageResult = $this->conn->query($pageSQL);
 	
 		if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 ) {
 			while($row = mysqli_fetch_assoc($pageResult) ) {
 	
-				$title = stripslashes($row['page_title']);
-				$safeLink = stripslashes($row['page_safeLink']);
+				$title = stripslashes($row['title']);
+				$safeLink = stripslashes($row['safeLink']);
 	
 				echo "
 				<div class=\"page\">
 					<h2>
-					<a href=\"admin.php?type=page&action=update&p=".$row['id']."\" " . ($row['page_isHome']==1 ? "id='cms_homepageMarker'":"") . " title='" . ($row['page_isHome']==1 ? "Edit / Manage the homepage":"Edit / Manage this page") . "' class=\"cms_pageEditLink\" >$title</a>
+					<a href=\"admin.php?type=page&action=update&p=".$row['id']."\" " . ($row['isHome']==1 ? "id='cms_homepageMarker'":"") . " title='" . ($row['isHome']==1 ? "Edit / Manage the homepage":"Edit / Manage this page") . "' class=\"cms_pageEditLink\" >$title</a>
 						</h2>
 						<p>" . SITE_ROOT . $safeLink . "</p>
 				</div>";
@@ -307,26 +307,6 @@ class page extends model
 				No pages found!
 			</p>";
 		}
-	}
-	
-	/**
-	 * Builds the necessary tables for this object
-	 *
-	 */
-	public function buildTable() {
-		/*Table structure for table `pages` */
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `page_template` int(16) DEFAULT NULL,
-		  `page_safeLink` varchar(32) DEFAULT NULL,
-		  `page_meta` text,
-		  `page_title` varchar(128) DEFAULT NULL,
-		  `page_flags` text,
-		  `page_isHome` tinyint(1) DEFAULT NULL,
-		  `page_created` varchar(128) DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
 	}
 }
 
