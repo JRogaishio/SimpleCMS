@@ -25,7 +25,6 @@ class customkey extends model
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
 		if(isset($params['key'])) $this->setKeyItem(clean($this->conn, $params['key']));
 		if(isset($params['value'])) $this->setKeyValue(clean($this->conn, $params['value']));
-		$this->setCreated(time());
 
 		$this->constr = true;
 	}
@@ -47,77 +46,16 @@ class customkey extends model
 	}
 	
 	/**
-	 * Inserts the current key object into the database
-	 * 
-	 * @return Returns true on validation success or false on failure
-	 * 
-	 */
-	public function insert() {
-		$ret = true;
-		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {
-				$result = $this->save();
-
-				if($result) {
-					echo "<span class='update_notice'>Created key successfully!</span><br /><br />";
-				}
-			} else {
-				$ret = false;
-				echo "<p class='cms_warning'>" . $error . "</p><br />";
-			}
-
-		} else {
-			$ret = false;
-			echo "Failed to load form data!";
-		}
-		return $ret;
-	}
-
-	/**
-	 * Updates the current key object in the database.
-	 * 
-	 */
-	public function update() {
-	
-		if($this->constr) {
-			$result = $this->save();
-
-			if($result) {
-				echo "<span class='update_notice'>Updated key successfully!</span><br /><br />";
-			}
-
-		} else {
-			echo "Failed to load form data!";
-		}
-	}
-
-	/**
-	 * Deletes the current key object from the database.
-	 * 
-	 * @return returns the database result on the delete query
-	 */
-	public function delete() {
-		echo "<span class='update_notice'>Key deleted! Bye bye '$this->key', we will miss you.<br />Please be sure to update any pages that were using this key!</span><br /><br />";
-		
-		$keyResult = $this->delete();
-		
-		return $keyResult;
-	}
-	
-	/**
 	 * Loads the key object members based off the key id in the database
 	 * 
 	 * @param $keyId	The key to be loaded
 	 */
-	public function loadRecord($keyId, $c=null) {
-		//Set a field to use by the logger
-		$this->logField = $this->getKeyValue();
-		
-		if(isset($keyId) && $keyId != null) {
+	public function loadRecord($p=null, $c=null) {
+		if(isset($p) && $p != null) {
+			$this->load($p);
 			
-			$this->load($keyId);
-			$this->constr = true;
+			//Set a field to use by the logger
+			$this->logField = $this->getKeyItem();
 		}
 	
 	}

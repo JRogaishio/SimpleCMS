@@ -111,28 +111,6 @@ class log extends model
 			echo "No logs found?";
 		}
 	}
-	
-	/**
-	 * Builds the necessary tables for this object
-	 *
-	 */
-	public function buildTable() {
-		/*Table structure for table `log` */
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `log_type` varchar(64) DEFAULT NULL,
-		  `log_action` varchar(64) DEFAULT NULL,
-		  `log_accountId` varchar(64) DEFAULT NULL,
-		  `log_user` varchar(64) DEFAULT NULL,
-		  `log_info` text,
-		  `log_date` datetime DEFAULT NULL,
-		  `log_created` varchar(128) DEFAULT NULL,
-		  `log_remoteIp` varchar(64) DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
-		
-	}
 }
 
 ?>
