@@ -8,7 +8,7 @@
  */
 class template extends model
 {
-	// Properties
+	//Persistant Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $path = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"path");
 	protected $filename = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"filename");
@@ -25,7 +25,7 @@ class template extends model
 
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
 		if(isset($params['path'])) $this->setPath(clean($this->conn, $params['path']));
-		if(isset($params['file'])) $this->setFile(clean($this->conn, $params['file']));
+		if(isset($params['file'])) $this->setFilename(clean($this->conn, $params['file']));
 		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
 
 		$this->constr = true;
@@ -43,9 +43,9 @@ class template extends model
 			$ret = "Please enter a folder name in _template/.";
 		} else if(strpos($this->getPath(), " ") !== false) {
 			$ret = "The path cannot contain any spaces.";
-		} else if($this->getFile() == "") {
+		} else if($this->getFilename() == "") {
 			$ret = "Please enter a file to load in template folder (ex. index.php).";
-		} else if(strpos($this->getFile(), " ") !== false) {
+		} else if(strpos($this->getFilename(), " ") !== false) {
 			$ret = "The file cannot contain any spaces.";
 		} else if($this->getTitle() == "") {
 			$ret = "Please enter a title.";
@@ -55,75 +55,16 @@ class template extends model
 	}
 	
 	/**
-	 * Inserts the current template object into the database
-	 */
-	public function insert() {
-		$ret = true;
-		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {	
-				$result = $this->save();
-				if($result) {
-					echo "<span class='update_notice'>Created template successfully!</span><br /><br />";
-				}
-			} else {
-				$ret = false;
-				echo "<p class='cms_warning'>" . $error . "</p><br />";
-			}
-
-		} else {
-			$ret = false;
-			echo "Failed to load form data!";
-		}
-		return $ret;
-	}
-
-	/**
-	 * Updates the current template object in the database.
-	 * 
-	 * @param $templateId	The template Id to update
-	 */
-	public function update() {
-	
-		if($this->constr) {
-			$result = $this->save();
-			
-			if($result) {
-				echo "<span class='update_notice'>Updated template successfully!</span><br /><br />";
-			}
-
-		} else {
-			echo "Failed to load form data!";
-		}
-	}
-
-	/**
-	 * Deletes the current template object from the database.
-	 * 
-	 * @param $templateId	The template to be deleted
-	 * 
-	 * @return returns the database result on the delete query
-	 */
-	public function delete() {
-		echo "<span class='update_notice'>Template deleted! Bye bye '$this->name', we will miss you.<br />Please be sure to update any pages that were using this template!</span><br /><br />";
-
-		$templateResult = $this->delete();
-		return $templateResult;
-	}
-	
-	/**
 	 * Loads the template object members based off the template id in the database
 	 * 
 	 * @param $templateId	The template to be loaded
 	 */
-	public function loadRecord($templateId, $c=null) {
-		//Set a field to use by the logger
-		$this->logField = $this->getTitle();
-		
-		if(isset($templateId) && $templateId != null) {
-			$templateResult = $this->load($templateId);
+	public function loadRecord($p=null, $c=null) {
+		if(isset($p) && $p != null) {
+			$templateResult = $this->load($p);
 
-			$this->constr = true;
+			//Set a field to use by the logger
+			$this->logField = $this->getTitle();
 		}
 	
 	}
@@ -149,7 +90,7 @@ class template extends model
 			<div class="clear"></div>
 
 			<label for="file" title="This is the name of the template php file">Template filename:</label><br />
-			<input name="file" id="file" type="text" maxlength="150" value="' . $this->getFile() . '" />
+			<input name="file" id="file" type="text" maxlength="150" value="' . $this->getFilename() . '" />
 			<div class="clear"></div>
 
 			<label for="title" title="This is the name that will appear when selecting a template">Display name:</label><br />
@@ -171,15 +112,15 @@ class template extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=template&action=read">Template List</a><br /><br />';
 	
-		$templateSQL = "SELECT * FROM " . $this->table . " ORDER BY template_created DESC";
+		$templateSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
 		$templateResult = $this->conn->query($templateSQL);
 	
 		if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 ) {
 			while($row = mysqli_fetch_assoc($templateResult) ) {
 	
-				$name = stripslashes($row['template_name']);
-				$file = stripslashes($row['template_file']);
-				$path = stripslashes($row['template_path']);
+				$name = stripslashes($row['title']);
+				$file = stripslashes($row['filename']);
+				$path = stripslashes($row['path']);
 	
 				echo "
 				<div class=\"template\">
