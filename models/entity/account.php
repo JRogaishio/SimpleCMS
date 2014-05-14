@@ -111,14 +111,7 @@ class account extends model
 				$secPass = hash('sha256',($secPass . get_userSalt($this->conn, $this->loginname)));
 				$this->setPassword($secPass);
 				$this->save();
-				/*
-				$sql = "UPDATE user SET
-				account_login = '$this->loginname', 
-				account_pass = '$secPass', 
-				account_email = '$this->email'
-				WHERE id=" . $this->id . ";";
-	
-				$result = $this->conn->query($sql) OR DIE ("Could not update user!");*/
+
 				if($result) {
 					echo "<span class='update_notice'>Updated user successfully!</span><br /><br />";
 				} else {
@@ -331,14 +324,14 @@ class account extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">Account List</a><br /><br />';
 	
-		$accountSQL = "SELECT * FROM " . $this->table . " ORDER BY account_created DESC";
+		$accountSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
 		$accountResult = $this->conn->query($accountSQL);
 	
 		if ($accountResult !== false && mysqli_num_rows($accountResult) > 0 ) {
 			while($row = mysqli_fetch_assoc($accountResult) ) {
 	
-				$username = stripslashes($row['account_login']);
-				$email = stripslashes($row['account_email']);
+				$username = stripslashes($row['loginname']);
+				$email = stripslashes($row['email']);
 	
 				echo "
 				<div class=\"user\">
@@ -355,31 +348,6 @@ class account extends model
 				No users found!
 			</p>";
 		}
-	
-	}
-	
-	/**
-	 * Builds the necessary tables for this object
-	 *
-	 */
-	public function buildTable() {
-		$this->persist();
-		
-		/*Table structure for table `users` */
-		/*$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `account_login` varchar(64) DEFAULT NULL,
-		  `account_pass` varchar(64) DEFAULT NULL,
-		  `account_salt` varchar(64) DEFAULT NULL,
-		  `account_token` varchar(64) DEFAULT NULL,
-		  `account_email` varchar(128) DEFAULT NULL,
-		  `account_created` varchar(100) DEFAULT NULL,
-		  `account_isRegistered` tinyint(1) DEFAULT NULL,
-		  `account_groupId` int(16) DEFAULT NULL,
-				
-		  PRIMARY KEY (`id`)
-		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");*/
 	
 	}
 	

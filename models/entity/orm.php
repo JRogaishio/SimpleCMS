@@ -81,11 +81,16 @@
  		if ($result !== false && mysqli_num_rows($result) > 0 )
  			$row = mysqli_fetch_assoc($result);
  		
+ 		//Set the loaded SQL data to the object ORM variables
  		if(isset($row)) {
  			foreach(get_object_vars($this) as $var) {
  				if(is_array($var) && isset($var['orm']) && $var['orm'] == true && is_array($this->$var['field'])) {
- 					$newVal = array("value"=>$row[$var['field']]);
- 					$this->$var['field'] = array_merge($this->$var['field'], $newVal);					
+ 					$fieldValue = $row[$var['field']];
+ 					//Convert to a number based on my MySQL datatype, else if not a number it returns a string
+ 					$fieldValue = $this->convertNumber($fieldValue, $var['datatype']);
+
+					$newVal = array("value"=>$fieldValue);
+					$this->$var['field'] = array_merge($this->$var['field'], $newVal);	
  				}
  			}
  			
@@ -232,6 +237,29 @@
  		}
  		
  		return $val;
+ 	}
+ 	
+ 	/*
+ 	 * Determines if the datatype needs to be converted to a php number
+ 	 * 
+ 	 * @param $val	The value needing to be converted
+ 	 * @param $type	The datatype in the database
+ 	 * 
+ 	 * @return Returns the converted value if needed
+ 	*/
+ 	private function convertNumber($val, $type) {
+ 		$intTypes = array("BIGINT", "DECIMAL", "INT", "MEDIUMINT", "SMALLINT", "TINYINT");
+ 		$floatTypes = array("DOUBLE", "FLOAT");
+ 		$ret = null;
+ 		if(in_array(strtoupper($type), $intTypes) == true) {
+ 			$ret = intval($val);
+ 		} else if(in_array(strtoupper($type), $floatTypes) == true) {
+ 			$ret = floatval($val);
+ 		} else {
+ 			$ret = $val;
+ 		}
+ 			
+ 		return $ret;
  	}
  	
  	/*

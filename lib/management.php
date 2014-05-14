@@ -42,12 +42,12 @@ function lookupPageNameById($conn, $pageId) {
  * @return returns the page name selected
  */
 function lookupGroupNameById($conn, $groupId) {
-	$groupSQL = "SELECT permissiongroup_name FROM permissionGroup WHERE id=$groupId";
+	$groupSQL = "SELECT title FROM permissiongroup WHERE id=$groupId";
 	$groupResult =  $conn->query($groupSQL);
 	$name = null;
 	if(mysqli_num_rows($groupResult) > 0) {
 		$row = mysqli_fetch_assoc($groupResult);
-		$name = $row['permissiongroup_name'];
+		$name = $row['title'];
 	}
 
 	return $name;
