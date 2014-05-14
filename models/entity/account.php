@@ -33,8 +33,13 @@ class account extends model
 		if(isset($params['password2'])) $this->password2 = clean($this->conn, $params['password2']);
 		if(isset($params['email'])) $this->setEmail(clean($this->conn, $params['email']));
 		if(isset($params['groupId'])) $this->setGroupId(clean($this->conn, $params['groupId']));
-
-		$this->constr = true;
+		
+		//Reset the users salt and build the password
+		$salt = unique_salt();
+		$secPass = hash('sha256',$this->getPassword());
+		$secPass = hash('sha256',($secPass . $salt));
+		$this->setPassword($secPass);
+		$this->setSalt($salt);
 	}
 
 	/**
@@ -42,9 +47,9 @@ class account extends model
 	 * 
 	 * @return Returns true or false based on validation checks
 	 */
-	private function validate() {
+	protected function validate() {
 		$ret = "";
-		
+
 		if($this->getLoginname() == "") {
 			$ret = "Please enter a username.";
 		} else if($this->getPassword() == "") {
@@ -61,105 +66,17 @@ class account extends model
 	}
 	
 	/**
-	 * Inserts the current user object into the database
-	 * 
-	 * @return Returns true on insert success
-	 */
-	public function insert() {
-		$ret = true;
-		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {
-				$salt = unique_salt();
-				$secPass = hash('sha256',$this->getPassword());
-				$secPass = hash('sha256',($secPass . $salt));
-				$this->setPassword($secPass);
-				$this->setSalt($salt);
-				$this->setCreated(time());
-				$result = $this->save();
-				
-				if($result) {
-					echo "<span class='update_notice'>Created user successfully!</span><br /><br />";
-				} else {
-					$ret = false;
-				}
-			} else {
-				$ret = false;
-				echo "<p class='cms_warning'>" . $error . "</p><br />";
-			}
-
-		} else {
-			$ret = false;
-			echo "Failed to load form data!";
-		}
-		return $ret;
-	}
-
-	/**
-	 * Updates the current user object in the database.
-	 * 
-	 * @param $userId	The user Id to update
-	 * 
-	 * @return returns true if the update was successful
-	 */
-	public function update() {
-		$ret = true;
-		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {
-				$secPass = hash('sha256',$this->password);
-				$secPass = hash('sha256',($secPass . get_userSalt($this->conn, $this->loginname)));
-				$this->setPassword($secPass);
-				$this->save();
-
-				if($result) {
-					echo "<span class='update_notice'>Updated user successfully!</span><br /><br />";
-				} else {
-					$ret = false;
-				}
-			} else {
-				$ret = false;
-				echo "<div class='cms_warning'>" . $error . "</div>";
-			}
-		} else {
-			$ret = false;
-			echo "Failed to load form data!";
-		}
-		return $ret;
-	}
-
-	/**
-	 * Deletes the current user object from the database.
-	 * 
-	 * @param $userId	The user to be deleted
-	 * 
-	 * @return returns the database result on the delete query
-	 */
-	public function delete() {
-		echo "<span class='update_notice'>User deleted! Bye bye '$this->loginname', we will miss you.</span><br /><br />";
-		$this->delete();
-		//$userSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
-		//$userResult = $this->conn->query($userSQL);
-		
-		return $userResult;
-	}
-	
-	/**
 	 * Loads the user object members based off the user id in the database
 	 * 
 	 * @param $userId	The user to be loaded
 	 */
-	public function loadRecord($userId, $c=null) {
-		//Set a field to use by the logger
-		$this->logField = $this->getLoginname();
-		
-		if(isset($userId) && $userId != null) {
-			
-			$userSQL = "SELECT * FROM " . $this->table . " WHERE id=$userId";
-				
-			//$userResult = $this->conn->query($userSQL);
-			$userResult = $this->load($userId);
+	public function loadRecord($p=null, $c=null) {
+		if(isset($p) && $p != null) {
+			$userResult = $this->load($p);
 						
+			//Set a field to use by the logger
+			$this->logField = $this->getLoginname();
+			
 			$this->constr = true;
 		}
 	}
@@ -351,6 +268,14 @@ class account extends model
 	
 	}
 	
+	/*
+	 * Checks the users permission to see if they can access an object
+	 * 
+	 * @param $model	The object to be accessed
+	 * @param $change	The action to be performed
+	 * 
+	 * @return Returns true if you have access, otherwise false
+	 */
 	public function checkPermission($model, $change) {
 		$ret = false;
 		$permissions = getRecords($this->conn, "permission", array("*"), "model='$model' AND groupId=" . $this->getGroupId(), $order=null);

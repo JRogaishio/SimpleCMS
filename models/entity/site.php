@@ -32,7 +32,7 @@ class site extends model
 	 *
 	 * @return Returns true or false based on validation checks
 	 */
-	private function validate() {
+	protected function validate() {
 		$ret = "";
 	
 		if($this->getTitle() == "") {

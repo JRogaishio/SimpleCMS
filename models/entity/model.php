@@ -133,8 +133,9 @@ class model extends orm {
 	/**
 	 * Updates the current object in the database.
 	 */
-	public function update() {
+	public function update() {		
 		$error = $this->validate();
+
 		if($error == "") {
 			$ret = $this->save();
 			if($ret) {
@@ -166,7 +167,7 @@ class model extends orm {
 	 *
 	 * @return Returns true or false based on validation checks
 	 */
-	private function validate() {
+	protected function validate() {
 		$ret = "";
 	
 		return $ret;
