@@ -144,14 +144,14 @@ class page extends model
 	/**
 	 * Loads the page object members based off the page id in the database
 	 */
-	public function loadRecord($pageId, $c=null) {
+	public function loadRecord($p=null, $c=null) {
 			
-		if(isset($pageId) && $pageId != null) {
+		if(isset($p) && $p != null) {
 			
-			if($pageId == "home")
+			if($p == "home")
 				$pageSQL = "SELECT * FROM " . $this->table . " WHERE page_isHome=true";
 			else
-				$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=$pageId";
+				$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=$p";
 				
 			$pageResult = $this->conn->query($pageSQL);
 
