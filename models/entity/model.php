@@ -1,7 +1,7 @@
 <?php
 
 class model extends orm {
-	
+	//Non-persistant properties
 	protected $conn = null; //Database connection object
 	protected $log = null;
 	protected $linkFormat = null;
@@ -53,7 +53,7 @@ class model extends orm {
 						$this->storeFormValues($_POST);
 						
 						$result = $this->insert();
-					
+
 						if(!$result) {
 							$this->buildEditForm($parent, $child, $user);
 						} else {
@@ -98,7 +98,7 @@ class model extends orm {
 				break;
 			case "delete":
 				if($user->checkPermission($this->table, 'delete')) {
-					$this->delete($parent);
+					$this->remove();
 					$ret = true;
 					$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->logField . " deleted");
 				} else {
@@ -108,6 +108,67 @@ class model extends orm {
 			default:
 				echo "Error with " . $this->table . " manager<br /><br />";
 		}
+		return $ret;
+	}
+	
+	/**
+	 * Inserts the current object into the database
+	 */
+	public function insert() {
+		$error = $this->validate();
+		if($error == "") {	
+			$this->setCreated(time());
+			$ret = $this->save();
+			if($ret) {
+				echo "<span class='update_notice'>Created " . $this->table . " successfully!</span><br /><br />";
+			}
+		}  else {
+			$ret = false;
+			echo "<p class='cms_warning'>" . $error . "</p><br />";
+		}
+		
+		return $ret;
+	}
+	
+	/**
+	 * Updates the current object in the database.
+	 */
+	public function update() {
+		$error = $this->validate();
+		if($error == "") {
+			$ret = $this->save();
+			if($ret) {
+				echo "<span class='update_notice'>Updated " . $this->table . " successfully!</span><br /><br />";
+			}
+		} else {
+			$ret = false;
+			echo "<p class='cms_warning'>" . $error . "</p><br />";
+		}
+		return $ret;
+	}
+	
+	/**
+	 * Deletes the current object from the database.
+	 *
+	 * @return returns the database result on the delete query
+	 */
+	public function remove() {
+		echo "<span class='update_notice'>" . ucfirst($this->table) . " deleted! Bye bye '$this->table', we will miss you.</span><br /><br />";
+	
+		$result = $this->delete();
+	
+		return $result;
+	}
+	
+	
+	/**
+	 * validate the fields
+	 *
+	 * @return Returns true or false based on validation checks
+	 */
+	private function validate() {
+		$ret = "";
+	
 		return $ret;
 	}
 }
