@@ -46,7 +46,6 @@ class page extends model
 		if(isset($params['metadata'])) $this->setMetaData(clean($this->conn, $params['metadata']));
 		if(isset($params['flags'])) $this->setFlags(clean($this->conn, $params['flags']));
 		if(isset($params['homepage'])) $this->setIsHome(clean($this->conn, $params['homepage']));
-		$this->constr = true;
 	}
 
 	/**
@@ -77,29 +76,25 @@ class page extends model
 	*/
 	public function insert() {
 		$ret = true;
-		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {
-				//Set all other pages to be not a homepage
-				if($this->getIsHome() == 1){
-					$sql = "UPDATE " . $this->table . " SET isHome=0";
-					$homeResult = $this->conn->query($sql) OR DIE ("Could not update home page!");
-				}
-				
-				$this->setCreated(time());
-				$result = $this->save();		
-				
-				if($result) {
-					echo "<span class='update_notice'>Created page successfully!</span><br /><br />";
-				}
-			} else {
-				$ret = false;
-				echo "<p class='cms_warning'>" . $error . "</p><br />";
+		$error = $this->validate();
+		if($error == "") {
+			//Set all other pages to be not a homepage
+			if($this->getIsHome() == 1){
+				$sql = "UPDATE " . $this->table . " SET isHome=0";
+				$homeResult = $this->conn->query($sql) OR DIE ("Could not update home page!");
+			}
+			
+			$this->setCreated(time());
+			$result = $this->save();		
+			
+			if($result) {
+				echo "<span class='update_notice'>Created page successfully!</span><br /><br />";
 			}
 		} else {
 			$ret = false;
-			echo "Failed to load form data!";
+			echo "<p class='cms_warning'>" . $error . "</p><br />";
 		}
+
 		return $ret;
 	}
 
@@ -138,10 +133,9 @@ class page extends model
 	 * Deletes the current page object from the database.
 	 */
 	public function delete() {
-		echo "<span class='update_notice'>Page deleted! Bye bye '$this->title', we will miss you.</span><br /><br />";
+		echo "<span class='update_notice'>Page deleted! Bye bye '$this->getTitle()', we will miss you.</span><br /><br />";
 		
-		$pageSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->getId();
-		$pageResult = $this->conn->query($pageSQL);
+		$this->delete();
 		
 		$postSQL = "DELETE FROM post WHERE pageId=" . $this->getId();
 		$postResult = $this->conn->query($postSQL);
@@ -151,9 +145,7 @@ class page extends model
 	 * Loads the page object members based off the page id in the database
 	 */
 	public function loadRecord($pageId, $c=null) {
-		//Set a field to use by the logger
-		$this->logField = $this->getTitle();
-		
+			
 		if(isset($pageId) && $pageId != null) {
 			
 			if($pageId == "home")
@@ -168,6 +160,9 @@ class page extends model
 
 			if(isset($row)) {
 				$this->load($row['id']);
+				
+				//Set a field to use by the logger
+				$this->logField = $this->getTitle();
 			}
 			
 			$this->constr = true;
