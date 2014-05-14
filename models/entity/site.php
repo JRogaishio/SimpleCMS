@@ -24,7 +24,6 @@ class site extends model
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
 		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
 		if(isset($params['urlFormat'])) $this->setUrlFormat(clean($this->conn, $params['urlFormat']));
-		$this->constr = true;
 	}
 
 	/**
@@ -41,50 +40,18 @@ class site extends model
 	
 		return $ret;
 	}
-	
-	/**
-	 * Updates the current site object in the database.
-	 * 
-	 * @param $siteId	The site Id to update
-	 * 
-	 * @return returns true if the update was successful
-	 */
-	public function update() {
-		$ret = true;
-		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {
-				$result = $this->save();
-				
-				if($result) {
-					echo "<span class='update_notice'>Updated site successfully!</span><br /><br />";
-				}
-			} else {
-				$ret = false;
-				echo "<p class='cms_warning'>" . $error . "</p><br />";
-			}
-		} else {
-			$ret = false;
-			echo "Failed to load form data!";
-		}
-		return $ret;
-	}
-
-	
+		
 	/**
 	 * Loads the site object members based off the site id in the database
 	 * 
 	 * @param $siteId	The site to be loaded
 	 */
-	public function loadRecord($siteId, $c=null) {
-		//Set a field to use by the logger
-		$this->logField = $this->getTitle();
-		
-		if(isset($siteId) && $siteId != null) {
+	public function loadRecord($p=null, $c=null) {
+		if(isset($p) && $p != null) {
+			$this->load($p);
 			
-			$this->load($siteId);
-				
-			$this->constr = true;
+			//Set a field to use by the logger
+			$this->logField = $this->getTitle();
 		}
 	}
 	
@@ -122,54 +89,7 @@ class site extends model
 			</form>
 		';
 	}
-	
-	/**
-	 * Display the site management page
-	 * 
-	 * @param $action	The action to be performed such as update or delete
-	 * @param $parent	The ID of the site object to be edited. This is the p GET Data
-	 * @param $child	This is the c GET Data
-	 * @param $user		The user making the change
-	 * @param $auth		A boolean value depending on if the user is logged in
-	 * 
-	 * @return Returns true on change success otherwise false
-	 *
-	 */
-	public function displayManager($action, $parent, $child, $user, $auth=null) {
-		$this->loadRecord($parent);
-		$ret = false;
-		switch($action) {
-			case "read":
-				if($user->checkPermission($this->table, 'read', false)) {
-					$this->displayModelList();
-				} else {
-					echo "You do not have permissions to '<strong>read</strong>' records for " . $this->table . ".<br />";
-				}
-				break;
-			case "update":
-				//Determine if the form has been submitted
-				if(isset($_POST['saveChanges'])) {
-					// User has posted the site edit form: save the new article
-					$this->storeFormValues($_POST);
-						
-					$result = $this->update($parent);
-					//Re-build the site creation form once we are done
-					$this->buildEditForm($parent);
-					if($result) {
-						$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->getTitle() . " updated");
-					}
-				} else {
-					// User has not posted the site edit form yet: display the form
-					$this->buildEditForm($parent);
-				}
-				break;
-			default:
-				echo "Error with site manager<br /><br />";
-				$ret = true;
-		}
-		return $ret;
-	}
-	
+		
 	/**
 	 * Display the site manager
 	 *
@@ -199,7 +119,7 @@ class site extends model
 			</p>";
 		}
 	}
-	
+		
 	/**
 	 * Builds the necessary tables for this object
 	 *
@@ -212,6 +132,16 @@ class site extends model
 			$this->setCreated(time());
 			$this->save();
 		}
+	}
+	
+	//Override base model functions to do nothing incase of URL mishaps
+	public function insert() {
+		//Override to do nothing
+		return false;
+	}
+	public function remove() {
+		//Override to do nothing
+		return false;
 	}
 }
 
