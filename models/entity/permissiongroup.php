@@ -146,8 +146,15 @@ class permissiongroup extends model
 	 * 
 	 */
 	private function buildPermissionForm() {
-		echo "<table class='table table-bordered'>
-				<tr><th>Item</th><th>Read</th><th>Insert</th><th>Update</th><th>Delete</th></tr>";
+		echo '<table class="table table-bordered">
+				<tr><th>Item</th><th>Read</th><th>Insert</th><th>Update</th><th>Delete</th></tr>
+				<tr><td>All</td>
+					<td><input type="checkbox" value="1" ' . ($this->getEditable() === 0 ? "disabled" : "") . ' onClick="$(\'.readBox\').prop(\'checked\', $(this).prop(\'checked\'));" /></td>
+					<td><input type="checkbox" value="1" ' . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' onClick="$(\'.insertBox\').prop(\'checked\', $(this).prop(\'checked\'));" /></td>
+					<td><input type="checkbox" value="1" ' . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' onClick="$(\'.updateBox\').prop(\'checked\', $(this).prop(\'checked\'));" /></td>
+					<td><input type="checkbox" value="1" ' . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' onClick="$(\'.deleteBox\').prop(\'checked\', $(this).prop(\'checked\'));" /></td>
+				</tr>
+				';
 		foreach($this->availModels as $modelName) {
 			$obj = new permission($this->conn, $this->log);
 			$obj->setModel($modelName);
@@ -155,10 +162,10 @@ class permissiongroup extends model
 			echo '
 				<tr>
 					<td>' . ucfirst($modelName) . '<input type="hidden" name="' . $modelName . '_id" value="' . $obj->getId() . '" /></td>
-					<td><input name="' . $modelName . '_read" id="' . $modelName . '_read" type="checkbox" value="1" '. ($obj->getReadAction()===1?"checked=checked":"") . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' /></td>
-					<td><input name="' . $modelName . '_insert" id="' . $modelName . '_insert" type="checkbox" value="1" '. ($obj->getInsertAction()===1?"checked=checked":"") . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' /></td>
-					<td><input name="' . $modelName . '_update" id="' . $modelName . '_update" type="checkbox" value="1" '. ($obj->getUpdateAction()===1?"checked=checked":"") . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' /></td>
-					<td><input name="' . $modelName . '_delete" id="' . $modelName . '_delete" type="checkbox" value="1" '. ($obj->getDeleteAction()===1?"checked=checked":"") . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' /></td>
+					<td><input name="' . $modelName . '_read" id="' . $modelName . '_read" class="readBox" type="checkbox" value="1" '. ($obj->getReadAction()===1?"checked=checked":"") . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' /></td>
+					<td><input name="' . $modelName . '_insert" id="' . $modelName . '_insert" class="insertBox" type="checkbox" value="1" '. ($obj->getInsertAction()===1?"checked=checked":"") . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' /></td>
+					<td><input name="' . $modelName . '_update" id="' . $modelName . '_update" class="updateBox" type="checkbox" value="1" '. ($obj->getUpdateAction()===1?"checked=checked":"") . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' /></td>
+					<td><input name="' . $modelName . '_delete" id="' . $modelName . '_delete" class="deleteBox" type="checkbox" value="1" '. ($obj->getDeleteAction()===1?"checked=checked":"") . ' ' . ($this->getEditable() === 0 ? "disabled" : "") . ' /></td>
 				</tr>
 				';
 		}
