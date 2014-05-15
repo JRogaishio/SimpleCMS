@@ -25,8 +25,6 @@ class customkey extends model
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
 		if(isset($params['key'])) $this->setKeyItem(clean($this->conn, $params['key']));
 		if(isset($params['value'])) $this->setKeyValue(clean($this->conn, $params['value']));
-
-		$this->constr = true;
 	}
 
 	/**

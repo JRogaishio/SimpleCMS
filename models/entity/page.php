@@ -105,28 +105,23 @@ class page extends model
 	 */
 	public function update($surpressNotify = false) {
 		$ret = true;
-		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {
-				//Reset all home pages since we are setting a new one
-				if($this->isHome == true) {
-					$sql = "UPDATE " . $this->table . " SET isHome = false;";
-					$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
-				}
-			
-				$this->save();
-				
-			} else {
-				$ret = false;
-				echo "<p class='cms_warning'>" . $error . "</p><br />";
-			}
 
+		$error = $this->validate();
+		if($error == "") {
+			//Reset all home pages since we are setting a new one
+			if($this->isHome == true) {
+				$sql = "UPDATE " . $this->table . " SET isHome = false;";
+				$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
+			}
+		
+			$this->save();
+			
 		} else {
 			$ret = false;
-			echo "Failed to load form data!";
+			echo "<p class='cms_warning'>" . $error . "</p><br />";
 		}
-		return $ret;
 
+		return $ret;
 	}
 	
 	/**
@@ -180,8 +175,6 @@ class page extends model
 				//Set a field to use by the logger
 				$this->logField = $this->getTitle();
 			}
-			
-			$this->constr = true;
 		}
 	
 	}

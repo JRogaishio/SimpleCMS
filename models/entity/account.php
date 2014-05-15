@@ -79,8 +79,6 @@ class account extends model
 						
 			//Set a field to use by the logger
 			$this->logField = $this->getLoginname();
-			
-			$this->constr = true;
 		}
 	}
 	

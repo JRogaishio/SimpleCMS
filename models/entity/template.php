@@ -27,8 +27,6 @@ class template extends model
 		if(isset($params['path'])) $this->setPath(clean($this->conn, $params['path']));
 		if(isset($params['file'])) $this->setFilename(clean($this->conn, $params['file']));
 		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
-
-		$this->constr = true;
 	}
 
 	/**

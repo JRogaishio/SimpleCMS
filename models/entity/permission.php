@@ -32,8 +32,6 @@ class permission extends model
 		(isset($params['insert'])) ? $this->setInsertAction(clean($this->conn, $params['insert'])) : $this->setInsertAction(0);
 		(isset($params['update'])) ? $this->setUpdateAction(clean($this->conn, $params['update'])) : $this->setUpdateAction(0);
 		(isset($params['delete'])) ? $this->setDeleteAction(clean($this->conn, $params['delete'])) : $this->setDeleteAction(0);
-		
-		$this->constr = true;
 	}
 
 	/**
@@ -78,10 +76,7 @@ class permission extends model
 	 * 
 	 * @param $templateId	The template to be loaded
 	 */
-	public function loadRecord($groupId, $c=null) {
-		//Set a field to use by the logger
-		$this->logField = $this->getId();
-		
+	public function loadRecord($groupId, $c=null) {		
 		if(isset($groupId) && $groupId != null && isset($this->model) && $this->model != null) {
 			
 			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE groupId=$groupId AND model='" . $this->getModel() . "'";
@@ -93,9 +88,11 @@ class permission extends model
 
 			if(isset($row)) {
 				$this->load($row['id']);
+				
+				//Set a field to use by the logger
+				$this->logField = $this->getId();
 			}
 			
-			$this->constr = true;
 		}
 	
 	}

@@ -76,13 +76,11 @@ class post extends model
 	 * @param $postId	The post to be loaded
 	 */
 	public function loadRecord($pageId, $postId) {
-		//Set a field to use by the logger
-		$this->logField = $this->getTitle();
-
 		if(isset($postId) && $postId != null) {
 			$this->load($postId);
 						
-			$this->constr = true;
+			//Set a field to use by the logger
+			$this->logField = $this->getTitle();
 		}
 	}
 	

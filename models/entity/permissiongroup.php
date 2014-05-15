@@ -47,8 +47,6 @@ class permissiongroup extends model
 			array_push($this->permissions, $permission);
 
 		}
-		
-		$this->constr = true;
 	}
 
 	/**
@@ -97,14 +95,11 @@ class permissiongroup extends model
 	 * @param $templateId	The template to be loaded
 	 */
 	public function loadRecord($groupId, $c=null) {
-		//Set a field to use by the logger
-		$this->logField = $this->geTitle();
-		
 		if(isset($groupId) && $groupId != null) {
-			
 			$this->load($groupId);
 			
-			$this->constr = true;
+			//Set a field to use by the logger
+			$this->logField = $this->geTitle();
 		}
 	
 	}
