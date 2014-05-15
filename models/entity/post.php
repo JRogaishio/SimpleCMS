@@ -135,12 +135,12 @@ class post extends model
 		if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
 			while($row = mysqli_fetch_assoc($postResult) ) {
 	
-				if($lastPageName != lookupPageNameById($this->conn, $row['id'])) {
+				if($lastPageName != lookupPageNameById($this->conn, $row['pageId'])) {
 					//If we aren't on the first page in the list, add some line breaks inbetween page lists.
 					if($lastPageName != "")
 						echo "<br /><br />";
 						
-					$lastPageName = lookupPageNameById($this->conn, $row['id']);
+					$lastPageName = lookupPageNameById($this->conn, $row['pageId']);
 					echo "<h1 class='cms_pageTitle'>" . $lastPageName . "</h1>";
 				}
 	
