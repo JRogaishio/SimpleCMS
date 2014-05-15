@@ -8,7 +8,16 @@
  */
 class log extends model
 {
-	protected $table = "log";
+	// Properties
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $model = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"model");
+	protected $action = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"action");
+	protected $accountId = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"accountId");
+	protected $loginname = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"loginname");
+	protected $info = array("orm"=>true, "datatype"=>"text", "field"=>"info");
+	protected $actionDate = array("orm"=>true, "datatype"=>"datetime", "field"=>"actionDate");
+	protected $remoteIp = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"remoteIp");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
 	/**
 	 * Inserts any changes in the log database table
@@ -21,13 +30,19 @@ class log extends model
 	 *
 	 * @return returns the result of the mysql query
 	 */
-	function trackChange($type, $action, $userId, $user, $change) {
-	
-		$sql = "INSERT INTO " . $this->table . " (log_type, log_action, log_accountId, log_user, log_info, log_date, log_created, log_remoteIp) VALUES";
-		$sql .= "('$type', '$action', '$userId', '$user', '$change', '" . date('Y-m-d H:i:s') . "','" . time() . "','" . $_SERVER['REMOTE_ADDR'] . "')";
-	
-		$result = $this->conn->query($sql) OR DIE ("Could not write to log!");
-	
+	function trackChange($model, $action, $userId, $user, $change) {
+		$result = null;
+		
+		$this->setModel($model);
+		$this->setAction($action);
+		$this->setAccountId($userId);
+		$this->setLoginname($user);
+		$this->setInfo($change);
+		$this->setActionDate(date('Y-m-d H:i:s'));
+		$this->setRemoteIp($_SERVER['REMOTE_ADDR']);
+		$this->setCreated(time());
+		$result = $this->save();
+
 		return $result;
 	}
 
@@ -75,7 +90,7 @@ class log extends model
 	 */
 	public function displayModelList() {
 		$resultList = "";
-		$logSQL = "SELECT * FROM " . $this->table . " ORDER BY log_created DESC;";
+		$logSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC;";
 		$logResult = $this->conn->query($logSQL);
 	
 		if ($logResult !== false && mysqli_num_rows($logResult) > 0 ) {
@@ -86,7 +101,7 @@ class log extends model
 			<tr><th>User</th><th>Type</th><th>Details</th><th>Date</th><th>IP Address</th></tr>
 			";
 			while($row = mysqli_fetch_assoc($logResult))
-				$resultList .= "<tr><td>" . $row['log_user'] . "</td><td>" . $row['log_type'] . "</td><td>" . $row['log_info'] . "</td><td>" . $row['log_date'] . "</td><td>". $row['log_remoteIp'] . "</td></tr>";
+				$resultList .= "<tr><td>" . $row['loginname'] . "</td><td>" . $row['model'] . "</td><td>" . $row['info'] . "</td><td>" . $row['actionDate'] . "</td><td>". $row['remoteIp'] . "</td></tr>";
 				
 			$resultList .= "</table>";
 				
@@ -95,28 +110,6 @@ class log extends model
 		} else {
 			echo "No logs found?";
 		}
-	}
-	
-	/**
-	 * Builds the necessary tables for this object
-	 *
-	 */
-	public function buildTable() {
-		/*Table structure for table `log` */
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `log_type` varchar(64) DEFAULT NULL,
-		  `log_action` varchar(64) DEFAULT NULL,
-		  `log_accountId` varchar(64) DEFAULT NULL,
-		  `log_user` varchar(64) DEFAULT NULL,
-		  `log_info` text,
-		  `log_date` datetime DEFAULT NULL,
-		  `log_created` varchar(128) DEFAULT NULL,
-		  `log_remoteIp` varchar(64) DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
-		
 	}
 }
 

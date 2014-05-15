@@ -1,7 +1,7 @@
 <?php
 
-class model {
-	
+class model extends orm {
+	//Non-persistant properties
 	protected $conn = null; //Database connection object
 	protected $log = null;
 	protected $linkFormat = null;
@@ -15,9 +15,10 @@ class model {
 	 */
 	public function __construct($dbConn, $dbLog) {
 		$this->conn = $dbConn;
+		$this->table = get_class($this);
 		$this->log = $dbLog;
 		$this->linkFormat = get_linkFormat($dbConn);
-		$this->logField = &$this->id; //Default to the Id
+		$this->logField = null; //Default to the Id by ref incase it changes from a load
 	}
 	
 	/**
@@ -33,7 +34,7 @@ class model {
 	 *
 	 */
 	public function displayManager($action, $parent, $child, $user, $auth=null) {
-		$this->loadRecord($parent);
+		$this->loadRecord($parent, $child);
 		$ret = false;
 		switch($action) {
 			case "read":
@@ -52,11 +53,16 @@ class model {
 						$this->storeFormValues($_POST);
 						
 						$result = $this->insert();
-					
+
 						if(!$result) {
 							$this->buildEditForm($parent, $child, $user);
 						} else {
-							$this->buildEditForm(getLastField($this->conn,$this->table, "id"), $child, $user);
+							if($parent == null)
+								$parent = getLastField($this->conn,$this->table, "id");
+							else if($child == null)
+								$child = getLastField($this->conn,$this->table, "id");
+								
+							$this->buildEditForm($parent, $child, $user);
 							$this->log->trackChange($this->table, 'add',$user->getId(),$user->getLoginname(), $this->logField . " added");
 						}
 					} else {
@@ -75,7 +81,7 @@ class model {
 							
 						$this->storeFormValues($_POST);
 						
-						$result = $this->update($parent);
+						$result = $this->update();
 						//Re-build the page creation form once we are done
 						$this->buildEditForm($parent, $child, $user);
 	
@@ -92,7 +98,7 @@ class model {
 				break;
 			case "delete":
 				if($user->checkPermission($this->table, 'delete')) {
-					$this->delete($parent);
+					$this->remove();
 					$ret = true;
 					$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->logField . " deleted");
 				} else {
@@ -103,6 +109,91 @@ class model {
 				echo "Error with " . $this->table . " manager<br /><br />";
 		}
 		return $ret;
+	}
+	
+	/**
+	 * Inserts the current object into the database
+	 */
+	public function insert($surpressNotify = false) {
+		$error = $this->validate();
+		if($error == "") {	
+			$this->setCreated(time());
+			
+			$this->preSave();
+			$ret = $this->save();
+			if($ret && !$surpressNotify) {
+				echo "<span class='update_notice'>Created " . $this->table . " successfully!</span><br /><br />";
+			}
+		}  else {
+			$ret = false;
+			echo "<p class='cms_warning'>" . $error . "</p><br />";
+		}
+		
+		return $ret;
+	}
+	
+	/**
+	 * Updates the current object in the database.
+	 */
+	public function update($surpressNotify = false) {		
+		$error = $this->validate();
+
+		if($error == "") {
+			$this->preSave();
+			$ret = $this->save();
+			if($ret && !$surpressNotify) {
+				echo "<span class='update_notice'>Updated " . $this->table . " successfully!</span><br /><br />";
+			}
+		} else {
+			$ret = false;
+			echo "<p class='cms_warning'>" . $error . "</p><br />";
+		}
+		return $ret;
+	}
+	
+	/**
+	 * Deletes the current object from the database.
+	 *
+	 * @return returns the database result on the delete query
+	 */
+	public function remove($surpressNotify = false) {
+		$this->preDelete();
+		$result = $this->delete();
+	
+		if(!$surpressNotify) {
+			echo "<span class='update_notice'>" . ucfirst($this->table) . " deleted! Bye bye '$this->logField', we will miss you.</span><br /><br />";
+		}
+		return $result;
+	}
+	
+	
+	/**
+	 * validate the fields
+	 *
+	 * @return Returns true or false based on validation checks
+	 */
+	protected function validate() {
+		$ret = "";
+	
+		return $ret;
+	}
+	
+	/**
+	 * Any pre-formatting before save opperatins
+	 *
+	 * @return Returns true or false based on pre saving success
+	 */
+	protected function preSave() {
+		return true;
+	}
+	
+	/**
+	 * Any pre-formatting before delete opperatins
+	 *
+	 * @return Returns true or false based on pre delete success
+	 */
+	protected function preDelete() {
+		return true;
 	}
 }
 

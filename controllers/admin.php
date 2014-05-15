@@ -64,13 +64,12 @@ class admin extends core {
 					break;
 				case "updater":
 					$obj = new updater($this->_CONN, $this->_LOG);
-					$obj->update($this->_USER);
+					$obj->updateSystem($this->_USER);
 					break;
 				case "uploader":
 					$obj = new uploader($this->_CONN, $this->_LOG);
 					$obj->displayManager($this->_ACTION, $this->_PARENT, $this->_CHILD, $this->_USER, $this->_AUTH);
-					$this->cms_displayAdminUploads();
-				
+					$obj->displayModelList();
 					break;
 				default:
 					$this->cms_displayMain();
@@ -96,11 +95,11 @@ class admin extends core {
 					
 					//Grab the username from the token for logging. We don't have the login set yet before we havent authenticated
 					if(isset($_COOKIE['token'])) {
-						$userSQL = "SELECT * FROM account WHERE account_token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
+						$userSQL = "SELECT * FROM account WHERE token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
 						$userResult = $this->_CONN->query($userSQL);
 						if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 							$userData = mysqli_fetch_assoc($userResult);
-							$this->_LOG->trackChange("account", 'log_out',$userData['id'], $userData['account_login'], "logged out");
+							$this->_LOG->trackChange("account", 'log_out',$userData['id'], $userData['loginname'], "logged out");
 						}					
 					}
 

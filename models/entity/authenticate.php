@@ -8,7 +8,12 @@
  */
 class authenticate extends model
 {
-
+	// Properties
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $login = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"login");
+	protected $attemptTime= array("orm"=>true, "datatype"=>"varchar", "length"=>32, "field"=>"attemptTime");
+	protected $ip = array("orm"=>true, "datatype"=>"varchar", "length"=>16, "field"=>"ip");
+	
 	/**
 	 * Checks the IP address and returns the number of minutes you need to wait
 	 *
@@ -16,7 +21,7 @@ class authenticate extends model
 	public function checkIP() {
 		$clientIP = $_SERVER['REMOTE_ADDR'];
 		
-		$authSQL = "SELECT * FROM authenticate WHERE auth_ip = '" . $clientIP . "' ORDER BY auth_time DESC";
+		$authSQL = "SELECT * FROM authenticate WHERE ip = '" . $clientIP . "' ORDER BY attemptTime DESC";
 		$authResult = $this->conn->query($authSQL);
 		
 		$attempts = mysqli_num_rows($authResult);
@@ -61,18 +66,17 @@ class authenticate extends model
 	 * @param $userId	The user ID that tried to login
 	 */
 	public function logAttempt($userId) {
-		$sql = "INSERT INTO authenticate (auth_login, auth_time, auth_ip) VALUES";
-		$sql .= "('$userId', '" . time() . "', '" . $_SERVER['REMOTE_ADDR'] . "')";
-		
-		$result = $this->conn->query($sql) OR DIE ("Could not insert into authentication table!");
-		
+		$this->setLogin($userId);
+		$this->setAttemptTime(time());
+		$this->setIp($_SERVER['REMOTE_ADDR']);
+		$this->save();
 	}
 	
 	/**
 	 * Clears all the  failed login attempts in the database
 	*/
 	public function clearAttempts() {
-		$sql = "DELETE FROM authenticate WHERE auth_ip='" . $_SERVER['REMOTE_ADDR'] . "';";
+		$sql = "DELETE FROM authenticate WHERE ip='" . $_SERVER['REMOTE_ADDR'] . "';";
 		
 		$result = $this->conn->query($sql) OR DIE ("Could not clear authentication table!");
 	}
@@ -83,16 +87,7 @@ class authenticate extends model
 	 *
 	 */
 	public function buildTable() {
-		/*Table structure for table `authenticate` */
-		$sql = "CREATE TABLE IF NOT EXISTS `authenticate` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `auth_login` varchar(64) DEFAULT NULL,
-		  `auth_time` varchar(32) DEFAULT NULL,
-		  `auth_ip` varchar(16) DEFAULT NULL,
-		  PRIMARY KEY (`id`)
-		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"authenticate\"");
-	
+
 	}
 	
 	/**
@@ -110,9 +105,9 @@ class authenticate extends model
 			if(isset($post['login_username']) && isset($post['login_password'])) {
 				$secPass = encrypt(clean($this->conn,$post['login_password']), get_userSalt($this->conn, clean($this->conn, $post['login_username'])));
 
-				$userSQL = "SELECT * FROM account WHERE account_login='" . clean($this->conn,$post['login_username']) . "' AND account_pass='$secPass';";
+				$userSQL = "SELECT * FROM account WHERE loginname='" . clean($this->conn,$post['login_username']) . "' AND password='$secPass';";
 			} else {
-				$userSQL = "SELECT * FROM account WHERE account_token='$token';";
+				$userSQL = "SELECT * FROM account WHERE token='$token';";
 			}
 
 			$userResult = $this->conn->query($userSQL);
@@ -131,7 +126,7 @@ class authenticate extends model
 					
 				$newToken = hash('sha256', (unique_salt() . $user->getLoginname()));
 
-				$tokenSQL = "UPDATE account SET account_token = '$newToken' WHERE id=" . $user->getId() . ";";
+				$tokenSQL = "UPDATE account SET token = '$newToken' WHERE id=" . $user->getId() . ";";
 				$tokenResult = $this->conn->query($tokenSQL) OR DIE ("Could not update account!");
 				if(!$tokenResult) {
 					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";

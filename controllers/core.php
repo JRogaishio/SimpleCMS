@@ -13,7 +13,9 @@ include_once('lib/database.php');
 include_once('lib/encrypt.php');
 include_once('lib/management.php');
 
+include_once('models/entity/orm.php');
 include_once('models/entity/model.php');
+include_once('models/entity/authenticate.php');
 include_once('models/entity/site.php');
 include_once('models/entity/account.php');
 include_once('models/entity/permissiongroup.php');
@@ -25,7 +27,6 @@ include_once('models/entity/template.php');
 include_once('models/entity/customkey.php');
 include_once('models/entity/updater.php');
 include_once('models/entity/log.php');
-include_once('models/entity/authenticate.php');
 include_once('models/entity/uploader.php');
 
 include_once('models/service/service.php');
@@ -240,41 +241,44 @@ class core {
 	 *
 	 */
 	private function buildDB() {
+		$auth = new authenticate($this->_CONN, $this->_LOG);
+		$auth->persist();
+		
 		$page = new page($this->_CONN, $this->_LOG);
-		$page->buildTable();
+		$page->persist();
 	
 		$post = new post($this->_CONN, $this->_LOG);
-		$post->buildTable();
+		$post->persist();
 	
 		$template = new template($this->_CONN, $this->_LOG);
-		$template->buildTable();
+		$template->persist();
+		$template->populate();
 	
-		$user = new account($this->_CONN, $this->_LOG);
-		$user->buildTable();
+		$permission = new permission($this->_CONN, $this->_LOG);
+		$permission->persist();
 		
 		$permissiongroup = new permissiongroup($this->_CONN, $this->_LOG);
-		$permissiongroup->buildTable();
-		
-		$permission = new permission($this->_CONN, $this->_LOG);
-		$permission->buildTable();
+		$permissiongroup->persist();
+		$permissiongroup->populate();
+
+		$user = new account($this->_CONN, $this->_LOG);
+		$user->persist();
 		
 		$site = new site($this->_CONN, $this->_LOG);
-		$site->buildTable();
+		$site->persist();
+		$site->populate();
 		
 		$customkey = new customkey($this->_CONN, $this->_LOG);
-		$customkey->buildTable();
+		$customkey->persist();
 	
 		$log = new log($this->_CONN, $this->_LOG);
-		$log->buildTable();
+		$log->persist();
 	
 		$plugin = new plugin($this->_CONN, $this->_LOG);
-		$plugin->buildTable();
-		
-		$auth = new authenticate($this->_CONN, $this->_LOG);
-		$auth->buildTable();
-		
+		$plugin->persist();
+				
 		$uploader = new uploader($this->_CONN, $this->_LOG);
-		$uploader->buildTable();
+		$uploader->persist();
 	}
 	
 	/**

@@ -9,33 +9,15 @@
 class permission extends model
 {
 	// Properties
-	protected $table = "permission";
-	protected $id = null;
-	protected $groupId = null;
-	protected $model = null;
-	protected $read = null;
-	protected $insert = null;
-	protected $update = null;
-	protected $delete = null;
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $groupId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"groupId");
+	protected $model = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"model");
+	protected $readAction = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"readAction");
+	protected $insertAction = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"insertAction");
+	protected $updateAction = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"updateAction");
+	protected $deleteAction = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"deleteAction");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
-	//Getters
-	public function getId() {return $this->id;}
-	public function getGroupId() {return $this->groupId;}
-	public function getModel() {return $this->model;}
-	public function getRead() {return $this->read;}
-	public function getInsert() {return $this->insert;}
-	public function getUpdate() {return $this->update;}
-	public function getDelete() {return $this->delete;}
-	
-	//Setters
-	public function setId($val) {$this->id = $val;}
-	public function setGroupId($val) {$this->groupId = $val;}
-	public function setModel($val) {$this->model = $val;}
-	public function setRead($val) {$this->read = $val;}
-	public function setInsert($val) {$this->insert = $val;}
-	public function setUpdate($val) {$this->update = $val;}
-	public function setDelete($val) {$this->delete = $val;}
-
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
 	 *
@@ -43,15 +25,13 @@ class permission extends model
 	 */
 	public function storeFormValues ($params) {	
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['id'])) $this->id = clean($this->conn, $params['id']);
-		if(isset($params['groupId'])) $this->groupId = clean($this->conn, $params['groupId']);
-		if(isset($params['model'])) $this->model = clean($this->conn, $params['model']);
-		(isset($params['read'])) ? $this->read = clean($this->conn, $params['read']) : $this->read = 0;
-		(isset($params['insert'])) ? $this->insert = clean($this->conn, $params['insert']) : $this->insert = 0;
-		(isset($params['update'])) ? $this->update = clean($this->conn, $params['update']) : $this->update = 0;
-		(isset($params['delete'])) ? $this->delete = clean($this->conn, $params['delete']) : $this->delete = 0;
-		
-		$this->constr = true;
+		if(isset($params['id'])) $this->setId(clean($this->conn, $params['id']));
+		if(isset($params['groupId'])) $this->setGroupId(clean($this->conn, $params['groupId']));
+		if(isset($params['model'])) $this->setModel(clean($this->conn, $params['model']));
+		(isset($params['read'])) ? $this->setReadAction(clean($this->conn, $params['read'])) : $this->setReadAction(0);
+		(isset($params['insert'])) ? $this->setInsertAction(clean($this->conn, $params['insert'])) : $this->setInsertAction(0);
+		(isset($params['update'])) ? $this->setUpdateAction(clean($this->conn, $params['update'])) : $this->setUpdateAction(0);
+		(isset($params['delete'])) ? $this->setDeleteAction(clean($this->conn, $params['delete'])) : $this->setDeleteAction(0);
 	}
 
 	/**
@@ -59,7 +39,7 @@ class permission extends model
 	 *
 	 * @return Returns true or false based on validation checks
 	 */
-	private function validate() {
+	protected function validate() {
 		$ret = "";
 		
 		return $ret;
@@ -68,44 +48,14 @@ class permission extends model
 	/**
 	 * Inserts the current template object into the database
 	 */
-	public function insert() {
+	public function insert($surpressNotify = false) {
 		$ret = true;
-		if($this->constr) {
-			if( $this->groupId == null ||  $this->groupId == '') {$this->groupId = getLastField($this->conn, 'permissiongroup', 'id');}
+		if( $this->getGroupId() == null ||  $this->getGroupId() == '') {$this->setGroupId(getLastField($this->conn, 'permissiongroup', 'id'));}
 			
-			$sql = "INSERT INTO " . $this->table . " (permission_groupId, permission_model, permission_read, permission_insert, permission_update, permission_delete, permission_created) VALUES";
-			$sql .= "('$this->groupId', '$this->model', $this->read, $this->insert, $this->update, $this->delete, '" . time() . "')";
+		$this->setCreated(time());
+		$ret = $this->save();
 
-			$result = $this->conn->query($sql) OR DIE ("Could not create " . $this->table . "!");
-
-		} else {
-			$ret = false;
-			echo "Failed to load form data!";
-		}
 		return $ret;
-	}
-
-	/**
-	 * Updates the current template object in the database.
-	 * 
-	 * @param $templateId	The template Id to update
-	 */
-	public function update() {
-	
-		if($this->constr) {
-
-			$sql = "UPDATE " . $this->table . " SET
-			permission_read = $this->read, 
-			permission_insert = $this->insert,
-			permission_update = $this->update, 
-			permission_delete = $this->delete
-			WHERE id=" . $this->id . ";";
-
-			$result = $this->conn->query($sql) OR DIE ("Could not update " . $this->table . "!");
-
-		} else {
-			echo "Failed to load form data!";
-		}
 	}
 
 	/**
@@ -116,10 +66,8 @@ class permission extends model
 	 * @return returns the database result on the delete query
 	 */
 	public function delete() {
-		$permissionSQL = "DELETE FROM " . $this->table . " WHERE permission_groupId=" . $this->groupId;
-
+		$permissionSQL = "DELETE FROM " . $this->table . " WHERE groupId=" . $this->getGroupId();
 		$permissionResult = $this->conn->query($permissionSQL);
-		
 		return $permissionResult;
 	}
 	
@@ -128,13 +76,10 @@ class permission extends model
 	 * 
 	 * @param $templateId	The template to be loaded
 	 */
-	public function loadRecord($groupId) {
-		//Set a field to use by the logger
-		$this->logField = &$this->id;
-		
+	public function loadRecord($groupId, $c=null) {		
 		if(isset($groupId) && $groupId != null && isset($this->model) && $this->model != null) {
 			
-			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE permission_groupId=$groupId AND permission_model='$this->model'";
+			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE groupId=$groupId AND model='" . $this->getModel() . "'";
 				
 			$permissionResult = $this->conn->query($permissionSQL);
 
@@ -142,16 +87,12 @@ class permission extends model
 				$row = mysqli_fetch_assoc($permissionResult);
 
 			if(isset($row)) {
-				$this->id = $row['id'];
-				$this->groupId = $row['permission_groupId'];
-				$this->model = $row['permission_model'];
-				$this->read = $row['permission_read'];
-				$this->insert = $row['permission_insert'];
-				$this->update = $row['permission_update'];
-				$this->delete = $row['permission_delete'];
+				$this->load($row['id']);
+				
+				//Set a field to use by the logger
+				$this->logField = $this->getId();
 			}
 			
-			$this->constr = true;
 		}
 	
 	}
@@ -163,29 +104,7 @@ class permission extends model
 	 */
 	public function buildEditForm($groupId, $child=null, $user=null) {
 		//Uses buildPermissionForm() in permissiongroup instead		
-	}
-		
-	/**
-	 * Builds the necessary tables for this object
-	 *
-	 */
-	public function buildTable() {
-		/*Table structure for table `templates` */
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `permission_groupId` int(16) DEFAULT NULL,
-		  `permission_model` varchar(128) DEFAULT NULL,
-		  `permission_read` tinyint(1) DEFAULT NULL,
-		  `permission_insert` tinyint(1) DEFAULT NULL,
-		  `permission_update` tinyint(1) DEFAULT NULL,
-		  `permission_delete` tinyint(1) DEFAULT NULL,
-		  `permission_created` varchar(128) DEFAULT NULL,
-				
-		  PRIMARY KEY (`id`)
-		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
-	}
-	
+	}	
 }
 
 ?>

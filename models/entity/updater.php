@@ -74,7 +74,7 @@ class updater extends model {
     }
 
     //Needs work
-    public function update($user) {
+    public function updateSystem($user) {
 		$ignore = array("ferretCMS-master", "config.php", ".htaccess");
 		$branch = "ferretCMS-master";
 		

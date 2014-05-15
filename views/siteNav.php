@@ -60,8 +60,8 @@
 	}
 	
 	if($this->_USER->checkPermission('account', 'read')) {
-	echo '<div><div class="cms_navItemTitle"><div id="cms_user" class="icon-user icon-white cms_icon"></div>User Manager</div>
-		<div class="cms_navItemList" id="cms_navItemList_user">
+	echo '<div><div class="cms_navItemTitle"><div id="cms_account" class="icon-user icon-white cms_icon"></div>User Manager</div>
+		<div class="cms_navItemList" id="cms_navItemList_account">
 			<ul>';
 	
 			if($this->_USER->checkPermission('account', 'update'))

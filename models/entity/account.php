@@ -8,36 +8,19 @@
  */
 class account extends model
 {
-	// Properties
-	protected $table = "account";
-	protected $id = null;
-	protected $loginname = null;
-	protected $password = null;
+	//Persistant Properties
+	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
+	protected $loginname = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"loginname");
+	protected $password = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"password");
+	protected $token = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"token");
+	protected $salt = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"salt");
+	protected $email = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"email");
+	protected $isRegistered = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"isRegistered");
+	protected $groupId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"groupId");
+	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
+	
+	//Non-persistant properties
 	protected $password2 = null;
-	protected $salt = null;
-	protected $email = null;
-	protected $isRegistered = null;
-	protected $groupId = null;
-	
-	//Getters
-	public function getId() {return $this->id;}
-	public function getLoginname() {return $this->loginname;}
-	public function getPassword() {return $this->password;}
-	public function getPassword2() {return $this->password2;}
-	public function getSalt() {return $this->salt;}
-	public function getEmail() {return $this->email;}
-	public function getIsRegistered() {return $this->isRegistered;}
-	public function getGroupId() {return $this->groupId;}
-	
-	//Setters
-	public function setId($val) {$this->id = $val;}
-	public function setLoginname($val) {$this->loginname = $val;}
-	public function setPassword($val) {$this->password = $val;}
-	public function setPassword2($val) {$this->password2 = $val;}
-	public function setSalt($val) {$this->salt = $val;}
-	public function setEmail($val) {$this->email = $val;}
-	public function setIsRegistered($val) {$this->isRegistered = $val;}
-	public function setGroupId($val) {$this->groupId = $val;}
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -47,13 +30,19 @@ class account extends model
 	public function storeFormValues ($params=array()) {
 		// Store all the parameters
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['username'])) $this->loginname = clean($this->conn, $params['username']);
-		if(isset($params['password'])) $this->password = clean($this->conn, $params['password']);
+		if(isset($params['username'])) $this->setLoginname(clean($this->conn, $params['username']));
+		if(isset($params['password'])) $this->setPassword(clean($this->conn, $params['password']));
 		if(isset($params['password2'])) $this->password2 = clean($this->conn, $params['password2']);
-		if(isset($params['email'])) $this->email = clean($this->conn, $params['email']);
-		if(isset($params['groupId'])) $this->groupId = clean($this->conn, $params['groupId']);
-
-		$this->constr = true;
+		if(isset($params['email'])) $this->setEmail(clean($this->conn, $params['email']));
+		if(isset($params['groupId'])) $this->setGroupId(clean($this->conn, $params['groupId']));
+		
+		//Reset the users salt and build the password
+		$salt = unique_salt();
+		$secPass = hash('sha256',$this->getPassword());
+		$secPass = hash('sha256',($secPass . $salt));
+		$this->setPassword($secPass);
+		$this->password2 = hash('sha256',(hash('sha256',$this->password2) . $salt));
+		$this->setSalt($salt);
 	}
 
 	/**
@@ -61,18 +50,18 @@ class account extends model
 	 * 
 	 * @return Returns true or false based on validation checks
 	 */
-	private function validate() {
+	protected function validate() {
 		$ret = "";
-		
-		if($this->loginname == "") {
+
+		if($this->getLoginname() == "") {
 			$ret = "Please enter a username.";
-		} else if($this->password == "") {
+		} else if($this->getPassword() == "") {
 			$ret = "Please enter a password.";
-		} else if($this->password != $this->password2) {
+		} else if($this->getPassword() != $this->password2) {
 			$ret = "The passwords don't match.";
-		} else if($this->email == "") {
+		} else if($this->getEmail() == "") {
 			$ret = "Please enter an email.";
-		} else if(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+		} else if(!filter_var($this->getEmail(), FILTER_VALIDATE_EMAIL)) {
 			$ret = "Email address is not valid.";
 		}
 		
@@ -80,123 +69,16 @@ class account extends model
 	}
 	
 	/**
-	 * Inserts the current user object into the database
-	 * 
-	 * @return Returns true on insert success
-	 */
-	public function insert() {
-		$ret = true;
-		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {
-				$salt = unique_salt();
-				$secPass = hash('sha256',$this->password);
-				$secPass = hash('sha256',($secPass . $salt));
-				
-				$sql = "INSERT INTO " . $this->table . " (account_login, account_pass, account_salt, account_email,account_created, account_isRegistered, account_groupId) VALUES";
-				$sql .= "('$this->loginname', '$secPass', '$salt', '$this->email','" . time() . "', 1, " . $this->groupId . ")";
-				
-				$result = $this->conn->query($sql) OR DIE ("Could not create user!");
-				if($result) {
-					echo "<span class='update_notice'>Created user successfully!</span><br /><br />";
-				} else {
-					$ret = false;
-				}
-			} else {
-				$ret = false;
-				echo "<p class='cms_warning'>" . $error . "</p><br />";
-			}
-
-		} else {
-			$ret = false;
-			echo "Failed to load form data!";
-		}
-		return $ret;
-	}
-
-	/**
-	 * Updates the current user object in the database.
-	 * 
-	 * @param $userId	The user Id to update
-	 * 
-	 * @return returns true if the update was successful
-	 */
-	public function update() {
-		$ret = true;
-		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {
-				$secPass = hash('sha256',$this->password);
-				$secPass = hash('sha256',($secPass . get_userSalt($this->conn, $this->loginname)));
-				
-				$sql = "UPDATE user SET
-				account_login = '$this->loginname', 
-				account_pass = '$secPass', 
-				account_email = '$this->email'
-				WHERE id=" . $this->id . ";";
-	
-				$result = $this->conn->query($sql) OR DIE ("Could not update user!");
-				if($result) {
-					echo "<span class='update_notice'>Updated user successfully!</span><br /><br />";
-				} else {
-					$ret = false;
-				}
-			} else {
-				$ret = false;
-				echo "<div class='cms_warning'>" . $error . "</div>";
-			}
-		} else {
-			$ret = false;
-			echo "Failed to load form data!";
-		}
-		return $ret;
-	}
-
-	/**
-	 * Deletes the current user object from the database.
-	 * 
-	 * @param $userId	The user to be deleted
-	 * 
-	 * @return returns the database result on the delete query
-	 */
-	public function delete() {
-		echo "<span class='update_notice'>User deleted! Bye bye '$this->loginname', we will miss you.</span><br /><br />";
-		
-		$userSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
-		$userResult = $this->conn->query($userSQL);
-		
-		return $userResult;
-	}
-	
-	/**
 	 * Loads the user object members based off the user id in the database
 	 * 
 	 * @param $userId	The user to be loaded
 	 */
-	public function loadRecord($userId) {
-		//Set a field to use by the logger
-		$this->logField = &$this->loginname;
-		
-		if(isset($userId) && $userId != null) {
-			
-			$userSQL = "SELECT * FROM " . $this->table . " WHERE id=$userId";
-				
-			$userResult = $this->conn->query($userSQL);
-
-			if ($userResult !== false && mysqli_num_rows($userResult) > 0 )
-				$row = mysqli_fetch_assoc($userResult);
-
-			if(isset($row)) {
-				$this->id = $row['id'];
-				$this->loginname = $row['account_login'];
-				$this->password = $row['account_pass'];
-				$this->salt = $row['account_salt'];
-				$this->email = $row['account_email'];
-				$this->isRegistered = $row['account_isRegistered'];
-				$this->groupId = $row['account_groupId'];
-			}
-			
-			$this->constr = true;
+	public function loadRecord($p=null, $c=null) {
+		if(isset($p) && $p != null) {
+			$userResult = $this->load($p);
+						
+			//Set a field to use by the logger
+			$this->logField = $this->getLoginname();
 		}
 	}
 	
@@ -213,10 +95,10 @@ class account extends model
 			echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">User List</a> > <a href="admin.php?type=account&action=update&p=' . $userId . '">User</a><br /><br />';
 
 		echo '
-			<form action="admin.php?type=account&action=' . (($this->id == null) ? "insert" : "update") . '&p=' . $this->id . '" method="post">
+			<form action="admin.php?type=account&action=' . (($this->getId() == null) ? "insert" : "update") . '&p=' . $this->getId() . '" method="post">
 
 			<label for="username">Username:</label><br />
-			<input name="username" id="username" class="cms_username"type="text" maxlength="150" value="' . $this->loginname . '" ' . ($this->loginname != null ? "readonly=readonly" : "") . ' />
+			<input name="username" id="username" class="cms_username"type="text" maxlength="150" value="' . $this->getLoginname() . '" ' . ($this->getLoginname() != null ? "readonly=readonly" : "") . ' />
 			<div class="clear"></div>
 			<br />
 					
@@ -231,11 +113,11 @@ class account extends model
 			<br />		
 					
 			<label for="email">Email Address:</label><br />
-			<input name="email" id="email" type="text" maxlength="150" value="' . $this->email . '" />
+			<input name="email" id="email" type="text" maxlength="150" value="' . $this->getEmail() . '" />
 			<div class="clear"></div>
 											
 			<label for="groupId">Permission Group:</label><br />';
-			echo getFormattedGroups($this->conn, "dropdown", "groupId", $this->groupId);
+			echo getFormattedGroups($this->conn, "dropdown", "groupId", $this->getGroupId());
 			echo '
 			<div class="clear"></div>
 			<br />
@@ -243,7 +125,7 @@ class account extends model
 				
 			<br />
 			<input type="submit" name="saveChanges" class="btn btn-success btn-large" value="' . ((!isset($userId) || $userId == null) ? "Create" : "Update") . ' This User!" /><br /><br />
-			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=account&action=delete&p=' . $this->id . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
+			' . ((isset($userId) && $userId != null) ? '<a href="admin.php?type=account&action=delete&p=' . $this->getId() . '"" class="deleteBtn">Delete This User!</a><br /><br />' : '') . '
 			</form>
 		';
 	}
@@ -274,7 +156,7 @@ class account extends model
 					}
 					break;
 				case "insert":
-					if($user->checkPermission($this->table, 'insert')) {
+					if(countRecords($this->conn,$this->table) == 0 || $user->checkPermission($this->table, 'insert')) {
 						//Determine if the form has been submitted
 						if(isset($_POST['saveChanges'])) {
 							// User has posted the article edit form: save the new article
@@ -292,7 +174,7 @@ class account extends model
 								} else if($auth) {
 									//Re-build the main User after creation
 									$ret = true;
-									$this->log->trackChange($this->table, 'add',$this->getId(),$this->getLoginname(), $this->loginname . " added");
+									$this->log->trackChange($this->table, 'add',$this->getId(),$this->getLoginname(), $this->getLoginname() . " added");
 								} else {
 									parent::render("siteLogin");
 								}
@@ -319,7 +201,7 @@ class account extends model
 							} else {
 								//Re-build the User creation form once we are done
 								$this->buildEditForm($parent);
-								$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
+								$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->getLoginname() . " updated");
 							}
 							
 						} else {
@@ -334,7 +216,7 @@ class account extends model
 					if($user->checkPermission($this->table, 'delete')) {
 						$this->delete($parent);
 						$ret = true;
-						$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->loginname . " deleted");
+						$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->getLoginname() . " deleted");
 					} else {
 						echo "You do not have permissions to '<strong>delete</strong>' records for " . $this->table . ".<br />";
 					}
@@ -360,14 +242,14 @@ class account extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">Account List</a><br /><br />';
 	
-		$accountSQL = "SELECT * FROM " . $this->table . " ORDER BY account_created DESC";
+		$accountSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
 		$accountResult = $this->conn->query($accountSQL);
 	
 		if ($accountResult !== false && mysqli_num_rows($accountResult) > 0 ) {
 			while($row = mysqli_fetch_assoc($accountResult) ) {
 	
-				$username = stripslashes($row['account_login']);
-				$email = stripslashes($row['account_email']);
+				$username = stripslashes($row['loginname']);
+				$email = stripslashes($row['email']);
 	
 				echo "
 				<div class=\"user\">
@@ -387,48 +269,33 @@ class account extends model
 	
 	}
 	
-	/**
-	 * Builds the necessary tables for this object
-	 *
+	/*
+	 * Checks the users permission to see if they can access an object
+	 * 
+	 * @param $model	The object to be accessed
+	 * @param $change	The action to be performed
+	 * 
+	 * @return Returns true if you have access, otherwise false
 	 */
-	public function buildTable() {
-		/*Table structure for table `users` */
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->table . "` (
-		  `id` int(16) NOT NULL AUTO_INCREMENT,
-		  `account_login` varchar(64) DEFAULT NULL,
-		  `account_pass` varchar(64) DEFAULT NULL,
-		  `account_salt` varchar(64) DEFAULT NULL,
-		  `account_token` varchar(64) DEFAULT NULL,
-		  `account_email` varchar(128) DEFAULT NULL,
-		  `account_created` varchar(100) DEFAULT NULL,
-		  `account_isRegistered` tinyint(1) DEFAULT NULL,
-		  `account_groupId` int(16) DEFAULT NULL,
-				
-		  PRIMARY KEY (`id`)
-		)";
-		$this->conn->query($sql) OR DIE ("Could not build table \"" . $this->table . "\"");
-	
-	}
-	
 	public function checkPermission($model, $change) {
 		$ret = false;
-		$permissions = getRecords($this->conn, "permission", array("*"), "permission_model='$model' AND permission_groupId=" . $this->groupId, $order=null);
+		$permissions = getRecords($this->conn, "permission", array("*"), "model='$model' AND groupId=" . $this->getGroupId(), $order=null);
 
 		if($permissions != false) {
 			$data = mysqli_fetch_assoc($permissions);
 
 			switch($change) {
 				case "read":
-					$ret = ($data['permission_read'] == 1 ? true : false);
+					$ret = ($data['readAction'] == 1 ? true : false);
 					break;
 				case "insert":
-					$ret = ($data['permission_insert'] == 1 ? true : false);
+					$ret = ($data['insertAction'] == 1 ? true : false);
 					break;
 				case "update":
-					$ret = ($data['permission_update'] == 1 ? true : false);
+					$ret = ($data['updateAction'] == 1 ? true : false);
 					break;
 				case "delete":
-					$ret = ($data['permission_delete'] == 1 ? true : false);
+					$ret = ($data['deleteAction'] == 1 ? true : false);
 					break;
 			}
 		}

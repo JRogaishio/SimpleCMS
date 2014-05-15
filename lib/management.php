@@ -27,7 +27,7 @@ function lookupPageNameById($conn, $pageId) {
 	$name = null;
 	if(mysqli_num_rows($pageResult) > 0) {
 		$row = mysqli_fetch_assoc($pageResult);
-		$name = $row['page_title'];
+		$name = $row['title'];
 	}
 	
 	return $name;
@@ -42,12 +42,12 @@ function lookupPageNameById($conn, $pageId) {
  * @return returns the page name selected
  */
 function lookupGroupNameById($conn, $groupId) {
-	$groupSQL = "SELECT permissiongroup_name FROM permissionGroup WHERE id=$groupId";
+	$groupSQL = "SELECT title FROM permissiongroup WHERE id=$groupId";
 	$groupResult =  $conn->query($groupSQL);
 	$name = null;
 	if(mysqli_num_rows($groupResult) > 0) {
 		$row = mysqli_fetch_assoc($groupResult);
-		$name = $row['permissiongroup_name'];
+		$name = $row['title'];
 	}
 
 	return $name;
@@ -92,7 +92,7 @@ function lookupPageIdByLink($conn, $pageLink) {
  */
 function getFormattedPages($conn, $format, $eleName, $defaultVal) {
 
-	$pageSQL = "SELECT * FROM page ORDER BY page_created DESC";
+	$pageSQL = "SELECT * FROM page ORDER BY created DESC";
 	$pageResult =  $conn->query($pageSQL);
 	$formattedData = "";
 	if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 ) {
@@ -104,7 +104,7 @@ function getFormattedPages($conn, $format, $eleName, $defaultVal) {
 					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupPageNameById($conn, $defaultVal) . "--</option>";
 				
 				while($row = mysqli_fetch_assoc($pageResult) ) {
-					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['page_title']) . "</option>";
+					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['title']) . "</option>";
 				}
 				$formattedData .= "</select>";
 				
@@ -131,7 +131,7 @@ function getFormattedPages($conn, $format, $eleName, $defaultVal) {
  */
 function getFormattedGroups($conn, $format, $eleName, $defaultVal) {
 
-	$groupSQL = "SELECT * FROM permissiongroup ORDER BY permissiongroup_created DESC";
+	$groupSQL = "SELECT * FROM permissiongroup ORDER BY created DESC";
 	$groupResult =  $conn->query($groupSQL);
 	$formattedData = "";
 	if ($groupResult !== false && mysqli_num_rows($groupResult) > 0 ) {
@@ -143,7 +143,7 @@ function getFormattedGroups($conn, $format, $eleName, $defaultVal) {
 					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupGroupNameById($conn, $defaultVal) . "--</option>";
 
 				while($row = mysqli_fetch_assoc($groupResult) ) {
-					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['permissiongroup_name']) . "</option>";
+					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['title']) . "</option>";
 				}
 				$formattedData .= "</select>";
 
@@ -173,7 +173,7 @@ function lookupTemplateNameById($conn, $templateId) {
 	
 	if(mysqli_num_rows($templateResult) > 0) {
 		$row = mysqli_fetch_assoc($templateResult);
-		$name = $row['template_name'];
+		$name = $row['title'];
 	}
 
 	return $name;
@@ -191,7 +191,7 @@ function lookupTemplateNameById($conn, $templateId) {
  */
 function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
 
-	$templateSQL = "SELECT * FROM template ORDER BY template_created DESC";
+	$templateSQL = "SELECT * FROM template ORDER BY created DESC";
 	$templateResult =  $conn->query($templateSQL);
 	$formattedData = "";
 
@@ -204,7 +204,7 @@ function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
 					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupTemplateNameById($conn, $defaultVal) . "--</option>";
 				
 				while($row = mysqli_fetch_assoc($templateResult) ) {
-					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['template_name']) . "</option>";
+					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['title']) . "</option>";
 				}
 				$formattedData .= "</select>";
 				
@@ -230,12 +230,12 @@ function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
  */
 function get_userSalt($conn, $username) {
 
-	$userSQL = "SELECT * FROM account WHERE account_login='$username';";
+	$userSQL = "SELECT * FROM account WHERE loginname='$username';";
 	$userResult =  $conn->query($userSQL);
 
 	if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
 		$userData = mysqli_fetch_assoc($userResult);
-		return $userData['account_salt'];
+		return $userData['salt'];
 	} else {
 		return false;
 	}
@@ -256,7 +256,7 @@ function get_linkFormat($conn) {
 
 	if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {
 		$siteData = mysqli_fetch_assoc($siteResult);
-		return $siteData['site_linkFormat'];
+		return $siteData['urlFormat'];
 	} else {
 		return false;
 	}
