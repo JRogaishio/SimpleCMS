@@ -39,6 +39,7 @@ class account extends model
 		$secPass = hash('sha256',$this->getPassword());
 		$secPass = hash('sha256',($secPass . $salt));
 		$this->setPassword($secPass);
+		$this->password2 = hash('sha256',(hash('sha256',$this->password2) . $salt));
 		$this->setSalt($salt);
 	}
 

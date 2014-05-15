@@ -64,7 +64,7 @@ class admin extends core {
 					break;
 				case "updater":
 					$obj = new updater($this->_CONN, $this->_LOG);
-					$obj->update($this->_USER);
+					$obj->updateSystem($this->_USER);
 					break;
 				case "uploader":
 					$obj = new uploader($this->_CONN, $this->_LOG);
