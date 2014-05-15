@@ -8,17 +8,19 @@
  */
 class account extends model
 {
-	// Properties
+	//Persistant Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $loginname = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"loginname");
 	protected $password = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"password");
-	protected $password2 = null;
 	protected $token = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"token");
 	protected $salt = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"salt");
 	protected $email = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"email");
 	protected $isRegistered = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"isRegistered");
 	protected $groupId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"groupId");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
+	
+	//Non-persistant properties
+	protected $password2 = null;
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array

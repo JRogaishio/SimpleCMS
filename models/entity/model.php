@@ -118,6 +118,8 @@ class model extends orm {
 		$error = $this->validate();
 		if($error == "") {	
 			$this->setCreated(time());
+			
+			$this->preSave();
 			$ret = $this->save();
 			if($ret) {
 				echo "<span class='update_notice'>Created " . $this->table . " successfully!</span><br /><br />";
@@ -137,6 +139,7 @@ class model extends orm {
 		$error = $this->validate();
 
 		if($error == "") {
+			$this->preSave();
 			$ret = $this->save();
 			if($ret) {
 				echo "<span class='update_notice'>Updated " . $this->table . " successfully!</span><br /><br />";
@@ -155,7 +158,7 @@ class model extends orm {
 	 */
 	public function remove() {
 		echo "<span class='update_notice'>" . ucfirst($this->table) . " deleted! Bye bye '$this->table', we will miss you.</span><br /><br />";
-	
+		$this->preDelete();
 		$result = $this->delete();
 	
 		return $result;
@@ -171,6 +174,24 @@ class model extends orm {
 		$ret = "";
 	
 		return $ret;
+	}
+	
+	/**
+	 * Any pre-formatting before save opperatins
+	 *
+	 * @return Returns true or false based on pre saving success
+	 */
+	protected function preSave() {
+		return true;
+	}
+	
+	/**
+	 * Any pre-formatting before delete opperatins
+	 *
+	 * @return Returns true or false based on pre delete success
+	 */
+	protected function preDelete() {
+		return true;
 	}
 }
 

@@ -128,24 +128,40 @@ class page extends model
 		return $ret;
 
 	}
-
+	
 	/**
-	 * Deletes the current page object from the database.
+	 * Any pre-formatting before save opperatins
+	 *
+	 * @return Returns true or false based on pre saving success
 	 */
-	public function delete() {
-		echo "<span class='update_notice'>Page deleted! Bye bye '$this->getTitle()', we will miss you.</span><br /><br />";
+	protected function preSave() {
+		$ret = false;
+		//Set all other pages to be not a homepage
+		if($this->getIsHome() == 1){
+			$sql = "UPDATE " . $this->table . " SET isHome=0";
+			$ret = $this->conn->query($sql) OR DIE ("Could not update home page!");
+		}
 		
-		$this->delete();
-		
+		return $ret;
+	}
+	
+	/**
+	 * Any pre-formatting before save opperatins
+	 *
+	 * @return Returns true or false based on pre saving success
+	 */
+	protected function preDelete() {
+		$ret = false;
 		$postSQL = "DELETE FROM post WHERE pageId=" . $this->getId();
-		$postResult = $this->conn->query($postSQL);
+		$ret = $this->conn->query($postSQL);
+		
+		return $ret;
 	}
 	
 	/**
 	 * Loads the page object members based off the page id in the database
 	 */
 	public function loadRecord($p=null, $c=null) {
-			
 		if(isset($p) && $p != null) {
 			
 			if($p == "home")
