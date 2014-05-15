@@ -50,41 +50,14 @@ class permission extends model
 	/**
 	 * Inserts the current template object into the database
 	 */
-	public function insert() {
+	public function insert($surpressNotify = false) {
 		$ret = true;
-		if($this->constr) {
-			if( $this->getGroupId() == null ||  $this->getGroupId() == '') {$this->setGroupId(getLastField($this->conn, 'permissiongroup', 'id'));}
+		if( $this->getGroupId() == null ||  $this->getGroupId() == '') {$this->setGroupId(getLastField($this->conn, 'permissiongroup', 'id'));}
 			
-			$this->setCreated(time());
-			$ret = $this->save();
-		} else {
-			$ret = false;
-			echo "Failed to load form data!";
-		}
+		$this->setCreated(time());
+		$ret = $this->save();
+
 		return $ret;
-	}
-
-	/**
-	 * Updates the current template object in the database.
-	 * 
-	 * @param $templateId	The template Id to update
-	 */
-	public function update() {
-	
-		if($this->constr) {
-
-			$sql = "UPDATE " . $this->table . " SET
-			permission_read = $this->read, 
-			permission_insert = $this->insert,
-			permission_update = $this->update, 
-			permission_delete = $this->delete
-			WHERE id=" . $this->id . ";";
-
-			$result = $this->conn->query($sql) OR DIE ("Could not update " . $this->table . "!");
-
-		} else {
-			echo "Failed to load form data!";
-		}
 	}
 
 	/**
@@ -96,9 +69,7 @@ class permission extends model
 	 */
 	public function delete() {
 		$permissionSQL = "DELETE FROM " . $this->table . " WHERE permission_groupId=" . $this->groupId;
-
 		$permissionResult = $this->conn->query($permissionSQL);
-		
 		return $permissionResult;
 	}
 	

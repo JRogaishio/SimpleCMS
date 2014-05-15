@@ -81,7 +81,7 @@ class model extends orm {
 							
 						$this->storeFormValues($_POST);
 						
-						$result = $this->update($parent);
+						$result = $this->update();
 						//Re-build the page creation form once we are done
 						$this->buildEditForm($parent, $child, $user);
 	
@@ -114,14 +114,14 @@ class model extends orm {
 	/**
 	 * Inserts the current object into the database
 	 */
-	public function insert() {
+	public function insert($surpressNotify = false) {
 		$error = $this->validate();
 		if($error == "") {	
 			$this->setCreated(time());
 			
 			$this->preSave();
 			$ret = $this->save();
-			if($ret) {
+			if($ret && !$surpressNotify) {
 				echo "<span class='update_notice'>Created " . $this->table . " successfully!</span><br /><br />";
 			}
 		}  else {
@@ -135,13 +135,13 @@ class model extends orm {
 	/**
 	 * Updates the current object in the database.
 	 */
-	public function update() {		
+	public function update($surpressNotify = false) {		
 		$error = $this->validate();
 
 		if($error == "") {
 			$this->preSave();
 			$ret = $this->save();
-			if($ret) {
+			if($ret && !$surpressNotify) {
 				echo "<span class='update_notice'>Updated " . $this->table . " successfully!</span><br /><br />";
 			}
 		} else {
@@ -156,11 +156,13 @@ class model extends orm {
 	 *
 	 * @return returns the database result on the delete query
 	 */
-	public function remove() {
-		echo "<span class='update_notice'>" . ucfirst($this->table) . " deleted! Bye bye '$this->table', we will miss you.</span><br /><br />";
+	public function remove($surpressNotify = false) {
 		$this->preDelete();
 		$result = $this->delete();
 	
+		if(!$surpressNotify) {
+			echo "<span class='update_notice'>" . ucfirst($this->table) . " deleted! Bye bye '$this->table', we will miss you.</span><br /><br />";
+		}
 		return $result;
 	}
 	

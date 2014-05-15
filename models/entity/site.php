@@ -135,11 +135,11 @@ class site extends model
 	}
 	
 	//Override base model functions to do nothing incase of URL mishaps
-	public function insert() {
+	public function insert($surpressNotify = false) {
 		//Override to do nothing
 		return false;
 	}
-	public function remove() {
+	public function remove($surpressNotify = false) {
 		//Override to do nothing
 		return false;
 	}

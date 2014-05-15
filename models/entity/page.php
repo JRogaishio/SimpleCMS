@@ -74,7 +74,7 @@ class page extends model
 	* 
 	* @return Returns true on insert success
 	*/
-	public function insert() {
+	public function insert($surpressNotify = false) {
 		$ret = true;
 		$error = $this->validate();
 		if($error == "") {
@@ -103,7 +103,7 @@ class page extends model
 	 * 
 	 * @return returns true if the update was successful
 	 */
-	public function update() {
+	public function update($surpressNotify = false) {
 		$ret = true;
 		if($this->constr) {
 			$error = $this->validate();

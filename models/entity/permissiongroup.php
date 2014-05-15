@@ -67,52 +67,14 @@ class permissiongroup extends model
 	}
 	
 	/**
-	 * Inserts the current template object into the database
-	 */
-	public function insert() {
-		$ret = true;
-		if($this->constr) {
-			$error = $this->validate();
-			if($error == "") {
-			
-				$this->setEditable(1);
-				$this->setCreated(time());
-				$result = $this->save();
-
-				if($result) {
-					echo "<span class='update_notice'>Created permission group successfully!</span><br /><br />";
-				}
-			} else {
-				$ret = false;
-				echo "<p class='cms_warning'>" . $error . "</p><br />";
-			}
-
-		} else {
-			$ret = false;
-			echo "Failed to load form data!";
-		}
-		return $ret;
+	 * Any pre-formatting before save opperatins
+	 *
+	 * @return Returns true or false based on pre saving success
+	*/
+	protected function preSave() {
+		$this->setEditable(1); //All new groups are editable
 	}
-
-	/**
-	 * Updates the current group object in the database.
-	 * 
-	 * @param $templateId	The template Id to update
-	 */
-	public function update() {
 	
-		if($this->constr) {
-
-			$result = $this->save();
-			if($result) {
-				echo "<span class='update_notice'>Updated group successfully!</span><br /><br />";
-			}
-
-		} else {
-			echo "Failed to load form data!";
-		}
-	}
-
 	/**
 	 * Deletes the current template object from the database.
 	 * 
@@ -203,7 +165,6 @@ class permissiongroup extends model
 		echo "</table>";
 	}
 	
-	
 	/**
 	 * Display the template management page
 	 *
@@ -235,11 +196,11 @@ class permissiongroup extends model
 							
 						$this->storeFormValues($_POST);
 							
-						$result = $this->insert();
+						$result = $this->insert(false);
 		
 						//Save all the permission options
 						foreach($this->permissions as $permission) {
-							$permission->insert();
+							$permission->insert(true);
 						}
 						
 						if(!$result) {
@@ -264,11 +225,11 @@ class permissiongroup extends model
 		
 						$this->storeFormValues($_POST);
 							
-						$result = $this->update($parent);
+						$result = $this->update();
 						
 						//Save all the permission options
 						foreach($this->permissions as $permission) {
-							$permission->update();
+							$permission->update(true);
 						}
 						
 						//Re-build the page creation form once we are done
