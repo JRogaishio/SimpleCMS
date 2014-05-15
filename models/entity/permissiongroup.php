@@ -72,23 +72,7 @@ class permissiongroup extends model
 	protected function preSave() {
 		$this->setEditable(1); //All new groups are editable
 	}
-	
-	/**
-	 * Deletes the current template object from the database.
-	 * 
-	 * @param $templateId	The template to be deleted
-	 * 
-	 * @return returns the database result on the delete query
-	 */
-	public function delete() {
-		echo "<span class='update_notice'>Group deleted! Bye bye '$this->getTitle()', we will miss you.<br />Please be sure to update any users that were using this group!</span><br /><br />";
 		
-		$groupSQL = "DELETE FROM " . $this->table . " WHERE id=" . $this->id;
-		$groupResult = $this->conn->query($groupSQL);
-		
-		return $groupResult;
-	}
-	
 	/**
 	 * Loads the template object members based off the template id in the database
 	 * 
@@ -99,9 +83,8 @@ class permissiongroup extends model
 			$this->load($groupId);
 			
 			//Set a field to use by the logger
-			$this->logField = $this->geTitle();
+			$this->logField = $this->getTitle();
 		}
-	
 	}
 	
 	/**
@@ -257,7 +240,8 @@ class permissiongroup extends model
 						$permission->delete();
 					}
 					
-					$this->delete($parent);
+					$this->delete();
+					echo "<span class='update_notice'>" . ucfirst($this->table) . " deleted! Bye bye '$this->logField', we will miss you.</span><br /><br />";
 					$ret = true;
 					$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->logField . " deleted");
 				} else {

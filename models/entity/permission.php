@@ -66,7 +66,7 @@ class permission extends model
 	 * @return returns the database result on the delete query
 	 */
 	public function delete() {
-		$permissionSQL = "DELETE FROM " . $this->table . " WHERE permission_groupId=" . $this->groupId;
+		$permissionSQL = "DELETE FROM " . $this->table . " WHERE groupId=" . $this->getGroupId();
 		$permissionResult = $this->conn->query($permissionSQL);
 		return $permissionResult;
 	}

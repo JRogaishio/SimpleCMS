@@ -161,7 +161,7 @@ class model extends orm {
 		$result = $this->delete();
 	
 		if(!$surpressNotify) {
-			echo "<span class='update_notice'>" . ucfirst($this->table) . " deleted! Bye bye '$this->table', we will miss you.</span><br /><br />";
+			echo "<span class='update_notice'>" . ucfirst($this->table) . " deleted! Bye bye '$this->logField', we will miss you.</span><br /><br />";
 		}
 		return $result;
 	}

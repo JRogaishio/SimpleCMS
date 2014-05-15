@@ -201,7 +201,7 @@ class account extends model
 							} else {
 								//Re-build the User creation form once we are done
 								$this->buildEditForm($parent);
-								$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->loginname . " updated");
+								$this->log->trackChange($this->table, 'update',$user->getId(),$user->getLoginname(), $this->getLoginname() . " updated");
 							}
 							
 						} else {
@@ -216,7 +216,7 @@ class account extends model
 					if($user->checkPermission($this->table, 'delete')) {
 						$this->delete($parent);
 						$ret = true;
-						$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->loginname . " deleted");
+						$this->log->trackChange($this->table, 'delete',$user->getId(),$user->getLoginname(), $this->getLoginname() . " deleted");
 					} else {
 						echo "You do not have permissions to '<strong>delete</strong>' records for " . $this->table . ".<br />";
 					}

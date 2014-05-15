@@ -46,10 +46,11 @@ class plugin extends model
 		if(isset($p) && $p != null) {
 			$this->load($p);
 			
+			//Set the name based on the filename
+			$this->setName(substr($this->getFilename(), 0, strpos($this->getFilename(), ".php")));
+			
 			//Set a field to use by the logger
 			$this->logField = $this->getName();
-			
-			$this->name = substr($this->getFilename(), 0, strpos($this->getFilename(), ".php"));
 		}
 	}
 	
@@ -64,6 +65,10 @@ class plugin extends model
 		$this->loadRecord($pluginId);
 
 		echo "<div id='main_content'>";
+		
+		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=plugin&action=read">Plugin List</a> > <a href="admin.php?type=plugin&action=update&p=' . $pluginId . '">Plugin</a><br /><br />';
+		
+		
 		echo '
 			<form action="admin.php?type=plugin&action=' . (($this->getId() == null) ? "insert" : "update") . '&p=' . $this->getId() . '" method="post">
 
