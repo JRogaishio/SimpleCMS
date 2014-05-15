@@ -17,12 +17,12 @@ class keyService extends service
 	 * @return Returns the key value if found otherwise null
 	 */
 	public function getValue($key) {
-		$sql = "SELECT * FROM customkeys WHERE key_name='$key';";
+		$sql = "SELECT * FROM customkey WHERE keyItem='$key';";
 		$result =  $this->conn->query($sql);
 	
 		if ($result !== false && mysqli_num_rows($result) > 0 ) {
 			$data = mysqli_fetch_assoc($result);
-			return $data['key_value'];
+			return $data['keyValue'];
 		} else {
 			return null;
 		}

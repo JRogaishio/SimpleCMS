@@ -38,16 +38,17 @@ class pageService extends service
 				$tempId = $this->model->getId();
 				$tempLink = $this->model->getSafeLink();
 			}
-			if($postLimit == -1)
-				$postSQL = "SELECT * FROM posts WHERE page_id=$tempId " . ($childId != null ? "AND id = " . clean($this->conn,$childId) : "") . " ORDER BY post_created DESC";
-			else {
+			
+			if($postLimit == -1) {
+				$postSQL = "SELECT * FROM post WHERE pageId=$tempId " . ($childId != null ? "AND id = " . clean($this->conn,$childId) : "") . " ORDER BY created DESC";
+			} else {
 				if(strpos(clean($this->conn,$childId), "~") !== false) {
 					$temp = str_replace("~", "", (clean($this->conn,$childId)));
 					$startPos = $temp;
 						
-					$postSQL = "SELECT * FROM posts WHERE page_id=$tempId ORDER BY post_created DESC LIMIT $startPos, $postLimit";
+					$postSQL = "SELECT * FROM post WHERE pageId=$tempId ORDER BY created DESC LIMIT $startPos, $postLimit";
 				} else {
-					$postSQL = "SELECT * FROM posts WHERE page_id=$tempId " . ($childId != null ? "AND id = " . $childId : "") . " ORDER BY post_created DESC LIMIT $postLimit";
+					$postSQL = "SELECT * FROM post WHERE pageId=$tempId " . ($childId != null ? "AND id = " . $childId : "") . " ORDER BY created DESC LIMIT $postLimit";
 				}
 			}
 				
@@ -57,9 +58,9 @@ class pageService extends service
 			if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
 				while($row = mysqli_fetch_assoc($postResult) ) {
 					$postId = stripslashes($row['id']);
-					$title = stripslashes($row['post_title']);
-					$postDate = date(DATEFORMAT . " " . TIMEFORMAT, stripslashes($row['post_created']));
-					$postContent = stripslashes($row['post_content']);
+					$title = stripslashes($row['title']);
+					$postDate = date(DATEFORMAT . " " . TIMEFORMAT, stripslashes($row['created']));
+					$postContent = stripslashes($row['content']);
 	
 					$entry_display .= "
 					<div class=\"page\">

@@ -40,13 +40,13 @@ class pub extends core {
 	 */
 	public function load_page($pSafeLink) {
 		global $cms; //Make the CMS variable a global so the pages can reference it
-	
+		
 		$page = new page($this->_CONN, $this->_LOG);
 		$this->getScope('pageService')->setContext($page);
 		
 		//Load the page
 		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home" && strpos($pSafeLink,"SYS_") === false) {
-			$pageSQL = "SELECT * FROM page WHERE page_safeLink='$pSafeLink'";
+			$pageSQL = "SELECT * FROM page WHERE safeLink='$pSafeLink'";
 			$pageResult = $this->_CONN->query($pageSQL);
 
 			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
@@ -61,8 +61,9 @@ class pub extends core {
 		}
 		
 		//Load the page
-		if($page->getTemplate() != "" && $page->getTemplate() != null && $page->getConstr() == true && strpos($pSafeLink,"SYS_") === false) {
-			$templateSQL = "SELECT * FROM template WHERE id=" . $page->getTemplate();
+		if($page->getTemplateId() != "" && $page->getTemplateId() != null && strpos($pSafeLink,"SYS_") === false) {
+			$templateSQL = "SELECT * FROM template WHERE id=" . $page->getTemplateId();
+
 			$templateResult = $this->_CONN->query($templateSQL);
 			
 			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
@@ -70,8 +71,8 @@ class pub extends core {
 
 			if(isset($template)) {
 				//Load the template file
-				$page->setTemplatePath($template['template_path']);
-				require(TEMPLATE_PATH . "/" . $template['template_path'] . "/" . $template['template_file']);
+				$page->setTemplatePath($template['path']);
+				require(TEMPLATE_PATH . "/" . $template['path'] . "/" . $template['filename']);
 				$this->getScope('templateService')->setContext($template);
 			}
 		} else {
@@ -98,14 +99,14 @@ class pub extends core {
 		echo "<ul class='cms_ul_nav'>";
 		
 		for($i=0;$i<count($data);$i++) {
-			$pageSQL = "SELECT * FROM page WHERE page_safelink='$data[$i]'";
+			$pageSQL = "SELECT * FROM page WHERE safelink='$data[$i]'";
 			$pageResult = $this->_CONN->query($pageSQL);
 
 			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
 				$pageData = mysqli_fetch_assoc($pageResult);
 
 			if(isset($pageData)) {
-				echo "<li class='cms_li_nav' id='nav-$data[$i]'><a href='" . formatLink($this->_LINKFORMAT, $pageData['page_safeLink'])  . "'>" . $pageData['page_title'] . "</a></li>";
+				echo "<li class='cms_li_nav' id='nav-$data[$i]'><a href='" . formatLink($this->_LINKFORMAT, $pageData['safeLink'])  . "'>" . $pageData['title'] . "</a></li>";
 			}
 		}
 		

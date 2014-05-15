@@ -8,7 +8,7 @@
  */
 class page extends model
 {	
-	// Properties
+	//Persistant Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
 	protected $templateId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"templateId");
@@ -18,6 +18,15 @@ class page extends model
 	protected $isHome = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"isHome");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 		
+	//Non-Persistant properties
+	protected $templatePath = null;
+	
+	//Getters
+	public function getTemplatePath() {return $this->templatePath;}
+	
+	//Setters
+	public function setTemplatePath($val) {$this->templatePath = $val;}
+	
 	/**
 	 * Returns true if the flag exists or false if it doesnt
 	 * 
@@ -41,7 +50,7 @@ class page extends model
 		//I also want to do a sanitization string here. Go find my clean() function somewhere
 		if(isset($params['id'])) $this->setId(clean($this->conn, $params['id']));
 		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
-		if(isset($params['template'])) $this->setTemplate(clean($this->conn, $params['template']));
+		if(isset($params['template'])) $this->setTemplateId(clean($this->conn, $params['template']));
 		if(isset($params['safelink'])) $this->setSafeLink(clean($this->conn, $params['safelink']));
 		if(isset($params['metadata'])) $this->setMetaData(clean($this->conn, $params['metadata']));
 		if(isset($params['flags'])) $this->setFlags(clean($this->conn, $params['flags']));
@@ -160,10 +169,10 @@ class page extends model
 		if(isset($p) && $p != null) {
 			
 			if($p == "home")
-				$pageSQL = "SELECT * FROM " . $this->table . " WHERE page_isHome=true";
+				$pageSQL = "SELECT * FROM " . $this->table . " WHERE isHome=true";
 			else
 				$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=$p";
-				
+			
 			$pageResult = $this->conn->query($pageSQL);
 
 			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
@@ -171,7 +180,7 @@ class page extends model
 
 			if(isset($row)) {
 				$this->load($row['id']);
-				
+
 				//Set a field to use by the logger
 				$this->logField = $this->getTitle();
 			}
