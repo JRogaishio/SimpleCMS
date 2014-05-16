@@ -99,6 +99,44 @@
  	}
  	
  	/*
+ 	 * Loads the object from the database based on an id
+ 	*
+ 	* @param $id	The database ID to load
+ 	*
+ 	* @return Returns true on database search success, else false
+ 	*/
+ 	public function loadList($id, $relatedObject, $relatedField) {
+ 		$sql = "SELECT * FROM " . $relatedObject . " WHERE " . $relatedField . "=" . $id;
+ 		
+ 		$relPrimary = null;
+ 		$relObj = new $relatedObject();
+ 		
+ 		//Find the related objects primary key field name
+ 		foreach(get_object_vars($relObj) as $var) {
+ 			if(is_array($var) && isset($var['orm']) && $var['orm'] == true) {
+ 				if(isset($var['primary']) && $var['primary'] == true) {
+ 					$relPrimary = $var['field'];
+ 					break;
+ 				}
+ 			}
+ 		}
+ 		
+ 		$result = $this->conn->query($sql) OR DIE ("Could not load list");
+ 		$retArr = array();
+ 		
+ 		if ($result !== false && mysqli_num_rows($result) > 0 ) {
+ 			while($row = mysqli_fetch_assoc($postResult) ) {
+ 				
+ 				$obj = new $relatedObject();
+ 				$obj->load($row[$relPrimary]);
+ 				$retArr = array_push($retArr, $obj);
+ 			}
+ 		} 			
+ 		
+ 		return $retArr;
+ 	} 	
+ 	
+ 	/*
  	 * Deletes the object from the database based on an id
  	*
  	* @param $id	The database ID to delete
