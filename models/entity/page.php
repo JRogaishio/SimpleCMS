@@ -255,32 +255,23 @@ class page extends model
 	 */
 	private function display_pagePosts($pageId) {
 		if($pageId != null) {
-			$postSQL = "SELECT * FROM post WHERE pageId=$pageId ORDER BY created ASC";
-			$postResult = $this->conn->query($postSQL);
+			$postList = $this->loadList(new post($this->conn, $this->log), "created:ASC", array("pageId=$pageId"));
 			$entry_display = "";
 			
-			if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
-				while($row = mysqli_fetch_assoc($postResult) ) {
-					
-					$title = stripslashes($row['title']);
-					$postDate = stripslashes($row['createdDate']);
-
+			if (count($postList)) {
+				foreach($postList as $post) {
 					$entry_display .= "
 					<div class=\"page\">
 					<h3>
-					<a href=\"admin.php?type=post&action=update&p=".$row['pageId']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >$title</a>
+					<a href=\"admin.php?type=post&action=update&p=".$post->getPageId()."&c=".$post->getId()."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >" . $post->getTitle() . "</a>
 					</h3>
 					<p>
-					" . $postDate . "
+					" . $post->getCreatedDate() . "
 					</p>
 					<br /></div>";
-
 				}
 			} else {
-				$entry_display .= "
-				<p>
-				No posts found!<br /><br />
-				</p>";
+				echo "No posts found!<br /><br />";
 			}
 		
 			return $entry_display;
@@ -297,28 +288,20 @@ class page extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=page&action=read">Page List</a><br /><br />';
 	
-		$pageSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
-		$pageResult = $this->conn->query($pageSQL);
-	
-		if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 ) {
-			while($row = mysqli_fetch_assoc($pageResult) ) {
-	
-				$title = stripslashes($row['title']);
-				$safeLink = stripslashes($row['safeLink']);
-	
+		$pageList = $this->loadList(new page($this->conn, $this->log), "created:DESC");
+		
+		if (count($pageList)) {
+			foreach($pageList as $page) {
 				echo "
 				<div class=\"page\">
 					<h2>
-					<a href=\"admin.php?type=page&action=update&p=".$row['id']."\" " . ($row['isHome']==1 ? "id='cms_homepageMarker'":"") . " title='" . ($row['isHome']==1 ? "Edit / Manage the homepage":"Edit / Manage this page") . "' class=\"cms_pageEditLink\" >$title</a>
-						</h2>
-						<p>" . SITE_ROOT . $safeLink . "</p>
+					<a href=\"admin.php?type=page&action=update&p=". $page->getId() ."\" " . ($page->getIsHome()==1 ? "id='cms_homepageMarker'":"") . " title='" . ($page->getIsHome()==1 ? "Edit / Manage the homepage":"Edit / Manage this page") . "' class=\"cms_pageEditLink\" >" . $page->getTitle() . "</a>
+					</h2>
+					<p>" . SITE_ROOT . $page->getSafeLink() . "</p>
 				</div>";
 			}
 		} else {
-			echo "
-			<p>
-				No pages found!
-			</p>";
+			echo "<p>No pages found!</p>";
 		}
 	}
 }

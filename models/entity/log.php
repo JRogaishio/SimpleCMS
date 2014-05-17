@@ -8,7 +8,7 @@
  */
 class log extends model
 {
-	// Properties
+	//Persistant Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $model = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"model");
 	protected $action = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"action");

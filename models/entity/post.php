@@ -97,7 +97,7 @@ class post extends model
 		
 		echo '<form action="admin.php?type=post&action=' . (($this->getId() == null) ? "insert" : "update") . '&p=' . $pageId . '&c=' . $postId . '" method="post">
 		<label for="pageId">Page:</label><br />';
-		echo getFormattedPages($this->conn, "dropdown", "pageId",$this->getPageId());
+		echo getFormattedPages($this->conn, "dropdown", "pageId",$pageId);
 		echo '
 		<div class="clear"></div>
 		<br />
@@ -128,41 +128,32 @@ class post extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=post&action=read">Post List</a><br /><br />';
 	
-		$postSQL = "SELECT * FROM " . $this->table . " ORDER BY pageId ASC";
-		$postResult = $this->conn->query($postSQL);
+		$postList = $this->loadList(new post($this->conn, $this->log), "pageId:ASC");
 		$lastPageName = "";
-	
-		if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
-			while($row = mysqli_fetch_assoc($postResult) ) {
-	
-				if($lastPageName != lookupPageNameById($this->conn, $row['pageId'])) {
+		
+		if (count($postList)) {
+			foreach($postList as $post) {
+				if($lastPageName != lookupPageNameById($this->conn, $post->getPageId())) {
 					//If we aren't on the first page in the list, add some line breaks inbetween page lists.
 					if($lastPageName != "")
 						echo "<br /><br />";
 						
-					$lastPageName = lookupPageNameById($this->conn, $row['pageId']);
+					$lastPageName = lookupPageNameById($this->conn, $post->getPageId());
 					echo "<h1 class='cms_pageTitle'>" . $lastPageName . "</h1>";
 				}
-	
-				$title = stripslashes($row['title']);
-				$postDate = stripslashes($row['createdDate']);
 	
 				echo "
 				<div class=\"page\">
 				<h3>
-				<a href=\"admin.php?type=post&action=update&p=".$row['pageId']."&c=".$row['id']."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >$title</a>
+				<a href=\"admin.php?type=post&action=update&p=".$post->getPageId()."&c=".$post->getId()."\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >" . $post->getTitle() . "</a>
 					</h3>
 					<p>
-					" . $postDate . "
+					" . $post->getCreatedDate() . "
 				</p>
 				</div>";
-	
 			}
 		} else {
-			echo "
-			<p>
-			No posts found!<br /><br />
-			</p>";
+			echo "<p>No posts found!<br /><br /></p>";
 		}
 	}
 }
