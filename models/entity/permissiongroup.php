@@ -1,20 +1,22 @@
 <?php
 
 /**
- * Class to handle page templates
+ * Class to handle permission groups
  *
  * @author Jacob Rogaishio
  * 
  */
 class permissiongroup extends model
 {
-	// Properties
+	//Persistant Properties
 	protected $availModels = array('account', 'customkey', 'permissiongroup', 'log', 'page', 'permission', 'plugin', 'post', 'site', 'template', 'updater', 'uploader');
-	protected $permissions = array();
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
 	protected $editable = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"editable");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
+	
+	//Non-persistant properties
+	protected $permissions = array();
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array
@@ -261,28 +263,20 @@ class permissiongroup extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=permissiongroup&action=read">Permission Group List</a><br /><br />';
 	
-		$groupSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
-		$groupResult = $this->conn->query($groupSQL);
-	
-		if ($groupResult !== false && mysqli_num_rows($groupResult) > 0 ) {
-			while($row = mysqli_fetch_assoc($groupResult) ) {
-	
-				$name = stripslashes($row['title']);
-	
+		$groupList = $this->loadList(new permissionGroup($this->conn, $this->log), "created:DESC");
+		
+		if (count($groupList)) {
+			foreach($groupList as $group) {
 				echo "
-				<div class=\"user\">
-					<h2>
-						<a href=\"admin.php?type=permissiongroup&action=update&p=".$row['id']."\" title=\"Edit / Manage this permission group\" alt=\"Edit / Manage this permission group\" class=\"cms_pageEditLink\" >$name</a>
-							</h2>
-							</div>";
+				<div class=\"permissiongroup\">
+				<h2>
+				<a href=\"admin.php?type=permissiongroup&action=update&p=".$group->getId()."\" title=\"Edit / Manage this permission group\" alt=\"Edit / Manage this permission group\" class=\"cms_pageEditLink\" >" . $group->getTitle() . "</a>
+				</h2>
+				</div>";
 			}
 		} else {
-			echo "
-			<p>
-				No permission groups found!
-			</p>";
-		}
-	
+			echo "<p>No permission groups found!</p>";
+		}	
 	}
 	
 	/**

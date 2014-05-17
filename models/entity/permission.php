@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Class to handle page templates
+ * Class to handle permissions
  *
  * @author Jacob Rogaishio
  * 
  */
 class permission extends model
 {
-	// Properties
+	//Persistant Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $groupId = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"groupId");
 	protected $model = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"model");

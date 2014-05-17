@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Class to handle users
+ * Class to handle user authentication
  *
  * @author Jacob Rogaishio
  * 
  */
 class authenticate extends model
 {
-	// Properties
+	//Persistant Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $login = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"login");
 	protected $attemptTime= array("orm"=>true, "datatype"=>"varchar", "length"=>32, "field"=>"attemptTime");

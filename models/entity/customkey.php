@@ -8,7 +8,7 @@
  */
 class customkey extends model
 {
-	// Properties
+	//Persistant Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $keyItem = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"keyItem");
 	protected $keyValue = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"keyValue");
@@ -97,29 +97,20 @@ class customkey extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=customkey&action=read">Key List</a><br /><br />';
 	
-		$keySQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
-		$keyResult = $this->conn->query($keySQL);
-	
-		if ($keyResult !== false && mysqli_num_rows($keyResult) > 0 ) {
-			while($row = mysqli_fetch_assoc($keyResult) ) {
-	
-				$name = stripslashes($row['keyItem']);
-				$value = stripslashes($row['keyValue']);
-	
+		$keyList = $this->loadList(new customkey($this->conn, $this->log), "created:DESC");
+		
+		if (count($keyList)) {
+			foreach($keyList as $key) {
 				echo "
 				<div class=\"key\">
 					<h2>
-					<a href=\"admin.php?type=customkey&action=update&p=".$row['id']."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >$name</a>
-						</h2>
-						<p>" . $value . "</p>
+					<a href=\"admin.php?type=customkey&action=update&p=".$key->getId()."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >" . $key->getKeyItem() . "</a>
+					</h2>
+					<p>" . $key->getKeyValue() . "</p>
 				</div>";
-	
 			}
-			} else {
-			echo "
-			<p>
-				No keys found!
-			</p>";
+		} else {
+			echo "<p>No keys found!</p>";
 		}
 	}
 }

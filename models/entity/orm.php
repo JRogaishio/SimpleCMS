@@ -1,10 +1,18 @@
 <?php 
 
+/**
+ * phpORM
+ *
+ * Class to handle CRUD operations via ORM
+ *
+ * @author Jacob Rogaishio
+ *
+ */
  class orm {
  	protected $table = null;
  	protected $conn = null;
  	
- 	/*
+ 	/**
  	 * Saves the class name and the database connection object
  	 * 
  	 * @param $conn	The database connection object
@@ -14,7 +22,7 @@
  		$this->conn = $conn;
  	}
  	
- 	/*
+ 	/**
  	 * Used as a getter / setter incase not already defined
  	 * 
  	 * @param $name			The name of the function called that doesn't exist
@@ -49,7 +57,7 @@
  	}
  	
  	
- 	/*
+ 	/**
  	 * Loads the object from the database based on an id
  	 * 
  	 * @param $id	The database ID to load
@@ -98,12 +106,72 @@
  		return $result;
  	}
  	
- 	/*
+ 	/**
+ 	 * Loads an array of objects from the database based on an id
+ 	 *
+ 	 * @param $id				The database foreign key ID to load
+ 	 * @param $relatedField		The related field in the object
+ 	 * @param $relatedObject	A blank copy of the related object to clone
+ 	 * @param $sort				The sort order passed as field:type
+ 	 * @param $filters			Any filters sent as an array. Each index should be field=value
+ 	 *
+ 	 * @return Returns true on database search success, else false
+ 	*/
+ 	public function loadList($relatedObject, $sort = null, $filters=array()) {
+ 		$sortString = "";
+ 		$filterString = "";
+ 		
+ 		foreach($filters as $filter) {
+ 			if($filterString == "")
+ 				$filterString = " WHERE ";
+ 			else
+ 				$filterString .=  " AND ";
+ 			
+ 			$filterString .= $filter;
+ 		}
+ 		 		
+ 		if(strpos($sort, ":") !== false) {
+ 			$sortOrder = explode(":", $sort);
+ 			$sField = $sortOrder[0];
+ 			$sType = $sortOrder[1];
+ 			$sortString = " ORDER BY " . $sField . " " . $sType;
+ 		}
+ 		
+ 		$sql = "SELECT * FROM " . $relatedObject->table . $filterString . $sortString;
+
+ 		$relPrimary = null;
+ 		
+ 		//Find the related objects primary key field name
+ 		foreach(get_object_vars($relatedObject) as $var) {
+ 			if(is_array($var) && isset($var['orm']) && $var['orm'] == true) {
+ 				if(isset($var['primary']) && $var['primary'] == true) {
+ 					$relPrimary = $var['field'];
+ 					break;
+ 				}
+ 			}
+ 		}
+ 		
+ 		$result = $this->conn->query($sql) OR DIE ("Could not load list");
+ 		$retArr = array();
+ 		
+ 		if ($result !== false && mysqli_num_rows($result) > 0 ) {
+ 			while($row = mysqli_fetch_assoc($result) ) {
+ 				
+ 				$obj = clone $relatedObject;
+ 				$obj->load($row[$relPrimary]);
+ 				array_push($retArr, $obj);
+ 			}
+ 		}
+ 		
+ 		return $retArr;
+ 	} 	
+ 	
+ 	/**
  	 * Deletes the object from the database based on an id
- 	*
- 	* @param $id	The database ID to delete
- 	*
- 	* @return Returns true on database delete success, else false
+ 	 *
+ 	 * @param $id	The database ID to delete
+ 	 *
+ 	 * @return Returns true on database delete success, else false
  	*/
  	public function delete() {
  		$sql = "DELETE FROM " . $this->table . " WHERE ";
@@ -129,7 +197,7 @@
 		return $result;
  	}
  	
- 	/*
+ 	/**
  	 * Sets a ORM object value
  	 * 
  	 *  @param &$var	The object to set the value, passed by reference
@@ -140,7 +208,7 @@
 		$var['value'] = $value;
  	}
  	
- 	/*
+ 	/**
  	 * Gets a ORM object value
  	 * 
  	 * @param $var	The object to get a value from
@@ -154,7 +222,7 @@
  			return null;
  	}
  	
- 	/*
+ 	/**
  	 * Saves the object to the database.
  	 * 
  	 * This will insert the object if no primary key is defined or update the database records if a key exists
@@ -221,7 +289,7 @@
  		return $result;
  	}
  	
- 	/*
+ 	/**
  	 * Determines if the datatype needs to be wrapped in single quotes when inserting / updating
  	 * 
  	 * @param $val	The value needing to be wrapped
@@ -239,7 +307,7 @@
  		return $val;
  	}
  	
- 	/*
+ 	/**
  	 * Determines if the datatype needs to be converted to a php number
  	 * 
  	 * @param $val	The value needing to be converted
@@ -262,7 +330,7 @@
  		return $ret;
  	}
  	
- 	/*
+ 	/**
  	 * Saves the object to the database as a table
  	 * 
  	 * @return Returns true if database success else false
@@ -308,5 +376,5 @@
  	}
  	
  }
-
+ 
 ?>
