@@ -77,62 +77,7 @@ class page extends model
 	
 		return $ret;
 	}	
-	
-	/**
-	* Inserts the current page object into the database, and sets its ID property.
-	* 
-	* @return Returns true on insert success
-	*/
-	public function insert($surpressNotify = false) {
-		$ret = true;
-		$error = $this->validate();
-		if($error == "") {
-			//Set all other pages to be not a homepage
-			if($this->getIsHome() == 1){
-				$sql = "UPDATE " . $this->table . " SET isHome=0";
-				$homeResult = $this->conn->query($sql) OR DIE ("Could not update home page!");
-			}
-			
-			$this->setCreated(time());
-			$result = $this->save();		
-			
-			if($result) {
-				echo "<span class='update_notice'>Created page successfully!</span><br /><br />";
-			}
-		} else {
-			$ret = false;
-			echo "<p class='cms_warning'>" . $error . "</p><br />";
-		}
-
-		return $ret;
-	}
-
-	/**
-	 * Updates the current page object in the database.
-	 * 
-	 * @return returns true if the update was successful
-	 */
-	public function update($surpressNotify = false) {
-		$ret = true;
-
-		$error = $this->validate();
-		if($error == "") {
-			//Reset all home pages since we are setting a new one
-			if($this->isHome == true) {
-				$sql = "UPDATE " . $this->table . " SET isHome = false;";
-				$result = $this->conn->query($sql) OR DIE ("Could not update home page!");
-			}
 		
-			$this->save();
-			
-		} else {
-			$ret = false;
-			echo "<p class='cms_warning'>" . $error . "</p><br />";
-		}
-
-		return $ret;
-	}
-	
 	/**
 	 * Any pre-formatting before save opperatins
 	 *
@@ -140,8 +85,9 @@ class page extends model
 	 */
 	protected function preSave() {
 		$ret = false;
+
 		//Set all other pages to be not a homepage
-		if($this->getIsHome() == 1){
+		if($this->getIsHome() === 1){
 			$sql = "UPDATE " . $this->table . " SET isHome=0";
 			$ret = $this->conn->query($sql) OR DIE ("Could not update home page!");
 		}
@@ -209,7 +155,7 @@ class page extends model
 			<br />
 
 			<label for="template">Template:</label><br />
-			' . getFormattedTemplates($this->conn, "dropdown", "template",$this->getTemplate()) . '
+			' . getFormattedTemplates($this->conn, "dropdown", "template",$this->getTemplateId()) . '
 			<div class="clear"></div>
 			<br />
 
