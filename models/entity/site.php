@@ -8,7 +8,7 @@
  */
 class site extends model
 {
-	// Properties
+	//Persistant Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
 	protected $urlFormat = array("orm"=>true, "datatype"=>"varchar", "length"=>32, "field"=>"urlFormat");
@@ -97,26 +97,19 @@ class site extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=site&action=read">Site</a><br /><br />';
 	
-		$siteSQL = "SELECT * FROM " . $this->table . " ORDER BY id DESC";
-		$siteResult = $this->conn->query($siteSQL);
-	
-		if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {
-			while($row = mysqli_fetch_assoc($siteResult) ) {
-	
-				$name = stripslashes($row['title']);
-	
+		$siteList = $this->loadList(new site($this->conn, $this->log), "created:DESC");
+		
+		if (count($siteList)) {
+			foreach($siteList as $site) {
 				echo "
 				<div class=\"site\">
-					<h2>
-					Site: <a href=\"admin.php?type=site&action=update&p=".$row['id']."\" class=\"cms_siteEditLink\" >$name</a>
-						</h2>
-						</div>";
+				<h2>
+				Site: <a href=\"admin.php?type=site&action=update&p=".$site->getId()."\" class=\"cms_siteEditLink\" >" . $site->getTitle() . "</a>
+				</h2>
+				</div>";
 			}
 		} else {
-			echo "
-			<p>
-				No sites found!
-			</p>";
+			echo "<p>No keys found!</p>";
 		}
 	}
 		
