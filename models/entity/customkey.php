@@ -11,7 +11,7 @@ class customkey extends model
 	//Persistant Properties
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $keyItem = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"keyItem");
-	protected $keyValue = array("orm"=>true, "datatype"=>"varchar", "length"=>64, "field"=>"keyValue");
+	protected $keyValue = array("orm"=>true, "datatype"=>"text", "field"=>"keyValue");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
 	
 	/**
