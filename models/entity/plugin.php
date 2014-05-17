@@ -96,34 +96,21 @@ class plugin extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=plugin&action=read">Plugin List</a><br /><br />';
 	
-		$sql = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
-		$result = $this->conn->query($sql);
-	
-		if ($result !== false && mysqli_num_rows($result) > 0 ) {
-			while($row = mysqli_fetch_assoc($result) ) {
-	
-				$file = stripslashes($row['filename']);
-				$path = stripslashes($row['path']);
-				$name = substr($file, 0, strpos($file, ".php"));
-				if($name == null)
-					$name = "ERROR WITH PLUGIN FILE NAME";
-	
+		$pluginList = $this->loadList(new plugin($this->conn, $this->log), "created:DESC");
+		
+		if (count($pluginList)) {
+			foreach($pluginList as $plugin) {
 				echo "
 				<div class=\"plugin\">
 					<h2>
-					<a href=\"admin.php?type=plugin&action=update&p=".$row['id']."\" title=\"Edit / Manage this plugin\" alt=\"Edit / Manage this plugin\" class=\"cms_pageEditLink\" >$name</a>
-						</h2>
-						<p>" . PLUGIN_PATH . "/" . $path . "/" . $file . "</p>
+					<a href=\"admin.php?type=plugin&action=update&p=".$plugin->getId()."\" title=\"Edit / Manage this plugin\" alt=\"Edit / Manage this plugin\" class=\"cms_pageEditLink\" >" . $plugin->getPath() . "</a>
+									</h2>
+									<p>" . PLUGIN_PATH . "/" . $plugin->getPath() . "/" . $plugin->getFilename() . "</p>
 				</div>";
-	
 			}
-			} else {
-			echo "
-			<p>
-				No plugins found!
-			</p>";
-		}
-	
+		} else {
+			echo "<p>No plugins found!</p>";
+		}	
 	}
 	
 	/**

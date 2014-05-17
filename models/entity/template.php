@@ -110,32 +110,21 @@ class template extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=template&action=read">Template List</a><br /><br />';
 	
-		$templateSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
-		$templateResult = $this->conn->query($templateSQL);
-	
-		if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 ) {
-			while($row = mysqli_fetch_assoc($templateResult) ) {
-	
-				$name = stripslashes($row['title']);
-				$file = stripslashes($row['filename']);
-				$path = stripslashes($row['path']);
-	
+		$templateList = $this->loadList(new template($this->conn, $this->log), "created:DESC");
+		
+		if (count($templateList)) {
+			foreach($templateList as $template) {
 				echo "
 				<div class=\"template\">
 					<h2>
-					<a href=\"admin.php?type=template&action=update&p=".$row['id']."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"cms_pageEditLink\" >$name</a>
-						</h2>
-						<p>" . TEMPLATE_PATH . "/" . $path . "/" . $file . "</p>
+					<a href=\"admin.php?type=template&action=update&p=".$template->getId()."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"cms_pageEditLink\" >" . $template->getTitle() . "</a>
+					</h2>
+					<p>" . TEMPLATE_PATH . "/" . $template->getPath() . "/" . $template->getFilename() . "</p>
 				</div>";
-	
 			}
 		} else {
-			echo "
-			<p>
-				No templates found!
-			</p>";
-		}
-	
+			echo "<p>No templates found!</p>";
+		}	
 	}
 	
 	/**
