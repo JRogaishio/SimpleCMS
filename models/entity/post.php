@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class to handle articles attached to pages
+ * Class to handle posts attached to pages
  *
  * @author Jacob Rogaishio
  * 

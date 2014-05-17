@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class to handle website information
+ * Class to handle website configuration information
  *
  * @author Jacob Rogaishio
  * 

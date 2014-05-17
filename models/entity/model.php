@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Class to handle the basic model operations and properties
+ *
+ * @author Jacob Rogaishio
+ *
+ */
 class model extends orm {
 	//Non-persistant properties
 	protected $conn = null; //Database connection object

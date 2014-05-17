@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class to handle users
+ * Class to handle user accounts
  *
  * @author Jacob Rogaishio
  * 

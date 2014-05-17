@@ -1,20 +1,22 @@
 <?php
 
 /**
- * Class to handle page templates
+ * Class to handle permission groups
  *
  * @author Jacob Rogaishio
  * 
  */
 class permissiongroup extends model
 {
-	// Properties
+	//Persistant Properties
 	protected $availModels = array('account', 'customkey', 'permissiongroup', 'log', 'page', 'permission', 'plugin', 'post', 'site', 'template', 'updater', 'uploader');
-	protected $permissions = array();
 	protected $id = array("orm"=>true, "datatype"=>"int", "length"=>16, "field"=>"id", "primary"=>true);
 	protected $title = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"title");
 	protected $editable = array("orm"=>true, "datatype"=>"tinyint", "length"=>1, "field"=>"editable");
 	protected $created = array("orm"=>true, "datatype"=>"varchar", "length"=>128, "field"=>"created");
+	
+	//Non-persistant properties
+	protected $permissions = array();
 	
 	/**
 	 * Sets the object's properties using the edit form post values in the supplied array

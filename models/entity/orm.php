@@ -1,5 +1,13 @@
 <?php 
 
+/**
+ * phpORM
+ *
+ * Class to handle CRUD operations via ORM
+ *
+ * @author Jacob Rogaishio
+ *
+ */
  class orm {
  	protected $table = null;
  	protected $conn = null;

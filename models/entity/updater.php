@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Class to handle CMS system updates
+ *
+ * @author Jacob Rogaishio
+ *
+ */
 class updater extends model {
 
 	public function displayManager($action, $parent, $child, $user, $auth=null) {

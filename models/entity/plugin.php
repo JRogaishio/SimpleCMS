@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class to handle plug-ins
+ * Class to handle plugins
  *
  * @author Jacob Rogaishio
  * 

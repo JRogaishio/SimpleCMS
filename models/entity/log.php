@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class to handle the log files
+ * Class to handle the logs
  *
  * @author Jacob Rogaishio
  * 
