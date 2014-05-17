@@ -104,15 +104,22 @@
  	 * @param $id				The database foreign key ID to load
  	 * @param $relatedField		The related field in the object
  	 * @param $relatedObject	A blank copy of the related object to clone
+ 	 * @param $sort				The sort order passed as field:type
+ 	 * @param $filters			Any filters sent as an array. Each index should be field=value
  	 *
  	 * @return Returns true on database search success, else false
  	*/
- 	public function loadList($id, $relatedField, $relatedObject, $sort = null, $filters=array()) {
+ 	public function loadList($relatedObject, $sort = null, $filters=array()) {
  		$sortString = "";
  		$filterString = "";
  		
  		foreach($filters as $filter) {
- 			$filterString .= " AND " . $filter;
+ 			if($filterString == "")
+ 				$filterString = " WHERE ";
+ 			else
+ 				$filterString .=  " AND ";
+ 			
+ 			$filterString .= $filter;
  		}
  		 		
  		if(strpos($sort, ":") !== false) {
@@ -122,8 +129,8 @@
  			$sortString = " ORDER BY " . $sField . " " . $sType;
  		}
  		
- 		$sql = "SELECT * FROM " . $relatedObject->table . " WHERE " . $relatedField . "=" . $id . $filterString . $sortString;
- 		
+ 		$sql = "SELECT * FROM " . $relatedObject->table . $filterString . $sortString;
+
  		$relPrimary = null;
  		
  		//Find the related objects primary key field name
