@@ -242,31 +242,21 @@ class account extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">Account List</a><br /><br />';
 	
-		$accountSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
-		$accountResult = $this->conn->query($accountSQL);
-	
-		if ($accountResult !== false && mysqli_num_rows($accountResult) > 0 ) {
-			while($row = mysqli_fetch_assoc($accountResult) ) {
-	
-				$username = stripslashes($row['loginname']);
-				$email = stripslashes($row['email']);
-	
+		$accountList = $this->loadList(new account($this->conn, $this->log), "created:DESC");
+		
+		if (count($accountList)) {
+			foreach($accountList as $account) {		
 				echo "
 				<div class=\"user\">
 					<h2>
-					<a href=\"admin.php?type=account&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >$username</a>
-						</h2>
-						<p>" . $email . "</p>
+					<a href=\"admin.php?type=account&action=update&p=".$account->getId()."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >" . $account->getLoginname() . "</a>
+					</h2>
+					<p>" . lookupGroupNameById($this->conn, $account->getGroupId()) . " Group<br />" . $account->getEmail() . "<br /><br /></p>
 				</div>";
-	
 			}
 		} else {
-			echo "
-			<p>
-				No users found!
-			</p>";
+			echo "<p>No users found!</p>";
 		}
-	
 	}
 	
 	/*
