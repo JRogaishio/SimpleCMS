@@ -88,25 +88,19 @@ class log extends model
 	 * Display the system log
 	 *
 	 */
-	public function displayModelList() {
-		$resultList = "";
-		$logSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC;";
-		$logResult = $this->conn->query($logSQL);
-	
-		if ($logResult !== false && mysqli_num_rows($logResult) > 0 ) {
-			$resultList .= "
-			<h3>Results in log:</h3>
-			<br /><br />
+	public function displayModelList() {		
+		$logList = $this->loadList(new log($this->conn, $this->log), "created:DESC");
+		
+		if (count($logList)) {
+			echo "<h3>Results in log:</h3><br /><br />
 			<table class='table table-bordered'>
-			<tr><th>User</th><th>Type</th><th>Details</th><th>Date</th><th>IP Address</th></tr>
-			";
-			while($row = mysqli_fetch_assoc($logResult))
-				$resultList .= "<tr><td>" . $row['loginname'] . "</td><td>" . $row['model'] . "</td><td>" . $row['info'] . "</td><td>" . $row['actionDate'] . "</td><td>". $row['remoteIp'] . "</td></tr>";
-				
-			$resultList .= "</table>";
-				
-			echo $resultList;
-				
+			<tr><th>User</th><th>Type</th><th>Details</th><th>Date</th><th>IP Address</th></tr>";
+			
+			foreach($logList as $logItem) {
+				echo "<tr><td>" . $logItem->getLoginname() . "</td><td>" . $logItem->getModel() . "</td><td>" . $logItem->getInfo() . "</td><td>" . $logItem->getActionDate() . "</td><td>". $logItem->getRemoteIp() . "</td></tr>";
+			}
+			
+			echo "</table>";
 		} else {
 			echo "No logs found?";
 		}

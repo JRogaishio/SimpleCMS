@@ -259,7 +259,7 @@ class account extends model
 		}
 	}
 	
-	/*
+	/**
 	 * Checks the users permission to see if they can access an object
 	 * 
 	 * @param $model	The object to be accessed
