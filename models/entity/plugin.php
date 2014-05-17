@@ -104,8 +104,8 @@ class plugin extends model
 				<div class=\"plugin\">
 					<h2>
 					<a href=\"admin.php?type=plugin&action=update&p=".$plugin->getId()."\" title=\"Edit / Manage this plugin\" alt=\"Edit / Manage this plugin\" class=\"cms_pageEditLink\" >" . $plugin->getPath() . "</a>
-									</h2>
-									<p>" . PLUGIN_PATH . "/" . $plugin->getPath() . "/" . $plugin->getFilename() . "</p>
+					</h2>
+					<p>" . PLUGIN_PATH . "/" . $plugin->getPath() . "/" . $plugin->getFilename() . "</p>
 				</div>";
 			}
 		} else {

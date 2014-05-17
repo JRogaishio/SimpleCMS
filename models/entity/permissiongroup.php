@@ -261,28 +261,20 @@ class permissiongroup extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=permissiongroup&action=read">Permission Group List</a><br /><br />';
 	
-		$groupSQL = "SELECT * FROM " . $this->table . " ORDER BY created DESC";
-		$groupResult = $this->conn->query($groupSQL);
-	
-		if ($groupResult !== false && mysqli_num_rows($groupResult) > 0 ) {
-			while($row = mysqli_fetch_assoc($groupResult) ) {
-	
-				$name = stripslashes($row['title']);
-	
+		$groupList = $this->loadList(new permissionGroup($this->conn, $this->log), "created:DESC");
+		
+		if (count($groupList)) {
+			foreach($groupList as $group) {
 				echo "
-				<div class=\"user\">
-					<h2>
-						<a href=\"admin.php?type=permissiongroup&action=update&p=".$row['id']."\" title=\"Edit / Manage this permission group\" alt=\"Edit / Manage this permission group\" class=\"cms_pageEditLink\" >$name</a>
-							</h2>
-							</div>";
+				<div class=\"permissiongroup\">
+				<h2>
+				<a href=\"admin.php?type=permissiongroup&action=update&p=".$group->getId()."\" title=\"Edit / Manage this permission group\" alt=\"Edit / Manage this permission group\" class=\"cms_pageEditLink\" >" . $group->getTitle() . "</a>
+				</h2>
+				</div>";
 			}
 		} else {
-			echo "
-			<p>
-				No permission groups found!
-			</p>";
-		}
-	
+			echo "<p>No permission groups found!</p>";
+		}	
 	}
 	
 	/**
