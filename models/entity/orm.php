@@ -109,8 +109,6 @@
  	/**
  	 * Loads an array of objects from the database based on an id
  	 *
- 	 * @param $id				The database foreign key ID to load
- 	 * @param $relatedField		The related field in the object
  	 * @param $relatedObject	A blank copy of the related object to clone
  	 * @param $sort				The sort order passed as field:type
  	 * @param $filters			Any filters sent as an array. Each index should be field=value
