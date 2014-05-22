@@ -290,11 +290,11 @@ class admin extends core {
 		
 		echo "<strong>By the way, hows my CMS doing?</strong><br />";
 		echo "<p class='cms_intro'>Heres some stats!<br />";
-		echo "You have <strong>" . countRecords($this->_CONN, "pages","") . "</strong> page(s)<br />";
-		echo "You have <strong>" . countRecords($this->_CONN,"posts","") . "</strong> posts(s)<br />";
-		echo "You have <strong>" . countRecords($this->_CONN,"templates","") . "</strong> templates(s)<br />";
-		echo "You have <strong>" . countRecords($this->_CONN,"users","") . "</strong> users(s)<br />";
-		//echo "You have <strong>" . countRecords($this->_CONN,"plugins","") . "</strong> plugins(s)<br />";
+		echo "You have <strong>" . countRecords($this->_CONN, "page","") . "</strong> page(s)<br />";
+		echo "You have <strong>" . countRecords($this->_CONN,"post","") . "</strong> posts(s)<br />";
+		echo "You have <strong>" . countRecords($this->_CONN,"template","") . "</strong> templates(s)<br />";
+		echo "You have <strong>" . countRecords($this->_CONN,"account","") . "</strong> users(s)<br />";
+		echo "You have <strong>" . countRecords($this->_CONN,"plugin","") . "</strong> plugins(s)<br />";
 		echo "</p>";
 	}
 	
