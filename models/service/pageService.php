@@ -28,7 +28,7 @@ class pageService extends service
 	 * 
 	 * @return Returns null if no page was set
 	*/
-	public function display_posts($postLimit, $showDate=false, $showContect=true, $showPerma=false, $childId=null, $parentLink=null) {
+	public function display_posts($postLimit, $showDate=false, $showContent=true, $showPerma=false, $childId=null, $parentLink=null) {
 		if(isset($this->model) && $this->model->getId() != null) {
 			if($parentLink != null) {
 				$tempId = lookupPageIdByLink($this->conn, $parentLink);
@@ -70,7 +70,7 @@ class pageService extends service
 					if($showDate)
 						$entry_display .= "<p>$postDate</p>";
 							
-						if($showContect) {
+						if($showContent) {
 						$entry_display .= "
 						<p>
 						$postContent
