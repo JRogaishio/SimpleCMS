@@ -14,9 +14,16 @@
 	
 	<h1><?php echo $this->getScope("pageService")->getPage()->getTitle(); ?></h1>
 	<?php
-	$this->getScope("pageService")->display_posts ( 5, true );
+	//Return Pre-formatted posts
+	//$this->getScope("pageService")->display_posts ( 5, true );
+	
+	//Get post objects in array form
+	$posts = $this->getScope("pageService")->get_posts ( 5 );
 
-
+	foreach($posts as $post) {
+		echo $post->getTitle() . "<br />";
+	}
+	
 	//Key exammple
 	//echo $this->getScope("keyService")->getValue('KeyName');
 	
