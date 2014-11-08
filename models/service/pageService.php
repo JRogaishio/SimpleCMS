@@ -62,6 +62,15 @@ class pageService extends service
 	}
 	
 	/**
+	 * Get the root path of the template files
+	 *
+	 * @return string of the path
+	 */
+	public function getTemplateRoot() {
+		return SITE_ROOT . TEMPLATE_PATH . "/" . $this->model->getTemplatePath();
+	}
+	
+	/**
 	 * Display the posts related to this page for the front-end
 	 * 
 	 * @param postLimit	The max number of posts to display on a single page
