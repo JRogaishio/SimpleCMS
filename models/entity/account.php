@@ -270,25 +270,23 @@ class account extends model
 	public function checkPermission($model, $change) {
 		$ret = false;
 		$permissions = getRecords($this->conn, "permission", array("*"), "model='$model' AND groupId=" . $this->getGroupId(), $order=null);
-
-		if($permissions != false) {
-			$data = mysqli_fetch_assoc($permissions);
-
+		if(is_array($permissions)) {
 			switch($change) {
 				case "read":
-					$ret = ($data['readAction'] == 1 ? true : false);
+					$ret = ($permissions['readAction'] == 1 ? true : false);
 					break;
 				case "insert":
-					$ret = ($data['insertAction'] == 1 ? true : false);
+					$ret = ($permissions['insertAction'] == 1 ? true : false);
 					break;
 				case "update":
-					$ret = ($data['updateAction'] == 1 ? true : false);
+					$ret = ($permissions['updateAction'] == 1 ? true : false);
 					break;
 				case "delete":
-					$ret = ($data['deleteAction'] == 1 ? true : false);
+					$ret = ($permissions['deleteAction'] == 1 ? true : false);
 					break;
 			}
 		}
+		
 		
 		return $ret;
 	}

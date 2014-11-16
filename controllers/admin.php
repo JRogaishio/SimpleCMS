@@ -304,10 +304,10 @@ class admin extends core {
 	 */
 	public function cms_displayWarnings() {
 		//Make sure a homepage is set
-		$pageSQL = "SELECT * FROM page WHERE page_isHome=1;";
+		$pageSQL = "SELECT * FROM page WHERE isHome=1;";
 		$pageResult = $this->_CONN->query($pageSQL);
 		
-		if (($pageResult == false || mysqli_num_rows($pageResult) == 0) && countRecords($this->_CONN,"users") != 0 && $this->_AUTH == true)
+		if (is_array($pageResult) && countRecords($this->_CONN,"users") != 0 && $this->_AUTH == true)
 			echo "<span class='cms_warning'>A homepage is missing! Please set a homepage!</span><br />";
 
 	}

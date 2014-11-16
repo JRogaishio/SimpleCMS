@@ -230,12 +230,11 @@ function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
  */
 function get_userSalt($conn, $username) {
 
-	$userSQL = "SELECT * FROM account WHERE loginname='$username';";
+	$userSQL = "SELECT salt FROM account WHERE loginname='$username';";
 	$userResult =  $conn->query($userSQL);
-
-	if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
-		$userData = mysqli_fetch_assoc($userResult);
-		return $userData['salt'];
+	$row = $userResult->fetch(PDO::FETCH_ASSOC);
+	if (is_array($row)) {
+		return $row['salt'];
 	} else {
 		return false;
 	}
@@ -251,16 +250,14 @@ function get_userSalt($conn, $username) {
  */
 function get_linkFormat($conn) {
 
-	$siteSQL = "SELECT * FROM site;";
-	$siteResult =  $conn->query($siteSQL);
-
-	if ($siteResult !== false && mysqli_num_rows($siteResult) > 0 ) {
-		$siteData = mysqli_fetch_assoc($siteResult);
-		return $siteData['urlFormat'];
-	} else {
+	$siteSQL = "SELECT urlFormat FROM site;";
+	$stmt = $conn->query($siteSQL);
+	$row = $stmt->fetch(PDO::FETCH_ASSOC);
+	
+	if (is_array($row))
+		return $row['urlFormat'];
+	else
 		return false;
-	}
-
 }
 
 /**
@@ -330,6 +327,17 @@ function loadErrorPage($code = "SYS_404") {
 		$ret .= "404.php";
 	}
 	return $ret;
+}
+
+/**
+ * Print out arrays for debugging
+ * @param mixed $arr
+ */
+function debug($arr) {
+	echo "<pre>";
+	print_r($arr);
+	echo "</pre>";
+	exit;
 }
 
 ?>

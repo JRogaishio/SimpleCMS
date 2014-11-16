@@ -86,11 +86,10 @@
  		
  		$result = $this->conn->query($sql) OR DIE ("Could not load");
  		
- 		if ($result !== false && mysqli_num_rows($result) > 0 )
- 			$row = mysqli_fetch_assoc($result);
+ 		$row = $result->fetch(PDO::FETCH_ASSOC);
  		
  		//Set the loaded SQL data to the object ORM variables
- 		if(isset($row)) {
+ 		if(is_array($row)) {
  			foreach(get_object_vars($this) as $var) {
  				if(is_array($var) && isset($var['orm']) && $var['orm'] == true && is_array($this->$var['field'])) {
  					$fieldValue = $row[$var['field']];
@@ -152,8 +151,10 @@
  		$result = $this->conn->query($sql) OR DIE ("Could not load list");
  		$retArr = array();
  		
- 		if ($result !== false && mysqli_num_rows($result) > 0 ) {
- 			while($row = mysqli_fetch_assoc($result) ) {
+ 		$rows = $result->fetchAll(PDO::FETCH_ASSOC);
+ 		
+ 		if(is_array($rows)) {
+ 			foreach($rows as $row) {
  				
  				$obj = clone $relatedObject;
  				$obj->load($row[$relPrimary]);

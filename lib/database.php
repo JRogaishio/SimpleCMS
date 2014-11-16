@@ -13,12 +13,7 @@ function countRecords($conn, $table_name, $filters = "") {
 	$countSQL = "SELECT * FROM $table_name " . $filters;
 	$countResult = $conn->query($countSQL);
 	
-	//Return false if the tables doesn't exist
-	if(!$countResult) {
-		return false;
-	} else {
-		return mysqli_num_rows($countResult);
-	}
+	return $countResult->rowCount();
 }
 
 /**
@@ -30,7 +25,11 @@ function countRecords($conn, $table_name, $filters = "") {
  * @return returns the sanitized string
  */
 function clean($conn, $str) {
-	$ret = mysqli_real_escape_string($conn, $str);
+	//TO-DO Remove clean and use PDO parameter queries
+	$str = str_replace(' ', '-', $str); // Replaces all spaces with hyphens.
+
+   	$ret =  preg_replace('/[^A-Za-z0-9\-]/', '', $str); // Removes special chars.
+   
 	return $ret;
 }
 
@@ -56,9 +55,9 @@ function searchTable($conn, $search, $table, $col=array()) {
 	
 	$searchSQL = "SELECT * FROM $table WHERE $searchCols;";
 	$searchResult = $conn->query($searchSQL);
-
-	if ($searchResult !== false && mysqli_num_rows($searchResult) > 0 ) {
-		return $searchResult;
+	$data = $searchResult->fetchAll(PDO::FETCH_ASSOC);
+	if (is_array($data)) {
+		return $data;
 	} else {
 		return false;
 	}
@@ -91,9 +90,10 @@ function getRecords($conn, $table, $col=array(), $where=null, $order=null) {
 	$sql = "SELECT " . $colList . " FROM $table $whereClause $orderClause;";
 
 	$result = $conn->query($sql);
+	$data = $result->fetch(PDO::FETCH_ASSOC);
 
-	if ($result !== false && mysqli_num_rows($result) > 0 ) {
-		return $result;
+	if (is_array($data)) {
+		return $data;
 	} else {
 		return false;
 	}

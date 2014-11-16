@@ -24,7 +24,7 @@ class authenticate extends model
 		$authSQL = "SELECT * FROM authenticate WHERE ip = '" . $clientIP . "' ORDER BY attemptTime DESC";
 		$authResult = $this->conn->query($authSQL);
 		
-		$attempts = mysqli_num_rows($authResult);
+		$attempts = $authResult->rowCount();
 
 		//How much to multiply the time to wait based on the failed attempts
 		$multiplier = 1;
@@ -111,11 +111,9 @@ class authenticate extends model
 			}
 
 			$userResult = $this->conn->query($userSQL);
-
+			$userData = $userResult->fetch(PDO::FETCH_ASSOC);
 			//Test to see if the auth was successful
-			if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
-				$userData = mysqli_fetch_assoc($userResult);
-
+			if (is_array($userData)) {
 				$user = new account($this->conn, $this->log);
 
 				//Set the user data
