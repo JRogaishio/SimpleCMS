@@ -169,10 +169,10 @@ function lookupTemplateNameById($conn, $templateId) {
 
 	$templateSQL = "SELECT * FROM template WHERE id=$templateId";
 	$templateResult =  $conn->query($templateSQL);
+	$row = $templateResult->fetch(PDO::FETCH_ASSOC);
 	$name = null;
 	
-	if(mysqli_num_rows($templateResult) > 0) {
-		$row = mysqli_fetch_assoc($templateResult);
+	if(is_array($row)) {
 		$name = $row['title'];
 	}
 
@@ -194,8 +194,8 @@ function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
 	$templateSQL = "SELECT * FROM template ORDER BY created DESC";
 	$templateResult =  $conn->query($templateSQL);
 	$formattedData = "";
-
-	if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 ) {
+	$rows = $templateResult->fetchAll(PDO::FETCH_ASSOC);
+	if (is_array($rows)) {
 		switch ($format) {
 			case "dropdown":
 				$formattedData = "<select name='" . $eleName . "'>";
@@ -203,7 +203,7 @@ function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
 				if($defaultVal != null)
 					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupTemplateNameById($conn, $defaultVal) . "--</option>";
 				
-				while($row = mysqli_fetch_assoc($templateResult) ) {
+				foreach ($rows as $row) {
 					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['title']) . "</option>";
 				}
 				$formattedData .= "</select>";

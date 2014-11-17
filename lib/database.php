@@ -142,12 +142,11 @@ function convertToBit($str) {
 function getLastField($conn, $table_name, $field) {
 	$searchSQL = "SELECT $field FROM $table_name ORDER BY id DESC;";
 	$searchResult = $conn->query($searchSQL);
-
+	$row = $searchResult->fetch(PDO::FETCH_ASSOC);
 	$ret = "";
 	
-	if(mysqli_num_rows($searchResult) > 0) {
-		$searchData = mysqli_fetch_assoc($searchResult);
-		$ret = $searchData[$field];
+	if(is_array($row)) {
+		$ret = $row[$field];
 	}
 	
 	return $ret;

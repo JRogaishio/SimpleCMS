@@ -120,11 +120,9 @@ class page extends model
 				$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=$p";
 			
 			$pageResult = $this->conn->query($pageSQL);
+			$row = $pageResult->fetch(PDO::FETCH_ASSOC);
 
-			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
-				$row = mysqli_fetch_assoc($pageResult);
-
-			if(isset($row)) {
+			if(is_array($row)) {
 				$this->load($row['id']);
 
 				//Set a field to use by the logger
