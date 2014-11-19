@@ -97,8 +97,8 @@ class admin extends core {
 					if(isset($_COOKIE['token'])) {
 						$userSQL = "SELECT * FROM account WHERE token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
 						$userResult = $this->_CONN->query($userSQL);
-						if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
-							$userData = mysqli_fetch_assoc($userResult);
+						$userData = $userResult->fetch(PDO::FETCH_ASSOC);
+						if (is_array($userData)) {
 							$this->_LOG->trackChange("account", 'log_out',$userData['id'], $userData['loginname'], "logged out");
 						}					
 					}

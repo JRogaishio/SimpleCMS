@@ -48,11 +48,9 @@ class pub extends core {
 		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home" && strpos($pSafeLink,"SYS_") === false) {
 			$pageSQL = "SELECT * FROM page WHERE safeLink='$pSafeLink'";
 			$pageResult = $this->_CONN->query($pageSQL);
+			$pageData = $pageResult->fetch(PDO::FETCH_ASSOC);
 
-			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
-				$pageData = mysqli_fetch_assoc($pageResult);
-
-			if(isset($pageData)) {
+			if(is_array($pageData)) {
 				$page->loadRecord($pageData['id']);
 			}
 		} else if($pSafeLink == null || $pSafeLink == "" || $pSafeLink == "home") {
@@ -66,10 +64,9 @@ class pub extends core {
 
 			$templateResult = $this->_CONN->query($templateSQL);
 			
-			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
-				$template = mysqli_fetch_assoc($templateResult);
+			$template = $templateResult->fetch(PDO::FETCH_ASSOC);
 
-			if(isset($template)) {
+			if(is_array($template)) {
 				//Load the template file
 				$page->setTemplatePath($template['path']);
 				require(TEMPLATE_PATH . "/" . $template['path'] . "/" . $template['filename']);
@@ -102,10 +99,9 @@ class pub extends core {
 			$pageSQL = "SELECT * FROM page WHERE safelink='$data[$i]'";
 			$pageResult = $this->_CONN->query($pageSQL);
 
-			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
-				$pageData = mysqli_fetch_assoc($pageResult);
+			$pageData = $pageResult->fetch(PDO::FETCH_ASSOC);
 
-			if(isset($pageData)) {
+			if(is_array($pageData)) {
 				echo "<li class='cms_li_nav' id='nav-$data[$i]'><a href='" . formatLink($this->_LINKFORMAT, $pageData['safeLink'])  . "'>" . $pageData['title'] . "</a></li>";
 			}
 		}

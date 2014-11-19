@@ -203,11 +203,9 @@ class core {
 		
 		$sql = "SELECT * FROM plugins ORDER BY plugin_created DESC";
 		$result = $this->_CONN->query($sql);
-		
-		if ($result !== false && mysqli_num_rows($result) > 0 ) {
-			while($row = mysqli_fetch_assoc($result) ) {
-		
-				
+		$data = $result->fetchAll(PDO::FETCH_ASSOC);
+		if (is_array($data)) {
+			foreach ($data as $row) {
 				$file = stripslashes($row['plugin_file']);
 				$path = stripslashes($row['plugin_path']);
 				$className = substr($file, 0, strpos($file, ".php"));
