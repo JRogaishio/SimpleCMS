@@ -24,9 +24,9 @@ function getPages($conn) {
 function lookupPageNameById($conn, $pageId) {
 	$pageSQL = "SELECT * FROM page WHERE id=$pageId";
 	$pageResult =  $conn->query($pageSQL);
+	$row = $pageResult->fetch(PDO::FETCH_ASSOC);
 	$name = null;
-	if(mysqli_num_rows($pageResult) > 0) {
-		$row = mysqli_fetch_assoc($pageResult);
+	if(is_array($row)) {
 		$name = $row['title'];
 	}
 	
@@ -44,9 +44,9 @@ function lookupPageNameById($conn, $pageId) {
 function lookupGroupNameById($conn, $groupId) {
 	$groupSQL = "SELECT title FROM permissiongroup WHERE id=$groupId";
 	$groupResult =  $conn->query($groupSQL);
+	$row = $groupResult->fetch(PDO::FETCH_ASSOC);
 	$name = null;
-	if(mysqli_num_rows($groupResult) > 0) {
-		$row = mysqli_fetch_assoc($groupResult);
+	if(is_array($row)) {
 		$name = $row['title'];
 	}
 
@@ -71,8 +71,9 @@ function lookupPageIdByLink($conn, $pageLink) {
 	$pageLink = clean($conn, $pageLink);
 	
 	$pageResult =  $conn->query($pageSQL);
+	$row = $pageResult->fetch(PDO::FETCH_ASSOC);
 	$ret = null;
-	if(mysqli_num_rows($pageResult) > 0) {
+	if(is_array($row)) {
 		$row = mysqli_fetch_assoc($pageResult);
 		$ret = $row['id'];
 	}
@@ -94,8 +95,9 @@ function getFormattedPages($conn, $format, $eleName, $defaultVal) {
 
 	$pageSQL = "SELECT * FROM page ORDER BY created DESC";
 	$pageResult =  $conn->query($pageSQL);
+	$data = $pageResult->fetchAll(PDO::FETCH_ASSOC);
 	$formattedData = "";
-	if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 ) {
+	if (is_array($data)) {
 		switch ($format) {
 			case "dropdown":
 				$formattedData = "<select name='" . $eleName . "'>";
@@ -103,7 +105,7 @@ function getFormattedPages($conn, $format, $eleName, $defaultVal) {
 				if($defaultVal != null && $defaultVal != "new")
 					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupPageNameById($conn, $defaultVal) . "--</option>";
 				
-				while($row = mysqli_fetch_assoc($pageResult) ) {
+				foreach($data as $row) {
 					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['title']) . "</option>";
 				}
 				$formattedData .= "</select>";
@@ -133,8 +135,9 @@ function getFormattedGroups($conn, $format, $eleName, $defaultVal) {
 
 	$groupSQL = "SELECT * FROM permissiongroup ORDER BY created DESC";
 	$groupResult =  $conn->query($groupSQL);
+	$data = $groupResult->fetchAll(PDO::FETCH_ASSOC);
 	$formattedData = "";
-	if ($groupResult !== false && mysqli_num_rows($groupResult) > 0 ) {
+	if (is_array($data)) {
 		switch ($format) {
 			case "dropdown":
 				$formattedData = "<select name='" . $eleName . "'>";
@@ -142,7 +145,7 @@ function getFormattedGroups($conn, $format, $eleName, $defaultVal) {
 				if($defaultVal != null && $defaultVal != "new")
 					$formattedData .=  "<option selected value='" . $defaultVal . "'>--" . lookupGroupNameById($conn, $defaultVal) . "--</option>";
 
-				while($row = mysqli_fetch_assoc($groupResult) ) {
+				foreach($data as $row) {
 					$formattedData .= "<option value='" . stripslashes($row['id']) . "'>" . stripslashes($row['title']) . "</option>";
 				}
 				$formattedData .= "</select>";
