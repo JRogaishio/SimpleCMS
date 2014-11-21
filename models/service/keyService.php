@@ -19,9 +19,8 @@ class keyService extends service
 	public function getValue($key) {
 		$sql = "SELECT * FROM customkey WHERE keyItem='$key';";
 		$result =  $this->conn->query($sql);
-	
-		if ($result !== false && mysqli_num_rows($result) > 0 ) {
-			$data = mysqli_fetch_assoc($result);
+		$data = $result->fetch(PDO::FETCH_ASSOC);
+		if (is_array($data)) {
 			return $data['keyValue'];
 		} else {
 			return null;

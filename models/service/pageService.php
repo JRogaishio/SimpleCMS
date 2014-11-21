@@ -45,10 +45,10 @@ class pageService extends service
 			}
 	
 			$postResult = $this->conn->query($postSQL);
-			
+			$data = $postResult->fetchAll(PDO::FETCH_ASSOC);
 	
-			if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
-				while($row = mysqli_fetch_assoc($postResult) ) {
+			if (is_array($data)) {
+				foreach($data as $row) {
 					$postId = stripslashes($row['id']);
 					$post = new post($this->conn, $this->log);
 					$post->load($postId);
@@ -106,10 +106,11 @@ class pageService extends service
 			}
 				
 			$postResult = $this->conn->query($postSQL);
+			$data = $postResult->fetchAll(PDO::FETCH_ASSOC);
 			$entry_display = "";
 				
-			if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
-				while($row = mysqli_fetch_assoc($postResult) ) {
+			if (is_array($data)) {
+				foreach($data as $row) {
 					$postId = stripslashes($row['id']);
 					$title = stripslashes($row['title']);
 					$postDate = date(DATEFORMAT . " " . TIMEFORMAT, stripslashes($row['created']));

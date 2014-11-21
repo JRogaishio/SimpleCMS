@@ -82,19 +82,15 @@ class permission extends model
 			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE groupId=$groupId AND model='" . $this->getModel() . "'";
 				
 			$permissionResult = $this->conn->query($permissionSQL);
+			$row = $permissionResult->fetch(PDO::FETCH_ASSOC);
 
-			if ($permissionResult !== false && mysqli_num_rows($permissionResult) > 0 )
-				$row = mysqli_fetch_assoc($permissionResult);
-
-			if(isset($row)) {
+			if(is_array($row)) {
 				$this->load($row['id']);
 				
 				//Set a field to use by the logger
 				$this->logField = $this->getId();
 			}
-			
 		}
-	
 	}
 	
 	/**
