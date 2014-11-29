@@ -258,6 +258,8 @@
  		$sql = "";
  		$field = "";
  		$value = "";
+ 		
+ 		//Find the primary key
  		foreach(get_object_vars($this) as $var) {
  			if(is_array($var) && isset($var['orm']) && $var['orm'] == true) {
  				if(isset($var['primary']) && $var['primary'] == true && isset($var['value']) && $var['value'] != "") {
@@ -275,6 +277,7 @@
  			$sql = "INSERT INTO " . $this->table . " ";
  		}
  		
+ 		//Build the assignments
  		foreach(get_object_vars($this) as $var) {
  			if(is_array($var) && isset($var['orm']) && $var['orm'] == true && isset($var['value'])) {
  				//Only build an insert / update for non-primary key fields
@@ -286,49 +289,45 @@
 			 			else if($value == "")
 			 				$value .= " SET ";
 			 			
-			 			$value .=  $var['field'] . "=" . $this->sqlWrap($var['value'], $var['datatype']);
+			 			$value .=  $var['field'] . "= :" . $var['field'];
 			 		} else {
-			 		//Insert since we dont have a key	
-			 			
+			 			//Insert since we dont have a key	
 			 			if($field != "")
 			 				$field .= ", ";
 			 			if($value != "")
 			 				$value .= ", ";
 			 			
 			 			$field .= $var['field'];
-			 			$value .= $this->sqlWrap($var['value'], $var['datatype']);
+			 			$value .= ':' . $var['field'];
 			 		}
  				}
  			}
  		}
  		if($primary != null)
- 			$sql .= $value . " WHERE " . $primary . "=" . $primaryIndex;
+ 			$sql .= $value . " WHERE " . $primary . "= :" . $primary;
  		else 
  			$sql .= "(" . $field . ") VALUES (" . $value . ")";
 
- 		$result = $this->conn->query($sql) OR DIE ("Could not save");
+ 		$stmt = $this->conn->prepare($sql);
+ 		
+ 		//Build the PDO bindings
+ 		foreach(get_object_vars($this) as $var) {
+ 			//Make sure the variable is an ORM var
+ 			if(is_array($var) && isset($var['orm']) && $var['orm'] == true && isset($var['value'])) {
+	 			$type = $this->getDataType($var['datatype']);
+
+				if($type=='str')
+					$stmt->bindValue(':' . $var['field'], $var['value'], PDO::PARAM_STR);
+				else if($type=='int')
+					$stmt->bindValue(':' . $var['field'], $var['value'], PDO::PARAM_INT);
+ 			}
+ 		}
+
+ 		$result = $stmt->execute();
  		
  		return $result;
  	}
- 	
- 	/**
- 	 * Determines if the datatype needs to be wrapped in single quotes when inserting / updating
- 	 * 
- 	 * @param $val	The value needing to be wrapped
- 	 * @param $type	The datatype in the database
- 	 * 
- 	 * @return Returns the wrapped value if needed
- 	*/
- 	private function sqlWrap($val, $type) {
- 		$wrappedTypes = array("CHAR", "VARCHAR", "TEXT", "TINYTEXT", "DATETIME");
  		
- 		if(in_array(strtoupper($type), $wrappedTypes) == true) {
- 			$val = "'" . $val . "'";
- 		}
- 		
- 		return $val;
- 	}
- 	
  	/**
  	 * Determines if the SQL field is an int or string
  	 * 
@@ -344,6 +343,8 @@
  		if(in_array(strtoupper($type), $intTypes) == true) {
  			$ret = 'int';
  		} else if(in_array(strtoupper($type), $strTypes) == true) {
+ 			$ret = 'str';
+ 		} else {
  			$ret = 'str';
  		}
  		return $ret;
