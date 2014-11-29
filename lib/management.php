@@ -62,19 +62,22 @@ function lookupGroupNameById($conn, $groupId) {
  * @return returns the page Id selected
  */
 function lookupPageIdByLink($conn, $pageLink) {
-	if($pageLink != null && $pageLink != "") {
-		$pageSQL = "SELECT * FROM page WHERE page_safeLink='$pageLink'";
-	} else {
+	if($pageLink != null && $pageLink != "")
+		$pageSQL = "SELECT * FROM page WHERE page_safeLink=:pageLink'";
+	else
 		$pageSQL = "SELECT * FROM page WHERE page_isHome=true";
-	}
 	
-	$pageLink = clean($conn, $pageLink);
+	$stmt = $conn->prepare($pageSQL);
 	
-	$pageResult =  $conn->query($pageSQL);
-	$row = $pageResult->fetch(PDO::FETCH_ASSOC);
+	//Bind the safelink if there is one
+	if($pageLink != null && $pageLink != "")
+		$stmt->bindValue(':' . $col[$i], $pageLink, PDO::PARAM_STR);
+	
+	$pageResult = $stmt->execute();
+	$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
 	$ret = null;
 	if(is_array($row)) {
-		$row = mysqli_fetch_assoc($pageResult);
 		$ret = $row['id'];
 	}
 	

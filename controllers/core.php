@@ -200,8 +200,7 @@ class core {
 	 * @param $context		The controller that called this function
 	 */
 	public function loadPlugins($context) {
-		
-		$sql = "SELECT * FROM plugins ORDER BY plugin_created DESC";
+		$sql = "SELECT * FROM plugin ORDER BY created DESC";
 		$result = $this->_CONN->query($sql);
 		$data = $result->fetchAll(PDO::FETCH_ASSOC);
 		if (is_array($data)) {

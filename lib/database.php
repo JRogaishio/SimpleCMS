@@ -17,7 +17,7 @@ function countRecords($conn, $table_name, $filters = "") {
 }
 
 /**
- * Sanitizes user input using the mysqli_real_escape_string method
+ * Sanitizes user input. This is used for non DB related items
  * 
  * @param $conn			A database connection object
  * @param $str			The string that needs to be sanitized
@@ -26,9 +26,7 @@ function countRecords($conn, $table_name, $filters = "") {
  */
 function clean($conn, $str) {
 	//TO-DO Remove clean and use PDO parameter queries
-	$str = str_replace(' ', '-', $str); // Replaces all spaces with hyphens.
-
-   	$ret =  preg_replace('/[^A-Za-z0-9\-]/', '', $str); // Removes special chars.
+   	$ret =  preg_replace('/[^A-Za-z0-9\-\_\@\. ]/', '', $str); // Removes special chars.
    
 	return $ret;
 }
