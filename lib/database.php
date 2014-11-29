@@ -50,13 +50,22 @@ function searchTable($conn, $search, $table, $col=array()) {
 		if($i>0)
 			$searchCols .= " OR ";
 			
-		$searchCols .= $col[$i] . " LIKE '%" . $search . "%'";
+		$searchCols .= $col[$i] . " LIKE :" . $col[$i] . "";
 	}
 	
 	$searchSQL = "SELECT * FROM $table WHERE $searchCols;";
-	$searchResult = $conn->query($searchSQL);
-	$data = $searchResult->fetchAll(PDO::FETCH_ASSOC);
-	if (is_array($data)) {
+	$stmt = $conn->prepare($searchSQL);
+	
+	//Bind the string to each parameter
+	for($i=0;$i<count($col);$i++)
+		$stmt->bindValue(':' . $col[$i], '%' . $search . '%', PDO::PARAM_STR);	
+	
+	
+	$result = $stmt->execute();
+
+	$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+	if (count($data)) {
 		return $data;
 	} else {
 		return false;

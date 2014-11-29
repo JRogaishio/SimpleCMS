@@ -182,58 +182,59 @@ class admin extends core {
 		echo "Searching <strong>\"" . $this->_ACTION . "\"</strong>...<br />";
 		//Page search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "page", array('title', 'safeLink', 'metaData'));
-		if ($searchResult !== false && $this->_USER->checkPermission('page', 'read')) {
+		if (is_array($searchResult) && $this->_USER->checkPermission('page', 'read')) {
 			$resultList .= "<br /><h3>Results in pages:</h3>";
-			$resultNum += mysqli_num_rows($searchResult);
-			while($row = mysqli_fetch_assoc($searchResult))
+			$resultNum += count($searchResult);
+
+			foreach($searchResult as $row)
 				$resultList .="<a href=\"admin.php?type=page&action=update&p=".$row['id']."\" title=\"Edit / Manage this page\" alt=\"Edit / Manage this page\" class=\"cms_pageEditLink\" >" . $row['title'] . " - " . $row['safeLink'] . "</a><br />";
 		}
 		//Post search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "post", array('title', 'content'));
-		if ($searchResult !== false && $this->_USER->checkPermission('post', 'read')) {
+		if (is_array($searchResult) && $this->_USER->checkPermission('post', 'read')) {
 			$resultList .= "<br /><h3>Results in posts:</h3>";
-			$resultNum += mysqli_num_rows($searchResult);
-			while($row = mysqli_fetch_assoc($searchResult))
+			$resultNum += count($searchResult);
+			foreach($searchResult as $row)
 				$resultList .="<a href=\"admin.php?type=post&action=update&p=".$row['pageId']."&c=". $row['id'] . "\" title=\"Edit / Manage this post\" alt=\"Edit / Manage this post\" class=\"cms_pageEditLink\" >" . $row['title'] . "</a><br />";
 		}
 		//Template search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "template", array('path', 'filename', 'title'));
-		if ($searchResult !== false && $this->_USER->checkPermission('template', 'read')) {
+		if (is_array($searchResult) && $this->_USER->checkPermission('template', 'read')) {
 			$resultList .= "<br /><h3>Results in templates:</h3>";
-			$resultNum += mysqli_num_rows($searchResult);
-			while($row = mysqli_fetch_assoc($searchResult))
+			$resultNum += count($searchResult);
+			foreach($searchResult as $row)
 				$resultList .="<a href=\"admin.php?type=template&action=update&p=".$row['id']."\" title=\"Edit / Manage this template\" alt=\"Edit / Manage this template\" class=\"cms_pageEditLink\" >" . $row['title'] . " - " . $row['path'] . "</a><br />";
 		}
 		//Plugin search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "plugin", array('path', 'filename'));
-		if ($searchResult !== false && $this->_USER->checkPermission('plugin', 'read')) {
+		if (is_array($searchResult) && $this->_USER->checkPermission('plugin', 'read')) {
 			$resultList .= "<br /><h3>Results in plugins:</h3>";
-			$resultNum += mysqli_num_rows($searchResult);
-			while($row = mysqli_fetch_assoc($searchResult))
+			$resultNum += count($searchResult);
+			foreach($searchResult as $row)
 				$resultList .="<a href=\"admin.php?type=plugin&action=update&p=".$row['id']."\" title=\"Edit / Manage this plugin\" alt=\"Edit / Manage this plugin\" class=\"cms_pageEditLink\" >" . $row['path'] . " - " . $row['filename'] . "</a><br />";
 		}
 		//Key search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "customkey", array('keyItem', 'keyValue'));
-		if ($searchResult !== false && $this->_USER->checkPermission('customkey', 'read')) {
+		if (is_array($searchResult) && $this->_USER->checkPermission('customkey', 'read')) {
 			$resultList .= "<br /><h3>Results in keys:</h3>";
-			$resultNum += mysqli_num_rows($searchResult);
-			while($row = mysqli_fetch_assoc($searchResult))
+			$resultNum += count($searchResult);
+			foreach($searchResult as $row)
 				$resultList .="<a href=\"admin.php?type=customkey&action=update&p=".$row['id']."\" title=\"Edit / Manage this key\" alt=\"Edit / Manage this key\" class=\"cms_pageEditLink\" >" . $row['keyItem'] . " - " . $row['keyValue'] . "</a><br />";
 		}
 		//User search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "account", array('loginname', 'email'));
-		if ($searchResult !== false && $this->_USER->checkPermission('account', 'read')) {
+		if (is_array($searchResult) && $this->_USER->checkPermission('account', 'read')) {
 			$resultList .= "<br /><h3>Results in users:</h3>";
-			$resultNum += mysqli_num_rows($searchResult);
-			while($row = mysqli_fetch_assoc($searchResult))
+			$resultNum += count($searchResult);
+			foreach($searchResult as $row)
 				$resultList .="<a href=\"admin.php?type=account&action=update&p=".$row['id']."\" title=\"Edit / Manage this user\" alt=\"Edit / Manage this user\" class=\"cms_pageEditLink\" >" . $row['loginname'] . " - " . $row['email'] . "</a><br />";
 		}
 		//Log search
 		$searchResult = searchTable($this->_CONN, $this->_ACTION,  "log", array('info'));
-		if ($searchResult !== false && $this->_USER->checkPermission('log', 'read')) {
+		if (is_array($searchResult) && $this->_USER->checkPermission('log', 'read')) {
 			$resultList .= "<br /><h3>Results in log:</h3>";
-			$resultNum += mysqli_num_rows($searchResult);
-			while($row = mysqli_fetch_assoc($searchResult))
+			$resultNum += count($searchResult);
+			foreach($searchResult as $row)
 				$resultList .="<a href=\"admin.php?type=log\" class=\"cms_pageEditLink\">User: " . $row['loginname'] . " - Details: " . $row['info'] . "</a><br />";
 		}
 		
