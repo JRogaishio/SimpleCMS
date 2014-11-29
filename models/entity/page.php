@@ -46,15 +46,14 @@ class page extends model
 	 * @param params The form post values
 	 */
 	public function storeFormValues ($params) {
-		//Set the data to variables if the post data is set
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['id'])) $this->setId(clean($this->conn, $params['id']));
-		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
-		if(isset($params['template'])) $this->setTemplateId(clean($this->conn, $params['template']));
-		if(isset($params['safelink'])) $this->setSafeLink(clean($this->conn, $params['safelink']));
-		if(isset($params['metadata'])) $this->setMetaData(clean($this->conn, $params['metadata']));
-		if(isset($params['flags'])) $this->setFlags(clean($this->conn, $params['flags']));
-		if(isset($params['homepage'])) $this->setIsHome(clean($this->conn, $params['homepage']));
+		// Store all the parameters. phpORM uses PDO parameter strings to handle injection
+		if(isset($params['id'])) $this->setId($params['id']);
+		if(isset($params['title'])) $this->setTitle($params['title']);
+		if(isset($params['template'])) $this->setTemplateId($params['template']);
+		if(isset($params['safelink'])) $this->setSafeLink($params['safelink']);
+		if(isset($params['metadata'])) $this->setMetaData($params['metadata']);
+		if(isset($params['flags'])) $this->setFlags($params['flags']);
+		if(isset($params['homepage'])) $this->setIsHome($params['homepage']);
 	}
 
 	/**

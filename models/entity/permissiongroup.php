@@ -26,8 +26,8 @@ class permissiongroup extends model
 	public function storeFormValues ($params) {
 		//Set the data to variables if the post data is set
 
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['name'])) $this->setTitle(clean($this->conn, $params['name']));
+		// Store all the parameters. phpORM uses PDO parameter strings to handle injection
+		if(isset($params['name'])) $this->setTitle($params['name']);
 
 		//Load the permissions into an array
 		foreach($this->availModels as $modelName) {
@@ -36,11 +36,11 @@ class permissiongroup extends model
 			//Load permission data from the form
 			$values = array('id'=>'', 'groupId'=>$this->getId(), 'model'=>$modelName, 'read'=>null, 'insert'=>null, 'update'=>null, 'delete'=>null);
 			
-			if(isset($params[$modelName . '_id'])) $values['id'] = clean($this->conn, $params[$modelName . '_id']);
-			if(isset($params[$modelName . '_read'])) $values['read'] = clean($this->conn, $params[$modelName . '_read']);
-			if(isset($params[$modelName . '_insert'])) $values['insert'] = clean($this->conn, $params[$modelName . '_insert']);
-			if(isset($params[$modelName . '_update'])) $values['update'] = clean($this->conn, $params[$modelName . '_update']);
-			if(isset($params[$modelName . '_delete'])) $values['delete'] = clean($this->conn, $params[$modelName . '_delete']);
+			if(isset($params[$modelName . '_id'])) $values['id'] =  $params[$modelName . '_id'];
+			if(isset($params[$modelName . '_read'])) $values['read'] =  $params[$modelName . '_read'];
+			if(isset($params[$modelName . '_insert'])) $values['insert'] =  $params[$modelName . '_insert'];
+			if(isset($params[$modelName . '_update'])) $values['update'] =  $params[$modelName . '_update'];
+			if(isset($params[$modelName . '_delete'])) $values['delete'] =  $params[$modelName . '_delete'];
 						
 			//Load in the permission data
 			$permission->storeFormValues($values);

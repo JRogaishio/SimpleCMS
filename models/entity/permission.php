@@ -24,14 +24,14 @@ class permission extends model
 	 * @param params The form post values
 	 */
 	public function storeFormValues ($params) {	
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['id'])) $this->setId(clean($this->conn, $params['id']));
-		if(isset($params['groupId'])) $this->setGroupId(clean($this->conn, $params['groupId']));
-		if(isset($params['model'])) $this->setModel(clean($this->conn, $params['model']));
-		(isset($params['read'])) ? $this->setReadAction(clean($this->conn, $params['read'])) : $this->setReadAction(0);
-		(isset($params['insert'])) ? $this->setInsertAction(clean($this->conn, $params['insert'])) : $this->setInsertAction(0);
-		(isset($params['update'])) ? $this->setUpdateAction(clean($this->conn, $params['update'])) : $this->setUpdateAction(0);
-		(isset($params['delete'])) ? $this->setDeleteAction(clean($this->conn, $params['delete'])) : $this->setDeleteAction(0);
+		// Store all the parameters. phpORM uses PDO parameter strings to handle injection
+		if(isset($params['id'])) $this->setId($params['id']);
+		if(isset($params['groupId'])) $this->setGroupId($params['groupId']);
+		if(isset($params['model'])) $this->setModel($params['model']);
+		(isset($params['read'])) ? $this->setReadAction($params['read']) : $this->setReadAction(0);
+		(isset($params['insert'])) ? $this->setInsertAction($params['insert']) : $this->setInsertAction(0);
+		(isset($params['update'])) ? $this->setUpdateAction($params['update']) : $this->setUpdateAction(0);
+		(isset($params['delete'])) ? $this->setDeleteAction($params['delete']) : $this->setDeleteAction(0);
 	}
 
 	/**

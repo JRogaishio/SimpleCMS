@@ -236,9 +236,12 @@ function getFormattedTemplates($conn, $format, $eleName, $defaultVal) {
  */
 function get_userSalt($conn, $username) {
 
-	$userSQL = "SELECT salt FROM account WHERE loginname='$username';";
-	$userResult =  $conn->query($userSQL);
-	$row = $userResult->fetch(PDO::FETCH_ASSOC);
+	$userSQL = "SELECT salt FROM account WHERE loginname=:loginname;";
+	$stmt = $conn->prepare($userSQL);
+	$stmt->bindValue(':loginname', $username, PDO::PARAM_STR);
+	$result = $stmt->execute();
+	
+	$row = $stmt->fetch(PDO::FETCH_ASSOC);
 	if (is_array($row)) {
 		return $row['salt'];
 	} else {

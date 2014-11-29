@@ -24,15 +24,14 @@ class post extends model
 	 * @param params The form post values
 	 */
 	public function storeFormValues ($params) {
-		// Store all the parameters
-		//Set the data to variables if the post data is set
-		if(isset($params['id'])) $this->setId(clean($this->conn, $params['id']));
-		if(isset($params['pageId'])) $this->setPageId(clean($this->conn, $params['pageId']));
-		if(isset($params['authorId'])) $this->setAuthorId(clean($this->conn, $params['authorId']));
-		if(isset($params['postDate'])) $this->setPostDate(clean($this->conn, $params['postDate']));
-		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
-		if(isset($params['content'])) $this->setContent(clean($this->conn, $params['content']));
-		if(isset($params['lastMod'])) $this->setLastModified(clean($this->conn, $params['lastMod']));
+		// Store all the parameters. phpORM uses PDO parameter strings to handle injection
+		if(isset($params['id'])) $this->setId($params['id']);
+		if(isset($params['pageId'])) $this->setPageId($params['pageId']);
+		if(isset($params['authorId'])) $this->setAuthorId($params['authorId']);
+		if(isset($params['postDate'])) $this->setPostDate($params['postDate']);
+		if(isset($params['title'])) $this->setTitle($params['title']);
+		if(isset($params['content'])) $this->setContent($params['content']);
+		if(isset($params['lastMod'])) $this->setLastModified($params['lastMod']);
 	}
 
 	/**

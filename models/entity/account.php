@@ -28,13 +28,12 @@ class account extends model
 	 * @param params The form post values
 	 */
 	public function storeFormValues ($params=array()) {
-		// Store all the parameters
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['username'])) $this->setLoginname(clean($this->conn, $params['username']));
-		if(isset($params['password'])) $this->setPassword(clean($this->conn, $params['password']));
-		if(isset($params['password2'])) $this->password2 = clean($this->conn, $params['password2']);
-		if(isset($params['email'])) $this->setEmail(clean($this->conn, $params['email']));
-		if(isset($params['groupId'])) $this->setGroupId(clean($this->conn, $params['groupId']));
+		// Store all the parameters. phpORM uses PDO parameter strings to handle injection
+		if(isset($params['username'])) $this->setLoginname($params['username']);
+		if(isset($params['password'])) $this->setPassword($params['password']);
+		if(isset($params['password2'])) $this->password2 = $params['password2'];
+		if(isset($params['email'])) $this->setEmail($params['email']);
+		if(isset($params['groupId'])) $this->setGroupId($params['groupId']);
 		
 		//Reset the users salt and build the password
 		$salt = unique_salt();

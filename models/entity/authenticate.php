@@ -103,16 +103,25 @@ class authenticate extends model
 	public function authUser($post, $token) {
 		//Check to see if any login info was posted or if a token exists
 		if((($token!=null) || (isset($post['login_username']) && isset($post['login_password']))) && countRecords($this->conn,"account") > 0) {
+			$isToken = false;
 			if(isset($post['login_username']) && isset($post['login_password'])) {
-				$secPass = encrypt(clean($this->conn,$post['login_password']), get_userSalt($this->conn, clean($this->conn, $post['login_username'])));
-
-				$userSQL = "SELECT * FROM account WHERE loginname='" . clean($this->conn,$post['login_username']) . "' AND password='$secPass';";
+				$secPass = encrypt($post['login_password'], get_userSalt($this->conn, $post['login_username']));
+				$userSQL = "SELECT * FROM account WHERE loginname=:loginname AND password=:password;";
 			} else {
-				$userSQL = "SELECT * FROM account WHERE token='$token';";
+				$userSQL = "SELECT * FROM account WHERE token=:token;";
+				$isToken = true;
 			}
-
-			$userResult = $this->conn->query($userSQL);
-			$userData = $userResult->fetch(PDO::FETCH_ASSOC);
+			$stmt = $this->conn->prepare($userSQL);
+			
+			if(!$isToken) {
+				$stmt->bindValue(':loginname', $post['login_username'], PDO::PARAM_STR);
+				$stmt->bindValue(':password', $secPass, PDO::PARAM_STR);
+			} else {
+				$stmt->bindValue(':token', $token, PDO::PARAM_STR);
+			}
+				
+			$userResult = $stmt->execute();
+			$userData = $stmt->fetch(PDO::FETCH_ASSOC);
 			//Test to see if the auth was successful
 			if (is_array($userData)) {
 				$user = new account($this->conn, $this->log);
