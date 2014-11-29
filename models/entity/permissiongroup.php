@@ -263,7 +263,7 @@ class permissiongroup extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=permissiongroup&action=read">Permission Group List</a><br /><br />';
 	
-		$groupList = $this->loadList(new permissionGroup($this->conn, $this->log), "created:DESC");
+		$groupList = $this->loadArr(new permissionGroup($this->conn, $this->log), "created:DESC");
 		
 		if (count($groupList)) {
 			foreach($groupList as $group) {

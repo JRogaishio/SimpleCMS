@@ -128,7 +128,7 @@ class post extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=post&action=read">Post List</a><br /><br />';
 	
-		$postList = $this->loadList(new post($this->conn, $this->log), "pageId:ASC");
+		$postList = $this->loadArr(new post($this->conn, $this->log), "pageId:ASC");
 		$lastPageName = "";
 		
 		if (count($postList)) {

@@ -97,7 +97,7 @@ class site extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=site&action=read">Site</a><br /><br />';
 	
-		$siteList = $this->loadList(new site($this->conn, $this->log), "created:DESC");
+		$siteList = $this->loadArr(new site($this->conn, $this->log), "created:DESC");
 		
 		if (count($siteList)) {
 			foreach($siteList as $site) {

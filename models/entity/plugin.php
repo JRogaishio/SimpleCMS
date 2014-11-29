@@ -96,7 +96,7 @@ class plugin extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=plugin&action=read">Plugin List</a><br /><br />';
 	
-		$pluginList = $this->loadList(new plugin($this->conn, $this->log), "created:DESC");
+		$pluginList = $this->loadArr(new plugin($this->conn, $this->log), "created:DESC");
 		
 		if (count($pluginList)) {
 			foreach($pluginList as $plugin) {

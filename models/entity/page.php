@@ -199,7 +199,7 @@ class page extends model
 	 */
 	private function display_pagePosts($pageId) {
 		if($pageId != null) {
-			$postList = $this->loadList(new post($this->conn, $this->log), "created:ASC", array("pageId=$pageId"));
+			$postList = $this->loadArr(new post($this->conn, $this->log), "created:ASC", array("pageId = $pageId"));
 			$entry_display = "";
 			
 			if (count($postList)) {
@@ -232,7 +232,7 @@ class page extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=page&action=read">Page List</a><br /><br />';
 	
-		$pageList = $this->loadList(new page($this->conn, $this->log), "created:DESC");
+		$pageList = $this->loadArr(new page($this->conn, $this->log), "created:DESC");
 		
 		if (count($pageList)) {
 			foreach($pageList as $page) {

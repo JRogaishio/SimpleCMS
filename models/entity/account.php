@@ -242,7 +242,7 @@ class account extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">Account List</a><br /><br />';
 	
-		$accountList = $this->loadList(new account($this->conn, $this->log), "created:DESC");
+		$accountList = $this->loadArr(new account($this->conn, $this->log), "created:DESC");
 		
 		if (count($accountList)) {
 			foreach($accountList as $account) {		

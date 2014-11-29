@@ -97,7 +97,7 @@ class customkey extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=customkey&action=read">Key List</a><br /><br />';
 	
-		$keyList = $this->loadList(new customkey($this->conn, $this->log), "created:DESC");
+		$keyList = $this->loadArr(new customkey($this->conn, $this->log), "created:DESC");
 		
 		if (count($keyList)) {
 			foreach($keyList as $key) {

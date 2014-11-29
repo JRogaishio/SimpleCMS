@@ -89,7 +89,7 @@ class log extends model
 	 *
 	 */
 	public function displayModelList() {		
-		$logList = $this->loadList(new log($this->conn, $this->log), "created:DESC");
+		$logList = $this->loadArr(new log($this->conn, $this->log), "created:DESC");
 		
 		if (count($logList)) {
 			echo "<h3>Results in log:</h3><br /><br />

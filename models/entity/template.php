@@ -110,7 +110,7 @@ class template extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=template&action=read">Template List</a><br /><br />';
 	
-		$templateList = $this->loadList(new template($this->conn, $this->log), "created:DESC");
+		$templateList = $this->loadArr(new template($this->conn, $this->log), "created:DESC");
 		
 		if (count($templateList)) {
 			foreach($templateList as $template) {
