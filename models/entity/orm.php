@@ -160,7 +160,7 @@
  		foreach($filters as $filter) {
 			$params = explode(' ', $filter);
 			//Get the PHP Array field
- 			$field = $this->$params[0];
+ 			$field = $relatedObject->$params[0];
  			//Get the SQL field we want to access
  			$sqlField = $params[0];
  			//Get the condition value

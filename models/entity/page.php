@@ -199,7 +199,7 @@ class page extends model
 	 */
 	private function display_pagePosts($pageId) {
 		if($pageId != null) {
-			$postList = $this->loadArr(new post($this->conn, $this->log), "created:ASC", array("pageId = $pageId"));
+			$postList = $this->loadArr(new post($this->conn, $this->log), "created:ASC", array("pageId = " . $pageId));
 			$entry_display = "";
 			
 			if (count($postList)) {
