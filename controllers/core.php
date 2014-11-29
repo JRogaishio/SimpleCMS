@@ -132,9 +132,9 @@ class core {
 	}
 	
 	/**
-	 * Returns the MySQLi connection object
+	 * Returns the PDO connection object
 	 *
-	 * @return Returns the MySQLi connection object
+	 * @return Returns the PDO connection object
 	 *
 	 */
 	public function get_CONN() {

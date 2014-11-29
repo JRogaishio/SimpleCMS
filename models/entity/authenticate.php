@@ -21,10 +21,11 @@ class authenticate extends model
 	public function checkIP() {
 		$clientIP = $_SERVER['REMOTE_ADDR'];
 		
-		$authSQL = "SELECT * FROM authenticate WHERE ip = '" . $clientIP . "' ORDER BY attemptTime DESC";
-		$authResult = $this->conn->query($authSQL);
-		
-		$attempts = $authResult->rowCount();
+		$authSQL = "SELECT * FROM authenticate WHERE ip = :ip ORDER BY attemptTime DESC";
+		$stmt = $this->conn->prepare($authSQL);
+		$stmt->bindValue(':ip', $clientIP, PDO::PARAM_STR);
+		$authResult = $stmt->execute();
+		$attempts = $stmt->rowCount();
 
 		//How much to multiply the time to wait based on the failed attempts
 		$multiplier = 1;
@@ -39,10 +40,13 @@ class authenticate extends model
 		else if($attempts >= 5)
 			$multiplier = 5;
 
+		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		
 		//Penalty after 4 bad login attempts
 		if($attempts > 3) {
-			$lastAttempt = mysqli_fetch_assoc($authResult);
-			$lastTime = $lastAttempt['auth_time'];
+			$data = $authResult->fetch(PDO::FETCH_ASSOC);
+			$lastAttempt = $data[0];
+			$lastTime = $data['auth_time'];
 			$currentTime = time();
 			
 			//If the last time is more than a minute old, let the authentication go through as 0 minutes waiting
@@ -52,12 +56,9 @@ class authenticate extends model
 				//Return the number of minutes you need to wait
 				return $multiplier;
 			}
-			
 		} else {
 			return 0;
 		}
-		
-		
 	}
 	
 	/**
