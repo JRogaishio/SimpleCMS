@@ -66,8 +66,12 @@ class permission extends model
 	 * @return returns the database result on the delete query
 	 */
 	public function delete() {
-		$permissionSQL = "DELETE FROM " . $this->table . " WHERE groupId=" . $this->getGroupId();
-		$permissionResult = $this->conn->query($permissionSQL);
+		$permissionSQL = "DELETE FROM " . $this->table . " WHERE groupId=:groupId";
+		
+		$stmt = $this->_CONN->prepare($permissionSQL);
+		$stmt->bindValue(':groupId', $this->getGroupId(), PDO::PARAM_INT);
+		$permissionResult = $stmt->execute();
+
 		return $permissionResult;
 	}
 	
@@ -79,10 +83,13 @@ class permission extends model
 	public function loadRecord($groupId, $c=null) {		
 		if(isset($groupId) && $groupId != null && isset($this->model) && $this->model != null) {
 			
-			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE groupId=$groupId AND model='" . $this->getModel() . "'";
+			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE groupId=:groupId AND model=:model";
 				
-			$permissionResult = $this->conn->query($permissionSQL);
-			$row = $permissionResult->fetch(PDO::FETCH_ASSOC);
+			$stmt = $this->_CONN->prepare($permissionSQL);
+			$stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+			$stmt->bindValue(':model', $this->getModel(), PDO::PARAM_STR);
+			$stmt->execute();
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 			if(is_array($row)) {
 				$this->load($row['id']);

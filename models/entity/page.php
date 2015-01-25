@@ -101,9 +101,12 @@ class page extends model
 	 */
 	protected function preDelete() {
 		$ret = false;
-		$postSQL = "DELETE FROM post WHERE pageId=" . $this->getId();
-		$ret = $this->conn->query($postSQL);
+		$postSQL = "DELETE FROM post WHERE pageId=:pageId";
 		
+		$stmt = $this->_CONN->prepare($postSQL);
+		$stmt->bindValue(':pageId', $this->getId(), PDO::PARAM_INT);
+		$ret = $stmt->execute();
+
 		return $ret;
 	}
 	
@@ -113,13 +116,18 @@ class page extends model
 	public function loadRecord($p=null, $c=null) {
 		if(isset($p) && $p != null) {
 			
-			if($p == "home")
+			if($p == "home") {
 				$pageSQL = "SELECT * FROM " . $this->table . " WHERE isHome=true";
-			else
-				$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=$p";
+				$stmt = $this->conn->prepare($pageSQL);
+			} else {
+				$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=:id";
+				$stmt = $this->conn->prepare($pageSQL);
+				$stmt->bindValue(':id', $p, PDO::PARAM_INT);
+			}
 			
-			$pageResult = $this->conn->query($pageSQL);
-			$row = $pageResult->fetch(PDO::FETCH_ASSOC);
+			$stmt->execute();
+
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 			if(is_array($row)) {
 				$this->load($row['id']);

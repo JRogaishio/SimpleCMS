@@ -22,9 +22,14 @@ function getPages($conn) {
  * @return returns the page name selected
  */
 function lookupPageNameById($conn, $pageId) {
-	$pageSQL = "SELECT * FROM page WHERE id=$pageId";
-	$pageResult =  $conn->query($pageSQL);
-	$row = $pageResult->fetch(PDO::FETCH_ASSOC);
+	$pageSQL = "SELECT * FROM page WHERE id=:pageId";
+	$stmt = $this->_CONN->prepare($pageSQL);
+	$stmt->bindValue(':pageId', $pageId, PDO::PARAM_INT);
+	
+	$stmt->execute();
+	
+	$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
 	$name = null;
 	if(is_array($row)) {
 		$name = $row['title'];
@@ -42,9 +47,14 @@ function lookupPageNameById($conn, $pageId) {
  * @return returns the page name selected
  */
 function lookupGroupNameById($conn, $groupId) {
-	$groupSQL = "SELECT title FROM permissiongroup WHERE id=$groupId";
-	$groupResult =  $conn->query($groupSQL);
-	$row = $groupResult->fetch(PDO::FETCH_ASSOC);
+	$groupSQL = "SELECT title FROM permissiongroup WHERE id=:groupId";
+	$stmt = $this->_CONN->prepare($groupSQL);
+	$stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+	
+	$stmt->execute();
+	
+	$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
 	$name = null;
 	if(is_array($row)) {
 		$name = $row['title'];
@@ -173,9 +183,15 @@ function getFormattedGroups($conn, $format, $eleName, $defaultVal) {
  */
 function lookupTemplateNameById($conn, $templateId) {
 
-	$templateSQL = "SELECT * FROM template WHERE id=$templateId";
-	$templateResult =  $conn->query($templateSQL);
-	$row = $templateResult->fetch(PDO::FETCH_ASSOC);
+	$templateSQL = "SELECT * FROM template WHERE id=:templateId";
+	
+	$stmt = $this->_CONN->prepare($templateSQL);
+	$stmt->bindValue(':templateId', $templateId, PDO::PARAM_INT);
+	
+	$stmt->execute();
+	
+	$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
 	$name = null;
 	
 	if(is_array($row)) {

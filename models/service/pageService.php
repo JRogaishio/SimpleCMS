@@ -32,20 +32,32 @@ class pageService extends service
 			$tempId = $this->model->getId();
 				
 			if($postLimit == -1) {
-				$postSQL = "SELECT * FROM post WHERE pageId=$tempId ORDER BY created DESC";
+				$postSQL = "SELECT * FROM post WHERE pageId=:pageId ORDER BY created DESC";
+				$stmt = $this->conn->prepare($postSQL);
+				$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);				
 			} else {
 				if(strpos(clean($this->conn,$childId), "~") !== false) {
 					$temp = str_replace("~", "", (clean($this->conn,$childId)));
 					$startPos = $temp;
 	
-					$postSQL = "SELECT * FROM post WHERE pageId=$tempId ORDER BY created DESC LIMIT $startPos, $postLimit";
+					$postSQL = "SELECT * FROM post WHERE pageId=:pageId ORDER BY created DESC LIMIT :startPos, :limit";
+					$stmt = $this->conn->prepare($postSQL);
+					$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);
+					$stmt->bindValue(':startPos', $startPos, PDO::PARAM_INT);
+					$stmt->bindValue(':limit', $postLimit, PDO::PARAM_INT);
 				} else {
-					$postSQL = "SELECT * FROM post WHERE pageId=$tempId " . ($childId != null ? "AND id = " . $childId : "") . " ORDER BY created DESC LIMIT $postLimit";
+					$postSQL = "SELECT * FROM post WHERE pageId=:pageId " . ($childId != null ? "AND id = :childId" : "") . " ORDER BY created DESC LIMIT :limit";
+					$stmt = $this->conn->prepare($postSQL);
+					$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);
+					if($childId != null)
+						$stmt->bindValue(':childId', $childId, PDO::PARAM_INT);
+						
+					$stmt->bindValue(':limit', $postLimit, PDO::PARAM_INT);
 				}
 			}
-	
-			$postResult = $this->conn->query($postSQL);
-			$data = $postResult->fetchAll(PDO::FETCH_ASSOC);
+			
+			$stmt->execute();
+			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	
 			if (is_array($data)) {
 				foreach($data as $row) {
@@ -93,20 +105,35 @@ class pageService extends service
 			}
 			
 			if($postLimit == -1) {
-				$postSQL = "SELECT * FROM post WHERE pageId=$tempId " . ($childId != null ? "AND id = " . clean($this->conn,$childId) : "") . " ORDER BY created DESC";
+				$postSQL = "SELECT * FROM post WHERE pageId=:pageId " . ($childId != null ? "AND id = :childId" : "") . " ORDER BY created DESC";
+				$stmt = $this->conn->prepare($postSQL);
+				$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);
+				if($childId != null)
+					$stmt->bindValue(':childId', $childId, PDO::PARAM_INT);
+			
 			} else {
 				if(strpos(clean($this->conn,$childId), "~") !== false) {
 					$temp = str_replace("~", "", (clean($this->conn,$childId)));
 					$startPos = $temp;
 						
-					$postSQL = "SELECT * FROM post WHERE pageId=$tempId ORDER BY created DESC LIMIT $startPos, $postLimit";
+					$postSQL = "SELECT * FROM post WHERE pageId=:pageId ORDER BY created DESC LIMIT :startPos, :limit";
+					$stmt = $this->conn->prepare($postSQL);
+					$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);
+					$stmt->bindValue(':startPos', $startPos, PDO::PARAM_INT);
+					$stmt->bindValue(':limit', $postLimit, PDO::PARAM_INT);
+					
 				} else {
-					$postSQL = "SELECT * FROM post WHERE pageId=$tempId " . ($childId != null ? "AND id = " . $childId : "") . " ORDER BY created DESC LIMIT $postLimit";
+					$postSQL = "SELECT * FROM post WHERE pageId=:pageId " . ($childId != null ? "AND id = :childId" : "") . " ORDER BY created DESC LIMIT :limit";
+					$stmt = $this->conn->prepare($postSQL);
+					$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);
+					if($childId != null)
+						$stmt->bindValue(':childId', $childId, PDO::PARAM_INT);
+					$stmt->bindValue(':limit', $postLimit, PDO::PARAM_INT);
 				}
 			}
 				
-			$postResult = $this->conn->query($postSQL);
-			$data = $postResult->fetchAll(PDO::FETCH_ASSOC);
+			$stmt->execute();
+			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$entry_display = "";
 				
 			if (is_array($data)) {

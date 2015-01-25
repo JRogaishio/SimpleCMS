@@ -77,9 +77,12 @@ class authenticate extends model
 	 * Clears all the  failed login attempts in the database
 	*/
 	public function clearAttempts() {
-		$sql = "DELETE FROM authenticate WHERE ip='" . $_SERVER['REMOTE_ADDR'] . "';";
+		$sql = "DELETE FROM authenticate WHERE ip=:ip;";
+
+		$stmt = $this->_CONN->prepare($sql);
+		$stmt->bindValue(':ip', $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
 		
-		$result = $this->conn->query($sql) OR DIE ("Could not clear authentication table!");
+		$stmt->execute() OR DIE ("Could not clear authentication table!");
 	}
 	
 	
@@ -134,8 +137,13 @@ class authenticate extends model
 					
 				$newToken = hash('sha256', (unique_salt() . $user->getLoginname()));
 
-				$tokenSQL = "UPDATE account SET token = '$newToken' WHERE id=" . $user->getId() . ";";
-				$tokenResult = $this->conn->query($tokenSQL) OR DIE ("Could not update account!");
+				$tokenSQL = "UPDATE account SET token = :token WHERE id=:id;";
+				
+				$stmt = $this->_CONN->prepare($tokenSQL);
+				$stmt->bindValue(':token', $newToken, PDO::PARAM_STR);
+				$stmt->bindValue(':id', $user->getId(), PDO::PARAM_INT);
+				$tokenResult = $stmt->execute() OR DIE ("Could not update account!");
+
 				if(!$tokenResult) {
 					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";
 				}
