@@ -59,24 +59,31 @@ class uploader extends model
 			    	}
 			    	else {
 			    		$name = $_FILES["file"]["name"];
+			    		$extension = pathinfo($name, PATHINFO_EXTENSION);
+			    		$whitelist = array("jpg","jpeg","gif","png","bmp","pdf","zip","rar","rtf","doc","docx","xls","xlsx");
+			    		$isAllowed = in_array($extension, $whitelist);
 			    		
-			    		if ( !is_dir( 'custom/uploads/' ) ) mkdir ('custom/uploads/', 0777, true);
-
-			    		if (file_exists("custom/uploads/" . $name)) {
-			    			$name = $this->nextName($_FILES["file"]["name"]);
-			    		}
-
-		    			move_uploaded_file($_FILES["file"]["tmp_name"], "custom/uploads/" . $name);
-		    			echo "File uploaded successfully!<br /><br />";
+			    		if($isAllowed) {
+				    		if ( !is_dir( 'custom/uploads/' ) ) mkdir ('custom/uploads/', 0777, true);
 	
-		    			$this->setFilename($name);
-						$this->setFileType($_FILES["file"]["type"]);
-						$this->setFileSize($_FILES["file"]["size"]);
-						$this->setFileDate(date('Y-m-d H:i:s'));
-						$this->setCreated(time());
-						$this->save();
-
-		    			$this->log->trackChange("uploader", 'upload',$user->getId(),$user->getLoginname(), "Uploaded file: " . $name);
+				    		if (file_exists("custom/uploads/" . $name)) {
+				    			$name = $this->nextName($_FILES["file"]["name"]);
+				    		}
+	
+			    			move_uploaded_file($_FILES["file"]["tmp_name"], "custom/uploads/" . $name);
+			    			echo "File uploaded successfully!<br /><br />";
+		
+			    			$this->setFilename($name);
+							$this->setFileType($_FILES["file"]["type"]);
+							$this->setFileSize($_FILES["file"]["size"]);
+							$this->setFileDate(date('Y-m-d H:i:s'));
+							$this->setCreated(time());
+							$this->save();
+	
+			    			$this->log->trackChange("uploader", 'upload',$user->getId(),$user->getLoginname(), "Uploaded file: " . $name);
+			    		} else {
+			    			echo "Invalid file type uploaded. Only file types of (" . implode(',', $whitelist) . ") are allowed.<br /><br />";
+			    		}
 			    	}
     			}
 		    	break;
