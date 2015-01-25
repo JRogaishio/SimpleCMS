@@ -22,13 +22,13 @@ define( "PLUGIN_PATH", "plugins" );
 define( "ADMINFORM_PATH", "adminForm" );
 define( "LIBRARY_PATH", "lib" );
 define( "ERROR_DIR", "templates/system/" );
-/*
+
 function handleException( $exception ) {
   echo "Sorry, a problem occurred. Please try later.";
   error_log( $exception->getMessage() );
-}*/
+}
 
-//set_exception_handler( 'handleException' );
+set_exception_handler( 'handleException' );
 
 ?>
 
