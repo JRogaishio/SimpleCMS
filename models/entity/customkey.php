@@ -21,8 +21,6 @@ class customkey extends model
 	 */
 	public function storeFormValues ($params) {
 		//Set the data to variables if the post data is set
-
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
 		if(isset($params['key'])) $this->setKeyItem($params['key']);
 		if(isset($params['value'])) $this->setKeyValue($params['value']);
 	}
