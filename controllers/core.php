@@ -201,8 +201,11 @@ class core {
 	 */
 	public function loadPlugins($context) {
 		$sql = "SELECT * FROM plugin ORDER BY created DESC";
-		$result = $this->_CONN->query($sql);
-		$data = $result->fetchAll(PDO::FETCH_ASSOC);
+		
+		$stmt = $this->_CONN->prepare($sql);
+		$stmt->execute();
+
+		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		if (is_array($data)) {
 			foreach ($data as $row) {
 				$file = stripslashes($row['plugin_file']);

@@ -95,9 +95,13 @@ class admin extends core {
 					
 					//Grab the username from the token for logging. We don't have the login set yet before we havent authenticated
 					if(isset($_COOKIE['token'])) {
-						$userSQL = "SELECT * FROM account WHERE token='" . clean($this->_CONN,$_COOKIE['token']) . "';";
-						$userResult = $this->_CONN->query($userSQL);
-						$userData = $userResult->fetch(PDO::FETCH_ASSOC);
+						$userSQL = "SELECT * FROM account WHERE token=:token;";
+						
+						$stmt = $this->_CONN->prepare($userSQL);
+						$stmt->bindValue(':token', $_COOKIE['token'], PDO::PARAM_STR);
+						$stmt->execute();
+					
+						$userData = $stmt->fetch(PDO::FETCH_ASSOC);
 						if (is_array($userData)) {
 							$this->_LOG->trackChange("account", 'log_out',$userData['id'], $userData['loginname'], "logged out");
 						}					
@@ -305,8 +309,12 @@ class admin extends core {
 	 */
 	public function cms_displayWarnings() {
 		//Make sure a homepage is set
-		$pageSQL = "SELECT * FROM page WHERE isHome=1;";
-		$pageResult = $this->_CONN->query($pageSQL);
+		$pageSQL = "SELECT * FROM page WHERE isHome=:isHome;";
+		
+		$stmt = $this->_CONN->prepare($pageSQL);
+		$stmt->bindValue(':isHome', 1, PDO::PARAM_INT);
+		$stmt->execute();
+		$pageResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		
 		if (is_array($pageResult) && countRecords($this->_CONN,"users") != 0 && $this->_AUTH == true)
 			echo "<span class='cms_warning'>A homepage is missing! Please set a homepage!</span><br />";

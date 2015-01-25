@@ -46,9 +46,13 @@ class pub extends core {
 		
 		//Load the page
 		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home" && strpos($pSafeLink,"SYS_") === false) {
-			$pageSQL = "SELECT * FROM page WHERE safeLink='$pSafeLink'";
-			$pageResult = $this->_CONN->query($pageSQL);
-			$pageData = $pageResult->fetch(PDO::FETCH_ASSOC);
+			$pageSQL = "SELECT * FROM page WHERE safeLink=:safeLink";
+			
+			$stmt = $this->_CONN->prepare($pageSQL);
+			$stmt->bindValue(':safeLink', $pSafeLink, PDO::PARAM_STR);
+			$stmt->execute();
+			
+			$pageData = $stmt->fetch(PDO::FETCH_ASSOC);
 
 			if(is_array($pageData)) {
 				$page->loadRecord($pageData['id']);
@@ -60,12 +64,14 @@ class pub extends core {
 		
 		//Load the page
 		if($page->getTemplateId() != "" && $page->getTemplateId() != null && strpos($pSafeLink,"SYS_") === false) {
-			$templateSQL = "SELECT * FROM template WHERE id=" . $page->getTemplateId();
-
-			$templateResult = $this->_CONN->query($templateSQL);
+			$templateSQL = "SELECT * FROM template WHERE id=:templateId";
 			
-			$template = $templateResult->fetch(PDO::FETCH_ASSOC);
-
+			$stmt = $this->_CONN->prepare($templateSQL);
+			$stmt->bindValue(':templateId', $page->getTemplateId(), PDO::PARAM_INT);
+			$stmt->execute();
+				
+			$template = $stmt->fetch(PDO::FETCH_ASSOC);
+			
 			if(is_array($template)) {
 				//Load the template file
 				$page->setTemplatePath($template['path']);
@@ -96,10 +102,13 @@ class pub extends core {
 		echo "<ul class='cms_ul_nav'>";
 		
 		for($i=0;$i<count($data);$i++) {
-			$pageSQL = "SELECT * FROM page WHERE safelink='$data[$i]'";
-			$pageResult = $this->_CONN->query($pageSQL);
-
-			$pageData = $pageResult->fetch(PDO::FETCH_ASSOC);
+			$pageSQL = "SELECT * FROM page WHERE safelink=:safelink";
+			
+			$stmt = $this->_CONN->prepare($pageSQL);
+			$stmt->bindValue(':safelink', $data[$i], PDO::PARAM_STR);
+			$stmt->execute();
+			
+			$pageData = $stmt->fetch(PDO::FETCH_ASSOC);
 
 			if(is_array($pageData)) {
 				echo "<li class='cms_li_nav' id='nav-$data[$i]'><a href='" . formatLink($this->_LINKFORMAT, $pageData['safeLink'])  . "'>" . $pageData['title'] . "</a></li>";
