@@ -316,7 +316,7 @@ class admin extends core {
 		$stmt->execute();
 		$pageResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		
-		if (is_array($pageResult) && countRecords($this->_CONN,"users") != 0 && $this->_AUTH == true)
+		if ((!is_array($pageResult) || count($pageResult) == 0) && countRecords($this->_CONN,"account") != 0 && $this->_AUTH == true)
 			echo "<span class='cms_warning'>A homepage is missing! Please set a homepage!</span><br />";
 
 	}

@@ -79,7 +79,7 @@ class authenticate extends model
 	public function clearAttempts() {
 		$sql = "DELETE FROM authenticate WHERE ip=:ip;";
 
-		$stmt = $this->_CONN->prepare($sql);
+		$stmt = $this->conn->prepare($sql);
 		$stmt->bindValue(':ip', $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
 		
 		$stmt->execute() OR DIE ("Could not clear authentication table!");
@@ -139,7 +139,7 @@ class authenticate extends model
 
 				$tokenSQL = "UPDATE account SET token = :token WHERE id=:id;";
 				
-				$stmt = $this->_CONN->prepare($tokenSQL);
+				$stmt = $this->conn->prepare($tokenSQL);
 				$stmt->bindValue(':token', $newToken, PDO::PARAM_STR);
 				$stmt->bindValue(':id', $user->getId(), PDO::PARAM_INT);
 				$tokenResult = $stmt->execute() OR DIE ("Could not update account!");

@@ -23,7 +23,7 @@ function getPages($conn) {
  */
 function lookupPageNameById($conn, $pageId) {
 	$pageSQL = "SELECT * FROM page WHERE id=:pageId";
-	$stmt = $this->_CONN->prepare($pageSQL);
+	$stmt = $conn->prepare($pageSQL);
 	$stmt->bindValue(':pageId', $pageId, PDO::PARAM_INT);
 	
 	$stmt->execute();
@@ -48,7 +48,7 @@ function lookupPageNameById($conn, $pageId) {
  */
 function lookupGroupNameById($conn, $groupId) {
 	$groupSQL = "SELECT title FROM permissiongroup WHERE id=:groupId";
-	$stmt = $this->_CONN->prepare($groupSQL);
+	$stmt = $conn->prepare($groupSQL);
 	$stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 	
 	$stmt->execute();
@@ -185,7 +185,7 @@ function lookupTemplateNameById($conn, $templateId) {
 
 	$templateSQL = "SELECT * FROM template WHERE id=:templateId";
 	
-	$stmt = $this->_CONN->prepare($templateSQL);
+	$stmt = $conn->prepare($templateSQL);
 	$stmt->bindValue(':templateId', $templateId, PDO::PARAM_INT);
 	
 	$stmt->execute();
