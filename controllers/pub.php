@@ -46,13 +46,15 @@ class pub extends core {
 		
 		//Load the page
 		if(isset($pSafeLink) && $pSafeLink != null && $pSafeLink != "home" && strpos($pSafeLink,"SYS_") === false) {
-			$pageSQL = "SELECT * FROM page WHERE safeLink='$pSafeLink'";
-			$pageResult = $this->_CONN->query($pageSQL);
+			$pageSQL = "SELECT * FROM page WHERE safeLink=:safeLink";
+			
+			$stmt = $this->_CONN->prepare($pageSQL);
+			$stmt->bindValue(':safeLink', $pSafeLink, PDO::PARAM_STR);
+			$stmt->execute();
+			
+			$pageData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
-				$pageData = mysqli_fetch_assoc($pageResult);
-
-			if(isset($pageData)) {
+			if(is_array($pageData)) {
 				$page->loadRecord($pageData['id']);
 			}
 		} else if($pSafeLink == null || $pSafeLink == "" || $pSafeLink == "home") {
@@ -62,14 +64,15 @@ class pub extends core {
 		
 		//Load the page
 		if($page->getTemplateId() != "" && $page->getTemplateId() != null && strpos($pSafeLink,"SYS_") === false) {
-			$templateSQL = "SELECT * FROM template WHERE id=" . $page->getTemplateId();
-
-			$templateResult = $this->_CONN->query($templateSQL);
+			$templateSQL = "SELECT * FROM template WHERE id=:templateId";
 			
-			if ($templateResult !== false && mysqli_num_rows($templateResult) > 0 )
-				$template = mysqli_fetch_assoc($templateResult);
-
-			if(isset($template)) {
+			$stmt = $this->_CONN->prepare($templateSQL);
+			$stmt->bindValue(':templateId', $page->getTemplateId(), PDO::PARAM_INT);
+			$stmt->execute();
+				
+			$template = $stmt->fetch(PDO::FETCH_ASSOC);
+			
+			if(is_array($template)) {
 				//Load the template file
 				$page->setTemplatePath($template['path']);
 				require(TEMPLATE_PATH . "/" . $template['path'] . "/" . $template['filename']);
@@ -99,13 +102,15 @@ class pub extends core {
 		echo "<ul class='cms_ul_nav'>";
 		
 		for($i=0;$i<count($data);$i++) {
-			$pageSQL = "SELECT * FROM page WHERE safelink='$data[$i]'";
-			$pageResult = $this->_CONN->query($pageSQL);
+			$pageSQL = "SELECT * FROM page WHERE safelink=:safelink";
+			
+			$stmt = $this->_CONN->prepare($pageSQL);
+			$stmt->bindValue(':safelink', $data[$i], PDO::PARAM_STR);
+			$stmt->execute();
+			
+			$pageData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
-				$pageData = mysqli_fetch_assoc($pageResult);
-
-			if(isset($pageData)) {
+			if(is_array($pageData)) {
 				echo "<li class='cms_li_nav' id='nav-$data[$i]'><a href='" . formatLink($this->_LINKFORMAT, $pageData['safeLink'])  . "'>" . $pageData['title'] . "</a></li>";
 			}
 		}

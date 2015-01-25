@@ -21,10 +21,11 @@ class authenticate extends model
 	public function checkIP() {
 		$clientIP = $_SERVER['REMOTE_ADDR'];
 		
-		$authSQL = "SELECT * FROM authenticate WHERE ip = '" . $clientIP . "' ORDER BY attemptTime DESC";
-		$authResult = $this->conn->query($authSQL);
-		
-		$attempts = mysqli_num_rows($authResult);
+		$authSQL = "SELECT * FROM authenticate WHERE ip = :ip ORDER BY attemptTime DESC";
+		$stmt = $this->conn->prepare($authSQL);
+		$stmt->bindValue(':ip', $clientIP, PDO::PARAM_STR);
+		$authResult = $stmt->execute();
+		$attempts = $stmt->rowCount();
 
 		//How much to multiply the time to wait based on the failed attempts
 		$multiplier = 1;
@@ -39,10 +40,13 @@ class authenticate extends model
 		else if($attempts >= 5)
 			$multiplier = 5;
 
+		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		
 		//Penalty after 4 bad login attempts
 		if($attempts > 3) {
-			$lastAttempt = mysqli_fetch_assoc($authResult);
-			$lastTime = $lastAttempt['auth_time'];
+			$data = $authResult->fetch(PDO::FETCH_ASSOC);
+			$lastAttempt = $data[0];
+			$lastTime = $data['auth_time'];
 			$currentTime = time();
 			
 			//If the last time is more than a minute old, let the authentication go through as 0 minutes waiting
@@ -52,12 +56,9 @@ class authenticate extends model
 				//Return the number of minutes you need to wait
 				return $multiplier;
 			}
-			
 		} else {
 			return 0;
 		}
-		
-		
 	}
 	
 	/**
@@ -76,9 +77,12 @@ class authenticate extends model
 	 * Clears all the  failed login attempts in the database
 	*/
 	public function clearAttempts() {
-		$sql = "DELETE FROM authenticate WHERE ip='" . $_SERVER['REMOTE_ADDR'] . "';";
+		$sql = "DELETE FROM authenticate WHERE ip=:ip;";
+
+		$stmt = $this->conn->prepare($sql);
+		$stmt->bindValue(':ip', $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
 		
-		$result = $this->conn->query($sql) OR DIE ("Could not clear authentication table!");
+		$stmt->execute() OR DIE ("Could not clear authentication table!");
 	}
 	
 	
@@ -102,20 +106,27 @@ class authenticate extends model
 	public function authUser($post, $token) {
 		//Check to see if any login info was posted or if a token exists
 		if((($token!=null) || (isset($post['login_username']) && isset($post['login_password']))) && countRecords($this->conn,"account") > 0) {
+			$isToken = false;
 			if(isset($post['login_username']) && isset($post['login_password'])) {
-				$secPass = encrypt(clean($this->conn,$post['login_password']), get_userSalt($this->conn, clean($this->conn, $post['login_username'])));
-
-				$userSQL = "SELECT * FROM account WHERE loginname='" . clean($this->conn,$post['login_username']) . "' AND password='$secPass';";
+				$secPass = encrypt($post['login_password'], get_userSalt($this->conn, $post['login_username']));
+				$userSQL = "SELECT * FROM account WHERE loginname=:loginname AND password=:password;";
 			} else {
-				$userSQL = "SELECT * FROM account WHERE token='$token';";
+				$userSQL = "SELECT * FROM account WHERE token=:token;";
+				$isToken = true;
 			}
-
-			$userResult = $this->conn->query($userSQL);
-
+			$stmt = $this->conn->prepare($userSQL);
+			
+			if(!$isToken) {
+				$stmt->bindValue(':loginname', $post['login_username'], PDO::PARAM_STR);
+				$stmt->bindValue(':password', $secPass, PDO::PARAM_STR);
+			} else {
+				$stmt->bindValue(':token', $token, PDO::PARAM_STR);
+			}
+				
+			$userResult = $stmt->execute();
+			$userData = $stmt->fetch(PDO::FETCH_ASSOC);
 			//Test to see if the auth was successful
-			if ($userResult !== false && mysqli_num_rows($userResult) > 0 ) {
-				$userData = mysqli_fetch_assoc($userResult);
-
+			if (is_array($userData)) {
 				$user = new account($this->conn, $this->log);
 
 				//Set the user data
@@ -126,8 +137,13 @@ class authenticate extends model
 					
 				$newToken = hash('sha256', (unique_salt() . $user->getLoginname()));
 
-				$tokenSQL = "UPDATE account SET token = '$newToken' WHERE id=" . $user->getId() . ";";
-				$tokenResult = $this->conn->query($tokenSQL) OR DIE ("Could not update account!");
+				$tokenSQL = "UPDATE account SET token = :token WHERE id=:id;";
+				
+				$stmt = $this->conn->prepare($tokenSQL);
+				$stmt->bindValue(':token', $newToken, PDO::PARAM_STR);
+				$stmt->bindValue(':id', $user->getId(), PDO::PARAM_INT);
+				$tokenResult = $stmt->execute() OR DIE ("Could not update account!");
+
 				if(!$tokenResult) {
 					echo "<span class='update_notice'>Failed to update login token!</span><br /><br />";
 				}

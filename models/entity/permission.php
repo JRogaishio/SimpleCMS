@@ -24,14 +24,14 @@ class permission extends model
 	 * @param params The form post values
 	 */
 	public function storeFormValues ($params) {	
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['id'])) $this->setId(clean($this->conn, $params['id']));
-		if(isset($params['groupId'])) $this->setGroupId(clean($this->conn, $params['groupId']));
-		if(isset($params['model'])) $this->setModel(clean($this->conn, $params['model']));
-		(isset($params['read'])) ? $this->setReadAction(clean($this->conn, $params['read'])) : $this->setReadAction(0);
-		(isset($params['insert'])) ? $this->setInsertAction(clean($this->conn, $params['insert'])) : $this->setInsertAction(0);
-		(isset($params['update'])) ? $this->setUpdateAction(clean($this->conn, $params['update'])) : $this->setUpdateAction(0);
-		(isset($params['delete'])) ? $this->setDeleteAction(clean($this->conn, $params['delete'])) : $this->setDeleteAction(0);
+		// Store all the parameters. phpORM uses PDO parameter strings to handle injection
+		if(isset($params['id'])) $this->setId($params['id']);
+		if(isset($params['groupId'])) $this->setGroupId($params['groupId']);
+		if(isset($params['model'])) $this->setModel($params['model']);
+		(isset($params['read'])) ? $this->setReadAction($params['read']) : $this->setReadAction(0);
+		(isset($params['insert'])) ? $this->setInsertAction($params['insert']) : $this->setInsertAction(0);
+		(isset($params['update'])) ? $this->setUpdateAction($params['update']) : $this->setUpdateAction(0);
+		(isset($params['delete'])) ? $this->setDeleteAction($params['delete']) : $this->setDeleteAction(0);
 	}
 
 	/**
@@ -66,8 +66,12 @@ class permission extends model
 	 * @return returns the database result on the delete query
 	 */
 	public function delete() {
-		$permissionSQL = "DELETE FROM " . $this->table . " WHERE groupId=" . $this->getGroupId();
-		$permissionResult = $this->conn->query($permissionSQL);
+		$permissionSQL = "DELETE FROM " . $this->table . " WHERE groupId=:groupId";
+		
+		$stmt = $this->conn->prepare($permissionSQL);
+		$stmt->bindValue(':groupId', $this->getGroupId(), PDO::PARAM_INT);
+		$permissionResult = $stmt->execute();
+
 		return $permissionResult;
 	}
 	
@@ -79,22 +83,21 @@ class permission extends model
 	public function loadRecord($groupId, $c=null) {		
 		if(isset($groupId) && $groupId != null && isset($this->model) && $this->model != null) {
 			
-			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE groupId=$groupId AND model='" . $this->getModel() . "'";
+			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE groupId=:groupId AND model=:model";
 				
-			$permissionResult = $this->conn->query($permissionSQL);
+			$stmt = $this->conn->prepare($permissionSQL);
+			$stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+			$stmt->bindValue(':model', $this->getModel(), PDO::PARAM_STR);
+			$stmt->execute();
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-			if ($permissionResult !== false && mysqli_num_rows($permissionResult) > 0 )
-				$row = mysqli_fetch_assoc($permissionResult);
-
-			if(isset($row)) {
+			if(is_array($row)) {
 				$this->load($row['id']);
 				
 				//Set a field to use by the logger
 				$this->logField = $this->getId();
 			}
-			
 		}
-	
 	}
 	
 	/**

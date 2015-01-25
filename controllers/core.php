@@ -132,9 +132,9 @@ class core {
 	}
 	
 	/**
-	 * Returns the MySQLi connection object
+	 * Returns the PDO connection object
 	 *
-	 * @return Returns the MySQLi connection object
+	 * @return Returns the PDO connection object
 	 *
 	 */
 	public function get_CONN() {
@@ -200,14 +200,14 @@ class core {
 	 * @param $context		The controller that called this function
 	 */
 	public function loadPlugins($context) {
+		$sql = "SELECT * FROM plugin ORDER BY created DESC";
 		
-		$sql = "SELECT * FROM plugins ORDER BY plugin_created DESC";
-		$result = $this->_CONN->query($sql);
-		
-		if ($result !== false && mysqli_num_rows($result) > 0 ) {
-			while($row = mysqli_fetch_assoc($result) ) {
-		
-				
+		$stmt = $this->_CONN->prepare($sql);
+		$stmt->execute();
+
+		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		if (is_array($data)) {
+			foreach ($data as $row) {
 				$file = stripslashes($row['plugin_file']);
 				$path = stripslashes($row['plugin_path']);
 				$className = substr($file, 0, strpos($file, ".php"));
@@ -288,16 +288,16 @@ class core {
 	 *
 	 */
 	public function connect($connType = null) {
-	
-		$this->_CONN = new mysqli(DB_HOST,DB_USERNAME,DB_PASSWORD) or die("Could not connect. " . mysqli_error());
-	
+		$db = new PDO("mysql:host=" . DB_HOST, DB_USERNAME, DB_PASSWORD);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		
 		//Create the database if it doesn't exist
-		$dbCreate = "CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "`;";
-		$this->_CONN->query($dbCreate) OR DIE ("Could not build database!");
-	
-		//Connect to our shiney new database
-		$this->_CONN->select_db(DB_NAME) or die("Could not select database. " . mysqli_error());
-	
+		$db->query("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "`;") or die ("Could not build database!");
+		//Use our shiney new database
+		$db->query("USE " . DB_NAME . ";") or die("Could not select database.");	
+		
+		$this->_CONN = $db;
+
 		//Attempt to build the DB if you aren't authenticated and we are on the admin page
 		if(!isset($_COOKIE['token']) && $connType == "admin") {
 			$this->buildDB();

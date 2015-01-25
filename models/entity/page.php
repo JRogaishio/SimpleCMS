@@ -46,15 +46,14 @@ class page extends model
 	 * @param params The form post values
 	 */
 	public function storeFormValues ($params) {
-		//Set the data to variables if the post data is set
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['id'])) $this->setId(clean($this->conn, $params['id']));
-		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
-		if(isset($params['template'])) $this->setTemplateId(clean($this->conn, $params['template']));
-		if(isset($params['safelink'])) $this->setSafeLink(clean($this->conn, $params['safelink']));
-		if(isset($params['metadata'])) $this->setMetaData(clean($this->conn, $params['metadata']));
-		if(isset($params['flags'])) $this->setFlags(clean($this->conn, $params['flags']));
-		if(isset($params['homepage'])) $this->setIsHome(clean($this->conn, $params['homepage']));
+		// Store all the parameters. phpORM uses PDO parameter strings to handle injection
+		if(isset($params['id'])) $this->setId($params['id']);
+		if(isset($params['title'])) $this->setTitle($params['title']);
+		if(isset($params['template'])) $this->setTemplateId($params['template']);
+		if(isset($params['safelink'])) $this->setSafeLink($params['safelink']);
+		if(isset($params['metadata'])) $this->setMetaData($params['metadata']);
+		if(isset($params['flags'])) $this->setFlags($params['flags']);
+		if(isset($params['homepage'])) $this->setIsHome($params['homepage']);
 	}
 
 	/**
@@ -102,9 +101,12 @@ class page extends model
 	 */
 	protected function preDelete() {
 		$ret = false;
-		$postSQL = "DELETE FROM post WHERE pageId=" . $this->getId();
-		$ret = $this->conn->query($postSQL);
+		$postSQL = "DELETE FROM post WHERE pageId=:pageId";
 		
+		$stmt = $this->conn->prepare($postSQL);
+		$stmt->bindValue(':pageId', $this->getId(), PDO::PARAM_INT);
+		$ret = $stmt->execute();
+
 		return $ret;
 	}
 	
@@ -114,17 +116,20 @@ class page extends model
 	public function loadRecord($p=null, $c=null) {
 		if(isset($p) && $p != null) {
 			
-			if($p == "home")
+			if($p == "home") {
 				$pageSQL = "SELECT * FROM " . $this->table . " WHERE isHome=true";
-			else
-				$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=$p";
+				$stmt = $this->conn->prepare($pageSQL);
+			} else {
+				$pageSQL = "SELECT * FROM " . $this->table . " WHERE id=:id";
+				$stmt = $this->conn->prepare($pageSQL);
+				$stmt->bindValue(':id', $p, PDO::PARAM_INT);
+			}
 			
-			$pageResult = $this->conn->query($pageSQL);
+			$stmt->execute();
 
-			if ($pageResult !== false && mysqli_num_rows($pageResult) > 0 )
-				$row = mysqli_fetch_assoc($pageResult);
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-			if(isset($row)) {
+			if(is_array($row)) {
 				$this->load($row['id']);
 
 				//Set a field to use by the logger
@@ -201,7 +206,7 @@ class page extends model
 	 */
 	private function display_pagePosts($pageId) {
 		if($pageId != null) {
-			$postList = $this->loadList(new post($this->conn, $this->log), "created:ASC", array("pageId=$pageId"));
+			$postList = $this->loadArr(new post($this->conn, $this->log), "created:ASC", array("pageId = " . $pageId));
 			$entry_display = "";
 			
 			if (count($postList)) {
@@ -234,7 +239,7 @@ class page extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=page&action=read">Page List</a><br /><br />';
 	
-		$pageList = $this->loadList(new page($this->conn, $this->log), "created:DESC");
+		$pageList = $this->loadArr(new page($this->conn, $this->log), "created:DESC");
 		
 		if (count($pageList)) {
 			foreach($pageList as $page) {

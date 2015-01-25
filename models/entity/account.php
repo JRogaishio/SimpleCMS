@@ -28,13 +28,12 @@ class account extends model
 	 * @param params The form post values
 	 */
 	public function storeFormValues ($params=array()) {
-		// Store all the parameters
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['username'])) $this->setLoginname(clean($this->conn, $params['username']));
-		if(isset($params['password'])) $this->setPassword(clean($this->conn, $params['password']));
-		if(isset($params['password2'])) $this->password2 = clean($this->conn, $params['password2']);
-		if(isset($params['email'])) $this->setEmail(clean($this->conn, $params['email']));
-		if(isset($params['groupId'])) $this->setGroupId(clean($this->conn, $params['groupId']));
+		// Store all the parameters. phpORM uses PDO parameter strings to handle injection
+		if(isset($params['username'])) $this->setLoginname($params['username']);
+		if(isset($params['password'])) $this->setPassword($params['password']);
+		if(isset($params['password2'])) $this->password2 = $params['password2'];
+		if(isset($params['email'])) $this->setEmail($params['email']);
+		if(isset($params['groupId'])) $this->setGroupId($params['groupId']);
 		
 		//Reset the users salt and build the password
 		$salt = unique_salt();
@@ -242,7 +241,7 @@ class account extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=account&action=read">Account List</a><br /><br />';
 	
-		$accountList = $this->loadList(new account($this->conn, $this->log), "created:DESC");
+		$accountList = $this->loadArr(new account($this->conn, $this->log), "created:DESC");
 		
 		if (count($accountList)) {
 			foreach($accountList as $account) {		
@@ -270,25 +269,23 @@ class account extends model
 	public function checkPermission($model, $change) {
 		$ret = false;
 		$permissions = getRecords($this->conn, "permission", array("*"), "model='$model' AND groupId=" . $this->getGroupId(), $order=null);
-
-		if($permissions != false) {
-			$data = mysqli_fetch_assoc($permissions);
-
+		if(is_array($permissions)) {
 			switch($change) {
 				case "read":
-					$ret = ($data['readAction'] == 1 ? true : false);
+					$ret = ($permissions['readAction'] == 1 ? true : false);
 					break;
 				case "insert":
-					$ret = ($data['insertAction'] == 1 ? true : false);
+					$ret = ($permissions['insertAction'] == 1 ? true : false);
 					break;
 				case "update":
-					$ret = ($data['updateAction'] == 1 ? true : false);
+					$ret = ($permissions['updateAction'] == 1 ? true : false);
 					break;
 				case "delete":
-					$ret = ($data['deleteAction'] == 1 ? true : false);
+					$ret = ($permissions['deleteAction'] == 1 ? true : false);
 					break;
 			}
 		}
+		
 		
 		return $ret;
 	}

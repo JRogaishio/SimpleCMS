@@ -17,11 +17,15 @@ class keyService extends service
 	 * @return Returns the key value if found otherwise null
 	 */
 	public function getValue($key) {
-		$sql = "SELECT * FROM customkey WHERE keyItem='$key';";
-		$result =  $this->conn->query($sql);
-	
-		if ($result !== false && mysqli_num_rows($result) > 0 ) {
-			$data = mysqli_fetch_assoc($result);
+		$sql = "SELECT * FROM customkey WHERE keyItem=:keyItem;";
+		
+		$stmt = $this->_CONN->prepare($sql);
+		$stmt->bindValue(':keyItem', $key, PDO::PARAM_STR);
+		$stmt->execute();
+		
+		$data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		if (is_array($data)) {
 			return $data['keyValue'];
 		} else {
 			return null;

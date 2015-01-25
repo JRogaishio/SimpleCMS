@@ -33,23 +33,20 @@ class uploader extends model
     	
     	switch($action) {
     		case "delete":
-	    		$fileData = getRecords($this->conn, "uploader", array("*"), "id=$parent");
-	    		
+	    		$result = $this->load($parent);
+
 	    		//If the file exists, delete it
-	    		if($fileData != false) {
-		    		$data = mysqli_fetch_assoc($fileData);
-		
-		    		if(file_exists("custom/uploads//" . $data["filename"])) {
-		    			unlink("custom/uploads/" . $data["filename"]);
+	    		if($result) {		
+		    		if(file_exists("custom/uploads//" . $this->getFilename())) {
+		    			unlink("custom/uploads/" . $this->getFilename());
 		    		} else {
 		    			echo "Could not find file on server. Removing record...<br />";
 		    		}
 		    		
-		    		$this->load($parent);
 		    		$this->delete();
 
 		    		echo "File deleted successfully.<br /><br />";
-		    		$this->log->trackChange("uploader", 'delete',$user->getId(),$user->getLoginname(), "Deleted file: " . $data["filename"]);
+		    		$this->log->trackChange("uploader", 'delete',$user->getId(),$user->getLoginname(), "Deleted file: " . $this->getFilename());
 	    		} else {
 	    			echo "Could not delete file. Reason: Could not find file in database with ID: $parent!<br /><br />";
 	    		}
@@ -62,24 +59,31 @@ class uploader extends model
 			    	}
 			    	else {
 			    		$name = $_FILES["file"]["name"];
+			    		$extension = pathinfo($name, PATHINFO_EXTENSION);
+			    		$whitelist = array("jpg","jpeg","gif","png","bmp","pdf","zip","rar","rtf","doc","docx","xls","xlsx");
+			    		$isAllowed = in_array($extension, $whitelist);
 			    		
-			    		if ( !is_dir( 'custom/uploads/' ) ) mkdir ('custom/uploads/', 0777, true);
-
-			    		if (file_exists("custom/uploads/" . $name)) {
-			    			$name = $this->nextName($_FILES["file"]["name"]);
-			    		}
-
-		    			move_uploaded_file($_FILES["file"]["tmp_name"], "custom/uploads/" . $name);
-		    			echo "File uploaded successfully!<br /><br />";
+			    		if($isAllowed) {
+				    		if ( !is_dir( 'custom/uploads/' ) ) mkdir ('custom/uploads/', 0777, true);
 	
-		    			$this->setFilename($name);
-						$this->setFileType($_FILES["file"]["type"]);
-						$this->setFileSize($_FILES["file"]["size"]);
-						$this->setFileDate(date('Y-m-d H:i:s'));
-						$this->setCreated(time());
-						$this->save();
-
-		    			$this->log->trackChange("uploader", 'upload',$user->getId(),$user->getLoginname(), "Uploaded file: " . $name);
+				    		if (file_exists("custom/uploads/" . $name)) {
+				    			$name = $this->nextName($_FILES["file"]["name"]);
+				    		}
+	
+			    			move_uploaded_file($_FILES["file"]["tmp_name"], "custom/uploads/" . $name);
+			    			echo "File uploaded successfully!<br /><br />";
+		
+			    			$this->setFilename($name);
+							$this->setFileType($_FILES["file"]["type"]);
+							$this->setFileSize($_FILES["file"]["size"]);
+							$this->setFileDate(date('Y-m-d H:i:s'));
+							$this->setCreated(time());
+							$this->save();
+	
+			    			$this->log->trackChange("uploader", 'upload',$user->getId(),$user->getLoginname(), "Uploaded file: " . $name);
+			    		} else {
+			    			echo "Invalid file type uploaded. Only file types of (" . implode(',', $whitelist) . ") are allowed.<br /><br />";
+			    		}
 			    	}
     			}
 		    	break;
@@ -123,34 +127,27 @@ class uploader extends model
      *
      */
     public function displayModelList() {
-    	$fileData = getRecords($this->conn, "uploader", array("*"));
-    
+    	$fileData = $this->loadArr(new uploader($this->conn, $this->log), "created:DESC");
     	echo "<div class=\"upload\">";
     
-    	if($fileData != false) {
+    	if(is_array($fileData)) {
     		echo "<table class='table table-bordered'>
 			<tr><th>Thumb</th><th>Filename</th><th>Type</th><th>Size</th><th>Added</th><th>Link to file</th><th>Manage</th></tr>";
     			
-    		while($row = mysqli_fetch_assoc($fileData) ) {
-    			$id = stripslashes($row['id']);
-    			$name = stripslashes($row['filename']);
-    			$type = stripslashes($row['fileType']);
-    			$size = stripslashes($row['fileSize']);
-    			$date = stripslashes($row['fileDate']);
-    
+    		foreach($fileData as $file) {    
     			//Format size to MB
-    			$size = round(($size / 1024 / 1024), 2);
+    			$size = round(($file->getFileSize() / 1024 / 1024), 2);
         
     			echo "
 				<tr><td>";
-    			echo (strpos($type, "image/") !== false ? "<img src='custom/uploads/$name' height='40' width='40' />" : "" );
+    			echo (strpos($file->getFileType(), "image/") !== false ? "<img src='custom/uploads/" . $file->getFilename() . "' height='40' width='40' />" : "" );
     			echo "</td>
-    			<td>$name</td>
-    			<td>$type</td>
-    			<td>$size (MB)</td>
-    			<td>$date</td>
-    			<td><a href='" . SITE_ROOT . "custom/uploads/$name' target='_blank'>Link</a></td>
-    			<td><form action='?type=uploader&action=delete&p=$id' method='post'><input type='submit' value='Delete'></form></td>
+    			<td>" . $file->getFilename() . "</td>
+    			<td>" . $file->getFileType() . "</td>
+    			<td>" . $file->getFileSize() . " (MB)</td>
+    			<td>" . $file->getFileDate() . "</td>
+    			<td><a href='" . SITE_ROOT . "custom/uploads/" . $file->getFilename() . "' target='_blank'>Link</a></td>
+    			<td><form action='?type=uploader&action=delete&p=" . $file->getId() . "' method='post'><input type='submit' value='Delete'></form></td>
     			</tr>";
     		}
     		echo "</table>";

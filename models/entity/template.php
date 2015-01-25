@@ -21,12 +21,10 @@ class template extends model
 	 * @param params The form post values
 	 */
 	public function storeFormValues ($params) {
-		//Set the data to variables if the post data is set
-
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['path'])) $this->setPath(clean($this->conn, $params['path']));
-		if(isset($params['file'])) $this->setFilename(clean($this->conn, $params['file']));
-		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
+		// Store all the parameters. phpORM uses PDO parameter strings to handle injection
+		if(isset($params['path'])) $this->setPath($params['path']);
+		if(isset($params['file'])) $this->setFilename($params['file']);
+		if(isset($params['title'])) $this->setTitle($params['title']);
 	}
 
 	/**
@@ -110,7 +108,7 @@ class template extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=template&action=read">Template List</a><br /><br />';
 	
-		$templateList = $this->loadList(new template($this->conn, $this->log), "created:DESC");
+		$templateList = $this->loadArr(new template($this->conn, $this->log), "created:DESC");
 		
 		if (count($templateList)) {
 			foreach($templateList as $template) {

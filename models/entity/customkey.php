@@ -21,10 +21,8 @@ class customkey extends model
 	 */
 	public function storeFormValues ($params) {
 		//Set the data to variables if the post data is set
-
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['key'])) $this->setKeyItem(clean($this->conn, $params['key']));
-		if(isset($params['value'])) $this->setKeyValue(clean($this->conn, $params['value']));
+		if(isset($params['key'])) $this->setKeyItem($params['key']);
+		if(isset($params['value'])) $this->setKeyValue($params['value']);
 	}
 
 	/**
@@ -97,7 +95,7 @@ class customkey extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=customkey&action=read">Key List</a><br /><br />';
 	
-		$keyList = $this->loadList(new customkey($this->conn, $this->log), "created:DESC");
+		$keyList = $this->loadArr(new customkey($this->conn, $this->log), "created:DESC");
 		
 		if (count($keyList)) {
 			foreach($keyList as $key) {

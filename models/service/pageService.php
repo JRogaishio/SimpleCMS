@@ -18,13 +18,78 @@ class pageService extends service
 	}
 	
 	/**
+	 * Get the post objects related to this page for the front-end
+	 *
+	 * @param postLimit	The max number of posts to display on a single page
+	 * @param childId		The ID of the post to display. This is used for permalinking as well as page scrolling using ~ and the next / back links
+	 *
+	 * @return Returns array of post objects
+	 */
+	public function get_posts($postLimit, $childId=null) {
+		$ret = array();
+		
+		if(isset($this->model) && $this->model->getId() != null) {
+			$tempId = $this->model->getId();
+				
+			if($postLimit == -1) {
+				$postSQL = "SELECT * FROM post WHERE pageId=:pageId ORDER BY created DESC";
+				$stmt = $this->conn->prepare($postSQL);
+				$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);				
+			} else {
+				if(strpos(clean($this->conn,$childId), "~") !== false) {
+					$temp = str_replace("~", "", (clean($this->conn,$childId)));
+					$startPos = $temp;
+	
+					$postSQL = "SELECT * FROM post WHERE pageId=:pageId ORDER BY created DESC LIMIT :startPos, :limit";
+					$stmt = $this->conn->prepare($postSQL);
+					$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);
+					$stmt->bindValue(':startPos', $startPos, PDO::PARAM_INT);
+					$stmt->bindValue(':limit', $postLimit, PDO::PARAM_INT);
+				} else {
+					$postSQL = "SELECT * FROM post WHERE pageId=:pageId " . ($childId != null ? "AND id = :childId" : "") . " ORDER BY created DESC LIMIT :limit";
+					$stmt = $this->conn->prepare($postSQL);
+					$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);
+					if($childId != null)
+						$stmt->bindValue(':childId', $childId, PDO::PARAM_INT);
+						
+					$stmt->bindValue(':limit', $postLimit, PDO::PARAM_INT);
+				}
+			}
+			
+			$stmt->execute();
+			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	
+			if (is_array($data)) {
+				foreach($data as $row) {
+					$postId = stripslashes($row['id']);
+					$post = new post($this->conn, $this->log);
+					$post->load($postId);
+					array_push($ret, $post);
+				}
+			}
+		}
+		
+		return $ret;
+	
+	}
+	
+	/**
+	 * Get the root path of the template files
+	 *
+	 * @return string of the path
+	 */
+	public function getTemplateRoot() {
+		return SITE_ROOT . TEMPLATE_PATH . "/" . $this->model->getTemplatePath();
+	}
+	
+	/**
 	 * Display the posts related to this page for the front-end
 	 * 
 	 * @param postLimit	The max number of posts to display on a single page
 	 * @param showDate		True / False on whether to show the post date under the title
 	 * @param showPerma	True / False on whether to show the permanent link to the post
-	 * @param childId		The ID of the post to display. This is used for permalinking a swell as page scrolling using ~ and the next / back links
-	 * @param parentId		The salfe link of the parent page. This allows you to show posts of a different page
+	 * @param childId		The ID of the post to display. This is used for permalinking as well as page scrolling using ~ and the next / back links
+	 * @param parentId		The safe link of the parent page. This allows you to show posts of a different page
 	 * 
 	 * @return Returns null if no page was set
 	*/
@@ -40,23 +105,39 @@ class pageService extends service
 			}
 			
 			if($postLimit == -1) {
-				$postSQL = "SELECT * FROM post WHERE pageId=$tempId " . ($childId != null ? "AND id = " . clean($this->conn,$childId) : "") . " ORDER BY created DESC";
+				$postSQL = "SELECT * FROM post WHERE pageId=:pageId " . ($childId != null ? "AND id = :childId" : "") . " ORDER BY created DESC";
+				$stmt = $this->conn->prepare($postSQL);
+				$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);
+				if($childId != null)
+					$stmt->bindValue(':childId', $childId, PDO::PARAM_INT);
+			
 			} else {
 				if(strpos(clean($this->conn,$childId), "~") !== false) {
 					$temp = str_replace("~", "", (clean($this->conn,$childId)));
 					$startPos = $temp;
 						
-					$postSQL = "SELECT * FROM post WHERE pageId=$tempId ORDER BY created DESC LIMIT $startPos, $postLimit";
+					$postSQL = "SELECT * FROM post WHERE pageId=:pageId ORDER BY created DESC LIMIT :startPos, :limit";
+					$stmt = $this->conn->prepare($postSQL);
+					$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);
+					$stmt->bindValue(':startPos', $startPos, PDO::PARAM_INT);
+					$stmt->bindValue(':limit', $postLimit, PDO::PARAM_INT);
+					
 				} else {
-					$postSQL = "SELECT * FROM post WHERE pageId=$tempId " . ($childId != null ? "AND id = " . $childId : "") . " ORDER BY created DESC LIMIT $postLimit";
+					$postSQL = "SELECT * FROM post WHERE pageId=:pageId " . ($childId != null ? "AND id = :childId" : "") . " ORDER BY created DESC LIMIT :limit";
+					$stmt = $this->conn->prepare($postSQL);
+					$stmt->bindValue(':pageId', $tempId, PDO::PARAM_INT);
+					if($childId != null)
+						$stmt->bindValue(':childId', $childId, PDO::PARAM_INT);
+					$stmt->bindValue(':limit', $postLimit, PDO::PARAM_INT);
 				}
 			}
 				
-			$postResult = $this->conn->query($postSQL);
+			$stmt->execute();
+			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$entry_display = "";
 				
-			if ($postResult !== false && mysqli_num_rows($postResult) > 0 ) {
-				while($row = mysqli_fetch_assoc($postResult) ) {
+			if (is_array($data)) {
+				foreach($data as $row) {
 					$postId = stripslashes($row['id']);
 					$title = stripslashes($row['title']);
 					$postDate = date(DATEFORMAT . " " . TIMEFORMAT, stripslashes($row['created']));

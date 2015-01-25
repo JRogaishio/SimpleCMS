@@ -67,7 +67,7 @@
  	public function load($id) {
  		$sql = "SELECT * FROM " . $this->table;
  		$primary = "";
- 		
+ 		$params = array();
  		foreach(get_object_vars($this) as $var) {
  			if(is_array($var) && isset($var['orm']) && $var['orm'] == true) {
  				if(isset($var['primary']) && $var['primary'] == true) {
@@ -81,16 +81,20 @@
  		} else if($id == "first") {
  			$sql .= " ORDER BY " . $primary . " ASC LIMIT 1";
  		} else {
- 			$sql .= " WHERE " . $primary . "=" . $id;
+ 			$sql .= " WHERE " . $primary . "=:id";
+ 			$params['id'] = true;
  		}
+
+ 		$stmt = $this->conn->prepare($sql);
+ 		if(isset($params['id']))
+ 			$stmt->bindValue(':id', $id, PDO::PARAM_INT);
  		
- 		$result = $this->conn->query($sql) OR DIE ("Could not load");
- 		
- 		if ($result !== false && mysqli_num_rows($result) > 0 )
- 			$row = mysqli_fetch_assoc($result);
+ 		$result = $stmt->execute();
+
+ 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
  		
  		//Set the loaded SQL data to the object ORM variables
- 		if(isset($row)) {
+ 		if(is_array($row)) {
  			foreach(get_object_vars($this) as $var) {
  				if(is_array($var) && isset($var['orm']) && $var['orm'] == true && is_array($this->$var['field'])) {
  					$fieldValue = $row[$var['field']];
@@ -111,11 +115,11 @@
  	 *
  	 * @param $relatedObject	A blank copy of the related object to clone
  	 * @param $sort				The sort order passed as field:type
- 	 * @param $filters			Any filters sent as an array. Each index should be field=value
+ 	 * @param $filters			Any filters sent as an array. Each filter should be field = value. You MUST have spaces between the comparison
  	 *
  	 * @return Returns true on database search success, else false
  	*/
- 	public function loadList($relatedObject, $sort = null, $filters=array()) {
+ 	public function loadArr($relatedObject, $sort = null, $filters=array()) {
  		$sortString = "";
  		$filterString = "";
  		
@@ -125,9 +129,12 @@
  			else
  				$filterString .=  " AND ";
  			
- 			$filterString .= $filter;
+ 			$params = explode(' ', $filter);
+ 				 			
+ 			//Build the filter field compare :field
+ 			$filterString .= $params[0] . $params[1] . ' :' . $params[0];
  		}
- 		 		
+
  		if(strpos($sort, ":") !== false) {
  			$sortOrder = explode(":", $sort);
  			$sField = $sortOrder[0];
@@ -148,13 +155,30 @@
  				}
  			}
  		}
- 		
- 		$result = $this->conn->query($sql) OR DIE ("Could not load list");
+
+ 		$stmt = $this->conn->prepare($sql);
+ 		foreach($filters as $filter) {
+			$params = explode(' ', $filter);
+			//Get the PHP Array field
+ 			$field = $relatedObject->$params[0];
+ 			//Get the SQL field we want to access
+ 			$sqlField = $params[0];
+ 			//Get the condition value
+ 			$val = $params[2];
+ 			$type = $this->getDataType($field['datatype']);
+			if($type=='str')
+				$stmt->bindValue(':' . $sqlField, $val, PDO::PARAM_STR);
+			else if($type=='int')
+				$stmt->bindValue(':' . $sqlField, $val, PDO::PARAM_INT);
+ 		}
+
+ 		$stmt->execute();
  		$retArr = array();
  		
- 		if ($result !== false && mysqli_num_rows($result) > 0 ) {
- 			while($row = mysqli_fetch_assoc($result) ) {
- 				
+ 		$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+ 		if(is_array($rows)) {
+ 			foreach($rows as $row) {
  				$obj = clone $relatedObject;
  				$obj->load($row[$relPrimary]);
  				array_push($retArr, $obj);
@@ -234,6 +258,8 @@
  		$sql = "";
  		$field = "";
  		$value = "";
+ 		
+ 		//Find the primary key
  		foreach(get_object_vars($this) as $var) {
  			if(is_array($var) && isset($var['orm']) && $var['orm'] == true) {
  				if(isset($var['primary']) && $var['primary'] == true && isset($var['value']) && $var['value'] != "") {
@@ -251,6 +277,7 @@
  			$sql = "INSERT INTO " . $this->table . " ";
  		}
  		
+ 		//Build the assignments
  		foreach(get_object_vars($this) as $var) {
  			if(is_array($var) && isset($var['orm']) && $var['orm'] == true && isset($var['value'])) {
  				//Only build an insert / update for non-primary key fields
@@ -262,47 +289,65 @@
 			 			else if($value == "")
 			 				$value .= " SET ";
 			 			
-			 			$value .=  $var['field'] . "=" . $this->sqlWrap($var['value'], $var['datatype']);
+			 			$value .=  $var['field'] . "= :" . $var['field'];
 			 		} else {
-			 		//Insert since we dont have a key	
-			 			
+			 			//Insert since we dont have a key	
 			 			if($field != "")
 			 				$field .= ", ";
 			 			if($value != "")
 			 				$value .= ", ";
 			 			
 			 			$field .= $var['field'];
-			 			$value .= $this->sqlWrap($var['value'], $var['datatype']);
+			 			$value .= ':' . $var['field'];
 			 		}
  				}
  			}
  		}
  		if($primary != null)
- 			$sql .= $value . " WHERE " . $primary . "=" . $primaryIndex;
+ 			$sql .= $value . " WHERE " . $primary . "= :" . $primary;
  		else 
  			$sql .= "(" . $field . ") VALUES (" . $value . ")";
 
- 		$result = $this->conn->query($sql) OR DIE ("Could not save");
+ 		$stmt = $this->conn->prepare($sql);
+ 		
+ 		//Build the PDO bindings
+ 		foreach(get_object_vars($this) as $var) {
+ 			//Make sure the variable is an ORM var
+ 			if(is_array($var) && isset($var['orm']) && $var['orm'] == true && isset($var['value'])) {
+	 			$type = $this->getDataType($var['datatype']);
+
+				if($type=='str')
+					$stmt->bindValue(':' . $var['field'], $var['value'], PDO::PARAM_STR);
+				else if($type=='int')
+					$stmt->bindValue(':' . $var['field'], $var['value'], PDO::PARAM_INT);
+ 			}
+ 		}
+
+ 		$result = $stmt->execute();
  		
  		return $result;
  	}
- 	
+ 		
  	/**
- 	 * Determines if the datatype needs to be wrapped in single quotes when inserting / updating
+ 	 * Determines if the SQL field is an int or string
  	 * 
- 	 * @param $val	The value needing to be wrapped
  	 * @param $type	The datatype in the database
  	 * 
- 	 * @return Returns the wrapped value if needed
- 	*/
- 	private function sqlWrap($val, $type) {
- 		$wrappedTypes = array("CHAR", "VARCHAR", "TEXT", "TINYTEXT", "DATETIME");
+ 	 * @return datatype of int or str
+ 	 */
+ 	private function getDataType($type) {
+ 		$ret = null;
+ 		$strTypes = array("CHAR", "VARCHAR", "TEXT", "TINYTEXT", "DATETIME");
+ 		$intTypes = array("BIGINT", "DECIMAL", "INT", "MEDIUMINT", "SMALLINT", "TINYINT");
  		
- 		if(in_array(strtoupper($type), $wrappedTypes) == true) {
- 			$val = "'" . $val . "'";
+ 		if(in_array(strtoupper($type), $intTypes) == true) {
+ 			$ret = 'int';
+ 		} else if(in_array(strtoupper($type), $strTypes) == true) {
+ 			$ret = 'str';
+ 		} else {
+ 			$ret = 'str';
  		}
- 		
- 		return $val;
+ 		return $ret;
  	}
  	
  	/**

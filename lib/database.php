@@ -13,16 +13,11 @@ function countRecords($conn, $table_name, $filters = "") {
 	$countSQL = "SELECT * FROM $table_name " . $filters;
 	$countResult = $conn->query($countSQL);
 	
-	//Return false if the tables doesn't exist
-	if(!$countResult) {
-		return false;
-	} else {
-		return mysqli_num_rows($countResult);
-	}
+	return $countResult->rowCount();
 }
 
 /**
- * Sanitizes user input using the mysqli_real_escape_string method
+ * Sanitizes user input. This is used for non DB related items
  * 
  * @param $conn			A database connection object
  * @param $str			The string that needs to be sanitized
@@ -30,7 +25,9 @@ function countRecords($conn, $table_name, $filters = "") {
  * @return returns the sanitized string
  */
 function clean($conn, $str) {
-	$ret = mysqli_real_escape_string($conn, $str);
+	//TO-DO Remove clean and use PDO parameter queries
+   	$ret =  preg_replace('/[^A-Za-z0-9\-\_\@\. ]/', '', $str); // Removes special chars.
+   
 	return $ret;
 }
 
@@ -51,14 +48,23 @@ function searchTable($conn, $search, $table, $col=array()) {
 		if($i>0)
 			$searchCols .= " OR ";
 			
-		$searchCols .= $col[$i] . " LIKE '%" . $search . "%'";
+		$searchCols .= $col[$i] . " LIKE :" . $col[$i] . "";
 	}
 	
 	$searchSQL = "SELECT * FROM $table WHERE $searchCols;";
-	$searchResult = $conn->query($searchSQL);
+	$stmt = $conn->prepare($searchSQL);
+	
+	//Bind the string to each parameter
+	for($i=0;$i<count($col);$i++)
+		$stmt->bindValue(':' . $col[$i], '%' . $search . '%', PDO::PARAM_STR);	
+	
+	
+	$result = $stmt->execute();
 
-	if ($searchResult !== false && mysqli_num_rows($searchResult) > 0 ) {
-		return $searchResult;
+	$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+	if (count($data)) {
+		return $data;
 	} else {
 		return false;
 	}
@@ -91,9 +97,10 @@ function getRecords($conn, $table, $col=array(), $where=null, $order=null) {
 	$sql = "SELECT " . $colList . " FROM $table $whereClause $orderClause;";
 
 	$result = $conn->query($sql);
+	$data = $result->fetch(PDO::FETCH_ASSOC);
 
-	if ($result !== false && mysqli_num_rows($result) > 0 ) {
-		return $result;
+	if (is_array($data)) {
+		return $data;
 	} else {
 		return false;
 	}
@@ -142,12 +149,11 @@ function convertToBit($str) {
 function getLastField($conn, $table_name, $field) {
 	$searchSQL = "SELECT $field FROM $table_name ORDER BY id DESC;";
 	$searchResult = $conn->query($searchSQL);
-
+	$row = $searchResult->fetch(PDO::FETCH_ASSOC);
 	$ret = "";
 	
-	if(mysqli_num_rows($searchResult) > 0) {
-		$searchData = mysqli_fetch_assoc($searchResult);
-		$ret = $searchData[$field];
+	if(is_array($row)) {
+		$ret = $row[$field];
 	}
 	
 	return $ret;

@@ -20,10 +20,9 @@ class site extends model
 	 * @param params The form post values
 	 */
 	public function storeFormValues ($params) {
-		//Set the data to variables if the post data is set
-		//I also want to do a sanitization string here. Go find my clean() function somewhere
-		if(isset($params['title'])) $this->setTitle(clean($this->conn, $params['title']));
-		if(isset($params['urlFormat'])) $this->setUrlFormat(clean($this->conn, $params['urlFormat']));
+		// Store all the parameters. phpORM uses PDO parameter strings to handle injection
+		if(isset($params['title'])) $this->setTitle($params['title']);
+		if(isset($params['urlFormat'])) $this->setUrlFormat($params['urlFormat']);
 	}
 
 	/**
@@ -97,7 +96,7 @@ class site extends model
 	public function displayModelList() {
 		echo '<a href="admin.php">Home</a> > <a href="admin.php?type=site&action=read">Site</a><br /><br />';
 	
-		$siteList = $this->loadList(new site($this->conn, $this->log), "created:DESC");
+		$siteList = $this->loadArr(new site($this->conn, $this->log), "created:DESC");
 		
 		if (count($siteList)) {
 			foreach($siteList as $site) {
