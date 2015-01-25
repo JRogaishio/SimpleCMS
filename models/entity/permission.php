@@ -68,7 +68,7 @@ class permission extends model
 	public function delete() {
 		$permissionSQL = "DELETE FROM " . $this->table . " WHERE groupId=:groupId";
 		
-		$stmt = $this->_CONN->prepare($permissionSQL);
+		$stmt = $this->conn->prepare($permissionSQL);
 		$stmt->bindValue(':groupId', $this->getGroupId(), PDO::PARAM_INT);
 		$permissionResult = $stmt->execute();
 
@@ -85,7 +85,7 @@ class permission extends model
 			
 			$permissionSQL = "SELECT * FROM " . $this->table . " WHERE groupId=:groupId AND model=:model";
 				
-			$stmt = $this->_CONN->prepare($permissionSQL);
+			$stmt = $this->conn->prepare($permissionSQL);
 			$stmt->bindValue(':groupId', $groupId, PDO::PARAM_INT);
 			$stmt->bindValue(':model', $this->getModel(), PDO::PARAM_STR);
 			$stmt->execute();

@@ -103,7 +103,7 @@ class page extends model
 		$ret = false;
 		$postSQL = "DELETE FROM post WHERE pageId=:pageId";
 		
-		$stmt = $this->_CONN->prepare($postSQL);
+		$stmt = $this->conn->prepare($postSQL);
 		$stmt->bindValue(':pageId', $this->getId(), PDO::PARAM_INT);
 		$ret = $stmt->execute();
 
