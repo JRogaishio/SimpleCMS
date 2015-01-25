@@ -19,11 +19,12 @@ class model extends orm {
 	 * @param $dbConn	The property values
 	 * @param $dbLog	The log object used by the system
 	 */
-	public function __construct($dbConn, $dbLog) {
+	public function __construct($dbConn, $dbLog, $surpressLinkCheck=false) {
 		$this->conn = $dbConn;
 		$this->table = get_class($this);
 		$this->log = $dbLog;
-		$this->linkFormat = get_linkFormat($dbConn);
+		if(!$surpressLinkCheck)
+			$this->linkFormat = get_linkFormat($dbConn);
 		$this->logField = null; //Default to the Id by ref incase it changes from a load
 	}
 	

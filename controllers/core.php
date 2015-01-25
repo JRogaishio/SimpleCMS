@@ -241,43 +241,43 @@ class core {
 	 *
 	 */
 	private function buildDB() {
-		$auth = new authenticate($this->_CONN, $this->_LOG);
-		$auth->persist();
-		
-		$page = new page($this->_CONN, $this->_LOG);
-		$page->persist();
-	
-		$post = new post($this->_CONN, $this->_LOG);
-		$post->persist();
-	
-		$template = new template($this->_CONN, $this->_LOG);
-		$template->persist();
-		$template->populate();
-	
-		$permission = new permission($this->_CONN, $this->_LOG);
-		$permission->persist();
-		
-		$permissiongroup = new permissiongroup($this->_CONN, $this->_LOG);
-		$permissiongroup->persist();
-		$permissiongroup->populate();
-
-		$user = new account($this->_CONN, $this->_LOG);
-		$user->persist();
-		
-		$site = new site($this->_CONN, $this->_LOG);
+		$site = new site($this->_CONN, $this->_LOG, true);
 		$site->persist();
 		$site->populate();
 		
-		$customkey = new customkey($this->_CONN, $this->_LOG);
+		$auth = new authenticate($this->_CONN, $this->_LOG, true);
+		$auth->persist();
+		
+		$page = new page($this->_CONN, $this->_LOG, true);
+		$page->persist();
+	
+		$post = new post($this->_CONN, $this->_LOG, true);
+		$post->persist();
+	
+		$template = new template($this->_CONN, $this->_LOG, true);
+		$template->persist();
+		$template->populate();
+	
+		$permission = new permission($this->_CONN, $this->_LOG, true);
+		$permission->persist();
+		
+		$permissiongroup = new permissiongroup($this->_CONN, $this->_LOG, true);
+		$permissiongroup->persist();
+		$permissiongroup->populate();
+
+		$user = new account($this->_CONN, $this->_LOG, true);
+		$user->persist();
+		
+		$customkey = new customkey($this->_CONN, $this->_LOG, true);
 		$customkey->persist();
 	
-		$log = new log($this->_CONN, $this->_LOG);
+		$log = new log($this->_CONN, $this->_LOG, true);
 		$log->persist();
 	
-		$plugin = new plugin($this->_CONN, $this->_LOG);
+		$plugin = new plugin($this->_CONN, $this->_LOG, true);
 		$plugin->persist();
 				
-		$uploader = new uploader($this->_CONN, $this->_LOG);
+		$uploader = new uploader($this->_CONN, $this->_LOG, true);
 		$uploader->persist();
 	}
 	

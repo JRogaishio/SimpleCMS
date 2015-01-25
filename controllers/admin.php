@@ -29,6 +29,8 @@ class admin extends core {
 		//user gets
 		$this->_USERPAGE = isset( $_GET['p'] ) ? clean($this->_CONN,$_GET['p']) : "home";
 		
+		$this->_LINKFORMAT = get_linkFormat($this->_CONN);
+		
 		//Load the system based on the mode (admin / public)
 		if($this->_AUTH) {
 			parent::render("siteTop");
