@@ -5,7 +5,7 @@ ini_set( "display_errors", true );
 //SITE CONFIGURATIONS
 date_default_timezone_set( "America/New_York" );  // http://www.php.net/manual/en/timezones.php
 define( "DB_HOST", "localhost" ); 		//Database host
-define( "DB_NAME", "test_cms" ); 		//Database username
+define( "DB_NAME", "ferret_cms" ); 		//Database username
 define( "DB_USERNAME", "root" ); 		//Database username
 define( "DB_PASSWORD", "password" );	//Database password
 define( "SITE_ROOT", "http://ferretcms.localhost/" ); //This should be http://mywebsite.com/
