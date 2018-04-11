@@ -6,7 +6,7 @@ What is SimpleCMS?
 Glad you asked! SimpleCMS is a simple lightweight content management system using PHP and MySQL.
 
 For updates check out the GitHub repository here:
-https://github.com/JRogaishio/ferretCMS
+https://github.com/JRogaishio/SimpleCMS
 
 Or the creators account here:
 https://github.com/JRogaishio
