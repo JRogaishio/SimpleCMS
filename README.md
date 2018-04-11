@@ -1,9 +1,9 @@
-FerretCMS
+SimpleCMS
 =========
 
-What is FerretCMS?
+What is SimpleCMS?
 --------------
-Glad you asked! FerretCMS is a simple lightweight content management system using PHP and MySQL.
+Glad you asked! SimpleCMS is a simple lightweight content management system using PHP and MySQL.
 
 For updates check out the GitHub repository here:
 https://github.com/JRogaishio/ferretCMS
@@ -11,7 +11,7 @@ https://github.com/JRogaishio/ferretCMS
 Or the creators account here:
 https://github.com/JRogaishio
 
-How do I setup FerretCMS?
+How do I setup SimpleCMS?
 --------------
 Once downloaded, place all files in your webservers root directory.
 Then open up config.php and change the <code>DB_HOST</code>, <code>DB_USERNAME</code>,<code>DB_PASSWORD</code> and <code>SITE_ROOT</code> if necessary.
@@ -26,7 +26,7 @@ Once that setup is complete, visit the admin.php page in your web browser and th
 
 What can this new fangled CMS do?
 --------------
-FerretCMS Includes the below features in no particular order:
+SimpleCMS Includes the below features in no particular order:
 - General website settings management
 - Page management
 -	Post management
@@ -35,7 +35,7 @@ FerretCMS Includes the below features in no particular order:
 
 Cool, anything planned for the future?
 --------------
-You bet! Some planned features for FerretCMS are:
+You bet! Some planned features for SimpleCMS are:
 - Plugin management and implementation
 - User roles
 - Messageboard plugins
